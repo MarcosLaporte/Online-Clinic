@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "la-clinica-111655"
+  },
+  "targets": {
+    "la-clinica-111655": {
+      "hosting": {
+        "LaboIV_TP2_Laporte": [
+          "la-clinica-111655"
+        ]
+      }
+    }
+  }
+}
