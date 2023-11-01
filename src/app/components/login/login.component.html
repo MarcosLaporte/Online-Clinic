@@ -1,0 +1,37 @@
+<div class="main min-vh-100 text-center bg-custom-gradient">
+	<form [formGroup]="loginForm" class="form-signin bg-light bg-opacity-50 rounded" (ngSubmit)="signIn()">
+		<h1 class="h3 mb-3 font-weight-normal">Member Login</h1>
+
+		<input type="email" id="inputEmail" class="form-control" placeholder="Email address" formControlName="email"
+			name="email" required>
+		<div class="bg-danger bg-opacity-50 m-auto w-75"
+			*ngIf="loginForm.controls['email'].errors !== null && loginForm.controls['email'].touched">
+			<small *ngIf="loginForm.controls['email'].errors!['required']">
+				Email is required.
+			</small>
+			<small *ngIf="loginForm.controls['email'].errors!['email']">
+				Email is invalid.
+			</small>
+		</div>
+
+		<input type="password" id="inputPassword" class="form-control mb-0" placeholder="Password" formControlName="password"
+			name="password" required>
+		<div class="bg-danger bg-opacity-50 m-auto w-75"
+			*ngIf="loginForm.controls['password'].errors !== null && loginForm.controls['password'].touched">
+			<small *ngIf="loginForm.controls['password'].errors!['required']">
+				Password is required.
+			</small>
+		</div>
+
+		<button class="btn btn-lg btn-primary btn-block mt-3" [disabled]="loginForm.invalid" type="submit">Sign in</button>
+
+		<ul class="nav justify-content-center">
+			<li class="nav-item">
+				<a class="nav-link active text-decoration-underline" routerLink="/signup">Create your Account</a>
+			</li>
+			<li class="nav-item">
+				<span class="nav-link active text-decoration-underline" (click)="quickFill()" role="button">Quick fill</span>
+			</li>
+		</ul>
+	</form>
+</div>
