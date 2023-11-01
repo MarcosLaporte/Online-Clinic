@@ -1,1 +1,16 @@
+<!-- header section starts -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	<div class="container px-lg-5">
+		<a class="navbar-brand" routerLink="/home">La Clínica</a>
+		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+			<li class="nav-item"><a class="nav-link" routerLink="/home">Home</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="isLogged" routerLink="/departments">Departments</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="isLogged" routerLink="/doctors">Doctors</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="isLogged" routerLink="/account">Account</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="!isLogged" routerLink="/login">Sign In</a></li>
+		</ul>
+	</div>
+</nav>
+<!-- end header section -->
+
 <router-outlet></router-outlet>
