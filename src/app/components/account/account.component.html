@@ -1,0 +1,29 @@
+<div class="main">
+	<header class="py-4">
+		<div class="container px-lg-5">
+			<div *ngIf="user" class="px-4 py-2 px-lg-5 bg-light rounded-3 text-center">
+				<div class="m-0 m-lg-5">
+					<div class="row">
+						<div [class]="user.imgUrl2 !== '' ? 'col-md-6' : 'col-md-12'">
+							<div class="image-div">
+								<img [src]="user.imgUrl1" alt="User_img1">
+							</div>
+						</div>
+						<div *ngIf="user.imgUrl2 !== ''" class="col-md-6">
+							<div class="image-div">
+								<img [src]="user.imgUrl2" alt="User_img2">
+							</div>
+						</div>
+					</div>
+					<div class="usr-data">
+						<h1 class="display-0 fw-bold" id="usr-data-username">{{ user.firstName }} {{ user.lastName }}</h1>
+						<p class="fs-4" id="usr-data-email">{{ user.email }}</p>
+					</div>
+				</div>
+				<div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+					<button class="sign-out-btn fw-semibold" (click)="signOut()">Log Out</button>
+				</div>
+			</div>
+		</div>
+	</header>
+</div>

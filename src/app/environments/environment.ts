@@ -12,6 +12,14 @@ export const environment = {
 	}
 }
 
+export const Toast = Swal.mixin({
+	toast: true,
+	position: 'top-right',
+	iconColor: 'white',
+	showConfirmButton: false,
+	timer: 1500,
+});
+
 export const Loader = Swal.mixin({
 	allowEscapeKey: false,
 	allowOutsideClick: false,

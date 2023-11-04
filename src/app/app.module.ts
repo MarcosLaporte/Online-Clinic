@@ -12,6 +12,8 @@ import { SignupComponent } from './components/signup/signup.component';
 import { environment } from 'src/app/environments/environment';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 import { HomeComponent } from './components/home/home.component';
+import { AccountComponent } from './components/account/account.component';
+import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 
 @NgModule({
 	declarations: [
@@ -19,6 +21,8 @@ import { HomeComponent } from './components/home/home.component';
 		LoginComponent,
 		SignupComponent,
 		HomeComponent,
+		AccountComponent,
+		EmailVerificationComponent,
 	],
 	imports: [
 		BrowserModule,

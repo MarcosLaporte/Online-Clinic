@@ -1,14 +1,19 @@
+import { UpperCasePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { Loader } from 'src/app/environments/environment';
+import { User } from 'src/app/classes/user';
+import { Loader, Toast } from 'src/app/environments/environment';
+import { NoUserLoggedError } from 'src/app/errors/no-user-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { StorageService } from 'src/app/services/storage.service';
 import Swal from 'sweetalert2';
 
+const uppercasePipe = new UpperCasePipe();
 @Component({
 	selector: 'app-signup',
 	templateUrl: './signup.component.html',
@@ -26,20 +31,23 @@ export class SignupComponent {
 
 	constructor(private router: Router, private auth: AuthService, private fb: FormBuilder, private db: DatabaseService, private storage: StorageService) {
 		this.signUpForm = fb.group({
-			roleToggle: [true],
-			firstName: ['',
+			roleRadio: ['patient'],
+			firstName: [
+				'',
 				[
 					Validators.required,
-					Validators.pattern(/^[a-z/A-Z]/),
+					Validators.pattern(/^[a-zA-Z]+$/),
 				]
 			],
-			lastName: ['',
+			lastName: [
+				'',
 				[
 					Validators.required,
-					Validators.pattern(/^[a-z/A-Z]/),
+					Validators.pattern(/^[a-zA-Z]+$/),
 				]
 			],
-			age: [0,
+			age: [
+				0,
 				[
 					Validators.required,
 					Validators.min(0),
@@ -85,9 +93,13 @@ export class SignupComponent {
 	}
 
 	async ngOnInit() {
+		let auxArray = [];
 		Loader.fire();
-		this.healthCarePlans = await this.db.getData<{ id: string, value: string }>('healthCarePlans');
-		this.specialties = await this.db.getData<{ id: string, value: string }>('specialties');
+		auxArray = await this.db.getData<{ id: string, value: string }>('healthCarePlans');
+		this.healthCarePlans = auxArray.sort((h1, h2) => h1.value > h2.value ? 1 : -1);
+
+		auxArray = await this.db.getData<{ id: string, value: string }>('specialties');
+		this.specialties = auxArray.sort((s1, s2) => s1.value > s2.value ? 1 : -1);
 		Loader.close();
 	}
 
@@ -102,7 +114,16 @@ export class SignupComponent {
 	}
 
 	protected roleChange() {
-		this.signUpForm.patchValue({ select: '' });
+		const select = this.signUpForm.get('select');
+		select?.setValue('');
+
+		const role: string = this.signUpForm.get('roleRadio')?.value;
+		if (role === 'admin')
+			select?.clearValidators();
+		else
+			select?.addValidators(Validators.required);
+
+		select?.updateValueAndValidity();
 	}
 
 	protected onSelectionChange(event: Event, formControl: string) {
@@ -111,11 +132,13 @@ export class SignupComponent {
 	}
 
 	imgsUploaded(): boolean {
-		const isPatient = this.signUpForm.get('roleToggle')?.value;
-		if (isPatient)
+		const role = this.signUpForm.get('roleRadio')?.value;
+		if (role === 'patient')
 			return this.imgFile1 instanceof File && this.imgFile2 instanceof File;
-		else
+		else if (role === 'specialist')
 			return this.imgFile1 instanceof File;
+		else
+			return true;
 	}
 
 	imgUpload($event: any) {
@@ -136,60 +159,56 @@ export class SignupComponent {
 	}
 
 	async signUp() {
-		if (!(this.imgFile1 instanceof File)) {
-			Swal.fire('Oops...', `There's been a problem with the image.`, 'error');
-			return;
-		};
-
-		const isPatient: boolean = this.signUpForm.get('roleToggle')?.value;
-
-		const idNo: number = parseInt(this.signUpForm.get('idNo')?.value);
-		const firstName: string = this.signUpForm.get('firstName')?.value;
-		const lastName: string = this.signUpForm.get('lastName')?.value;
-		const age: number = this.signUpForm.get('age')?.value;
-		const email: string = this.signUpForm.get('email')?.value;
-		const password: string = this.signUpForm.get('password')?.value;
-		const selectValue: string = this.signUpForm.get('select')?.value;
-		let imgUrl1: string = '';
-		let imgUrl2: string = '';
-
-		Loader.fire();
 		try {
-			imgUrl1 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}`);
+			if (!(this.imgFile1 instanceof File)) throw new Error(`There's been a problem with the image.`);
+			const role: string = this.signUpForm.get('roleRadio')?.value;
+
+			const idNo: number = parseInt(this.signUpForm.get('idNo')?.value);
+			const firstName: string = uppercasePipe.transform(this.signUpForm.get('firstName')?.value);
+			const lastName: string = uppercasePipe.transform(this.signUpForm.get('lastName')?.value);
+			const age: number = this.signUpForm.get('age')?.value;
+			const email: string = this.signUpForm.get('email')?.value;
+			const password: string = this.signUpForm.get('password')?.value;
+			const selectValue: string = this.signUpForm.get('select')?.value;
+
+			Loader.fire();
+			const imgUrl1 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}`);
+			let user: Patient | Specialist | Admin;
+			if (role === 'patient') {
+				if (!(this.imgFile2 instanceof File)) throw new Error(`There's been a problem with the second image.`);
+				const imgUrl2 = await this.storage.uploadImage(this.imgFile2, `users/${idNo}-2`);
+
+				user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, selectValue);
+			} else if (role === 'specialist') {
+				user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, selectValue, false);
+			} else {
+				user = new Admin('', firstName, lastName, age, idNo, imgUrl1, email, password);
+			}
+			
+			await this.auth.createAccount<typeof user>(user);
+			await this.auth.sendEmailVerif();
+			await this.signIn(email, password);
+			Loader.close();
 		} catch (error: any) {
 			Swal.fire('Oops...', error.message, 'error');
+		}
+	}
+
+	async signIn(email: string, pass: string) {
+		try {
+			await this.auth.signInToFirebase(email, pass);
+			if (!(await this.auth.isUserVerified())) throw new Error("Verify your account!");
+
+			this.router.navigateByUrl('home');
+		} catch (error: any) {
+			Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
+			if (error instanceof NoUserLoggedError)
+				this.router.navigateByUrl('login');
+			else
+				this.router.navigateByUrl('account-verification');
+
 			return;
 		}
-
-		if (isPatient) {
-			if (!(this.imgFile2 instanceof File)) {
-				Swal.fire('Oops...', `There's been a problem with the second image.`, 'error');
-				return;
-			};
-
-			try {
-				imgUrl2 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}-2`);
-			} catch (error: any) {
-				Swal.fire('Oops...', error.message, 'error');
-				return;
-			}
-
-			await this.auth.saveUser<Patient>(new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, selectValue))
-				.catch(async (error) => {
-					Swal.fire('Oops...', error.message, 'error');
-					return;
-				});
-		}
-		else {
-			await this.auth.saveUser<Specialist>(new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, selectValue))
-				.catch(async (error) => {
-					Swal.fire('Oops...', error.message, 'error');
-					return;
-				});
-		}
-
-		this.auth.signIn(email, password);
-		Loader.close();
-		this.router.navigateByUrl('home');
 	}
+
 }

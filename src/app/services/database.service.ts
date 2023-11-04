@@ -31,10 +31,11 @@ export class DatabaseService {
 		
 		try {
 			setDoc(newDoc, {...data});
-			return data.id;
 		} catch (error) {
 			deleteDoc(newDoc);
 			throw new Error('There was a problem uploading the user.', {cause: error});
 		}
+		
+		return data.id;
 	}
 }

@@ -1,0 +1,56 @@
+.cm-4 {
+	margin: 1.5rem !important;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.display-0 {
+	font-size: calc(1.425rem + 2.1vw);
+	font-weight: 300;
+	line-height: 1.2;
+}
+
+@media (min-width: 1200px) {
+	.display-0 {
+		font-size: 3rem;
+	}
+}
+
+.feature {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 3rem;
+	width: 8rem;
+	font-size: 1.5rem;
+}
+
+.image-div {
+	display: inline-block;
+	align-items: center;
+	justify-self: center;
+	width: 300px;
+	height: 300px;
+	border-radius: 50%;
+	overflow: hidden;
+	border-color: #231F20;
+	border-style: solid;
+	border-width: 10px;
+}
+
+.image-div img {
+	width: 100%;
+	height: auto;
+	display: block !important;
+}
+
+.usr-data .fs-4{
+	margin: 0;
+}
+
+.sign-out-btn {
+	background: transparent;
+	border: none;
+}

@@ -1,77 +1,58 @@
 import { Injectable } from '@angular/core';
-import { UserCredential, createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from '@angular/fire/auth';
-import { BehaviorSubject } from 'rxjs';
+import { Auth, User as FireUser, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from '@angular/fire/auth';
 import { User } from '../classes/user';
 import { DatabaseService } from './database.service';
+import { NoUserLoggedError } from '../errors/no-user-logged-error';
+import { Specialist } from '../classes/specialist';
 const userPath = 'users';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class AuthService {
-	//#region Subjects & Observables
-	private _isLoggedSub = new BehaviorSubject<boolean>(false);
-	public isLoggedObs = this._isLoggedSub.asObservable();
-	public get isLogged() {
-		return this._isLoggedSub.getValue();
-	}
-	public set isLogged(value: boolean) {
-		this._isLoggedSub.next(value);
-	}
+	constructor(private auth: Auth, private db: DatabaseService) { }
 
-	private _isAdminSub = new BehaviorSubject<boolean>(false);
-	public isAdminObs = this._isAdminSub.asObservable();
-	public get isAdmin() {
-		return this._isAdminSub.getValue();
-	}
-	public set isAdmin(value: boolean) {
-		this._isAdminSub.next(value);
+	/* async getCurrentFireUser() {
+		await this.auth.currentUser?.reload();
+		return this.auth.currentUser;
+	} */
+
+	async getLoggedUser(): Promise<User | null> {
+		// const user = await this.getCurrentFireUser().then((user) => { return user });
+		if (this.auth.currentUser && this.auth.currentUser.email) {
+			return this.searchUserByEmail(this.auth.currentUser.email)
+				.then((user) => { return user });
+		}
+
+		return null;
 	}
 
-	private _loggedUserSub = new BehaviorSubject<User | undefined>(undefined);
-	public loggedUserObs = this._loggedUserSub.asObservable();
-	public get loggedUser() {
-		return this._loggedUserSub.getValue();
-	}
-	public set loggedUser(value: User | undefined) {
-		if (value !== undefined)
-			sessionStorage.setItem('loggedUser', JSON.stringify(value));
-		else
-			sessionStorage.removeItem('loggedUser');
+	async createAccount<T extends User>(user: T): Promise<UserCredential> {
+		try {
+			const index = await this.idNoIndex(user.idNo);
+			if (index !== -1) throw new Error('This ID is already registered.');
 
-		this._loggedUserSub.next(value);
-	}
-	//#endregion
+			const userCredential = await createUserWithEmailAndPassword(this.auth, user.email, user.password);
+			await this.db.addDataAutoId(userPath, user);
 
-	constructor(private db: DatabaseService) {
-		this.loggedUser = this.getUserInSession();
-		this.isLogged = this.loggedUser !== undefined;
-		this.isAdmin = false;
+			return userCredential;
+		} catch (error: any) {
+			if (error.code === 'auth/email-already-in-use') {
+				throw new Error('This email address is already registered.');
+			} else {
+				throw error;
+			}
+		}
 	}
 
-	private getUserInSession(): User | undefined {
-		const ss = sessionStorage.getItem('loggedUser');
-		if (ss !== null)
-			return JSON.parse(ss) as User;
-
-		return undefined;
-	}
-
-	logOutFromSession() {
-		this.isLogged = false;
-		this.loggedUser = undefined;
-		this.isAdmin = false;
-	}
-
-	async signIn(email: string, pass: string) {
-		const fireAuth = getAuth();
-
-		return signInWithEmailAndPassword(fireAuth, email, pass)
+	async signInToFirebase(email: string, pass: string) {
+		return signInWithEmailAndPassword(this.auth, email, pass)
 			.then(async (userCredential) => {
 				const user = await this.searchUserByEmail(email);
+				if (user.role == 'specialist' && !(user as Specialist).approved)
+					throw new Error('Your account has not been approved yet.');
+
 				this.db.addData('logs', { email: email, role: user.role, log: new Date() });
-				this.isLogged = true;
-				this.loggedUser = user;
 				return userCredential;
 			})
 			.catch((error) => {
@@ -83,8 +64,29 @@ export class AuthService {
 			});
 	}
 
-	private async searchUserByEmail(email: string): Promise<User> {
-		const arrayUsers = await this.db.getData<User>(userPath);
+	signOut() {
+		if (this.auth.currentUser === null) throw new NoUserLoggedError("No user logged in.");
+
+		return this.auth.signOut();
+	}
+
+	sendEmailVerif() {
+		const user = this.auth.currentUser;
+		if (user === null) throw new NoUserLoggedError("No user logged in.");
+
+		return sendEmailVerification(user);
+	}
+
+	async isUserVerified(): Promise<boolean> {
+		await this.auth.currentUser?.reload();
+		const emailVerified = this.auth.currentUser?.emailVerified;
+		if (emailVerified === undefined) throw new NoUserLoggedError("No user logged in.");
+
+		return emailVerified;
+	}
+
+	async searchUserByEmail<T extends User>(email: string): Promise<T> {
+		const arrayUsers = await this.db.getData<T>(userPath);
 		const index = await this.emailIndex(email);
 		if (index === -1) throw new Error('This email address is not registered.');
 
@@ -100,25 +102,4 @@ export class AuthService {
 		const arrayUsers = await this.db.getData<User>(userPath);
 		return arrayUsers.findIndex((u) => u.email === email);
 	}
-
-	async saveUser<T extends User>(user: T): Promise<UserCredential> {
-		const fireAuth = getAuth();
-		this.idNoIndex(user.idNo).then((index) => {
-			if (index !== -1) throw new Error('This ID is already registered.');
-		})
-
-		return createUserWithEmailAndPassword(fireAuth, user.email, user.password)
-			.then((userCredential) => {
-				this.db.addDataAutoId(userPath, user);
-				return userCredential;
-			})
-			.catch((error) => {
-				if (error.code === 'auth/email-already-in-use') {
-					throw new Error('This email address is already registered.');
-				} else {
-					throw error;
-				}
-			});
-	}
-
 }

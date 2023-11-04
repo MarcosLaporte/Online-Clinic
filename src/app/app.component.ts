@@ -1,28 +1,27 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { getAuth } from 'firebase/auth';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+	selector: 'app-root',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.css'],
 	encapsulation: ViewEncapsulation.None
 })
 export class AppComponent {
-  title = 'LaboIV_TP2_Laporte';
+	title = 'LaboIV_TP2_Laporte';
 	protected isLogged: boolean = false;
 	protected isAdmin: boolean = false;
 
 	constructor(private router: Router, private auth: AuthService) { }
 
 	ngOnInit() {
-		this.auth.isLoggedObs.subscribe(logged => {
-			this.isLogged = logged;
+		const fireAuth = getAuth();
+		fireAuth.onAuthStateChanged(async fireUser => {
+			this.isLogged = fireUser !== null;
+			const user = await this.auth.getLoggedUser();
+			this.isAdmin = user?.role === 'admin';
 		});
-		this.auth.isAdminObs.subscribe(admin => {
-			this.isAdmin = admin;
-		});
-
-		this.router.navigateByUrl(this.isLogged ? 'home' : 'login');
 	}
 }
