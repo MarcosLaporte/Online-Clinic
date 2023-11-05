@@ -11,17 +11,12 @@ import { getAuth } from 'firebase/auth';
 })
 export class AppComponent {
 	title = 'LaboIV_TP2_Laporte';
-	protected isLogged: boolean = false;
-	protected isAdmin: boolean = false;
 
-	constructor(private router: Router, private auth: AuthService) { }
-
-	ngOnInit() {
-		const fireAuth = getAuth();
-		fireAuth.onAuthStateChanged(async fireUser => {
-			this.isLogged = fireUser !== null;
-			const user = await this.auth.getLoggedUser();
-			this.isAdmin = user?.role === 'admin';
-		});
+	constructor(private router: Router, private auth: AuthService) {
+		this.router.navigateByUrl(auth.RespectiveUrl);
+	}
+	
+	isAdmin() {
+		return this.auth.LoggedUser?.role === 'admin';
 	}
 }

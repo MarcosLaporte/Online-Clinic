@@ -14,6 +14,8 @@ import { getStorage, provideStorage } from '@angular/fire/storage';
 import { HomeComponent } from './components/home/home.component';
 import { AccountComponent } from './components/account/account.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
+import { SpecialistNotEnabledComponent } from './components/specialist-not-enabled/specialist-not-enabled.component';
+import { UserListComponent } from './components/user-list/user-list.component';
 
 @NgModule({
 	declarations: [
@@ -23,6 +25,8 @@ import { EmailVerificationComponent } from './components/email-verification/emai
 		HomeComponent,
 		AccountComponent,
 		EmailVerificationComponent,
+		SpecialistNotEnabledComponent,
+		UserListComponent,
 	],
 	imports: [
 		BrowserModule,

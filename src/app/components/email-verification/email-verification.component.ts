@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Toast } from 'src/app/environments/environment';
+import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -13,15 +14,31 @@ export class EmailVerificationComponent {
 
 	checkVerify() {
 		this.auth.isUserVerified()
-			.then((userVerified) => {
-				if (!userVerified)
-					Toast.fire({ icon: 'error', title: 'Oops...', text: 'Verify your account!', background: '#f27474' });
+			.then(async userVerified => {
+				if (userVerified){
+					const url = await this.auth.getRespectiveUserUrl();
+					this.router.navigateByUrl(url);
+				}
 				else
-					this.router.navigateByUrl('home');
+					Toast.fire({ icon: 'error', title: 'Oops...', text: 'Verify your account!', background: '#f27474' });
 			});
 	}
 
 	newVerify() {
 		this.auth.sendEmailVerif();
+	}
+
+	signOut() {
+		this.auth.signOut()
+			.then(() => {
+				Toast.fire({ icon: 'success', title: 'Signed out!', background: '#a5dc86' });
+				this.router.navigateByUrl('login');
+			})
+			.catch((error: any) => {
+				if (error instanceof NotLoggedError)
+					Toast.fire({ icon: 'warning', title: 'Oops...', text: error.message, background: '#3fc3ee' });
+				else
+					Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
+			});
 	}
 }

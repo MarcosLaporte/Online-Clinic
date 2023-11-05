@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, addDoc, collection, doc, getDocs, setDoc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, addDoc, collection, doc, getDocs, setDoc, deleteDoc, updateDoc } from '@angular/fire/firestore';
 @Injectable({
 	providedIn: 'root'
 })
@@ -28,14 +28,21 @@ export class DatabaseService {
 		const col = collection(this.firestore, dbPath);
 		const newDoc = doc(col);
 		data.id = newDoc.id;
-		
+
 		try {
-			setDoc(newDoc, {...data});
+			setDoc(newDoc, { ...data });
 		} catch (error) {
 			deleteDoc(newDoc);
-			throw new Error('There was a problem uploading the user.', {cause: error});
+			throw new Error('There was a problem uploading the user.', { cause: error });
 		}
-		
+
 		return data.id;
+	}
+
+	updateDoc(dbPath: string, docId: string, data: any) {
+		const col = collection(this.firestore, dbPath);
+		const docRef = doc(col);
+
+		return updateDoc(docRef, { ...data });
 	}
 }

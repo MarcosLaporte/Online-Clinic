@@ -1,0 +1,45 @@
+<h2 class="text-center mt-5">Users</h2>
+<div class="container d-flex justify-content-center">
+	<table class="table table-striped align-middle mb-0 bg-white table-hover w-75">
+		<thead class="bg-light">
+			<tr>
+				<th>User</th>
+				<th class="text-center">Role</th>
+				<th class="text-center">Pers. ID</th>
+				<th class="text-center">Spec</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let user of users">
+				<td class="col-md-2">
+					<div class="d-flex align-items-center">
+						<div class="ms-3">
+							<p class="fw-bold mb-0">{{user.firstName}} {{user.lastName}}, {{user.age}} yo</p>
+							<p class="text-muted mb-0">{{user.email}}</p>
+						</div>
+					</div>
+				</td>
+				<td class="col-md-1 text-center">
+					<div class="ms-3">
+						<span class="badge rounded-pill"
+							[class]="user.role == 'admin' ? 'bg-success' : user.role == 'patient' ? 'bg-danger' : 'bg-warning'">
+							{{user.role | uppercase}}</span>
+					</div>
+				</td>
+				<td class="col-md-1 text-center">
+					<div class="ms-3">
+						<p class="fw-normal mb-0">{{user.idNo}}</p>
+					</div>
+				</td>
+				<td class="col-md-1 text-center">
+					<div class="ms-3">
+						<button class="btn btn-primary fw-normal mb-0" *ngIf="user.role === 'specialist'"
+							(click)="toggleEnable(parseSpecialist(user))">
+							{{(parseSpecialist(user))!.isEnabled ? 'Disable' : 'Enable'}}
+						</button>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

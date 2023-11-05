@@ -1,29 +1,25 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from 'src/app/classes/user';
 import { Toast } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
-	selector: 'app-account',
-	templateUrl: './account.component.html',
-	styleUrls: ['./account.component.css']
+  selector: 'app-specialist-not-enabled',
+  templateUrl: './specialist-not-enabled.component.html',
+  styleUrls: ['./specialist-not-enabled.component.css']
 })
-export class AccountComponent {
-	user: User | null = null;
+export class SpecialistNotEnabledComponent {
+	constructor(private auth: AuthService, private router: Router) { }
 
-	constructor(private auth: AuthService, private router: Router) {
-		this.user = auth.LoggedUser;
-	}
-
-	/* async ngOnInit() {
-		Loader.fire();
-		await this.auth.getLoggedUser()
-			.then((user) => {
-				this.user = user;
+	checkEnabled() {
+		this.auth.isSpecialistEnabled()
+			.then((specEnabled) => {
+				if (!specEnabled)
+					Toast.fire({ icon: 'error', title: 'Oops...', text: 'Your account has not been enabled yet.', background: '#f27474' });
+				else
+					this.router.navigateByUrl('home');
 			});
-		Loader.close();
-	} */
+	}
 
 	signOut() {
 		this.auth.signOut()

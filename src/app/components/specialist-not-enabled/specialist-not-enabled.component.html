@@ -1,15 +1,14 @@
 <div class="vh-100 background py-10">
 	<div class="container text-center bg-white mw-25 py-3 rounded">
 		<h1>Welcome!</h1>
-		<h2>Verify your account!</h2>
+		<h2>Wait to be enabled!</h2>
 		<img src="../../../favicon.ico" height="100vh" width="auto" alt="clinica_logo">
 
-		<p class="fs-5">We're excited to have you get started. First, you need to confirm your account. Check your email!</p>
+		<p class="fs-5">We're excited to have you get started. First, an administrator has to enable your account.</p>
 
-		<button class="btn btn-primary" (click)="checkVerify()">Done!</button>
 		<div class="nav justify-content-center">
 			<div class="nav-item">
-				<a class="nav-link active text-decoration-underline" role="button" (click)="newVerify()">Send new verification link</a>
+				<a class="nav-link active text-decoration-underline" role="button" (click)="checkEnabled()">I already am!</a>
 				<a class="nav-link active text-decoration-underline text-muted" role="button" (click)="signOut()">Sign out</a>
 			</div>
 		</div>

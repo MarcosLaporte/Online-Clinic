@@ -5,9 +5,8 @@ import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { User } from 'src/app/classes/user';
 import { Loader, Toast } from 'src/app/environments/environment';
-import { NoUserLoggedError } from 'src/app/errors/no-user-logged-error';
+import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -197,17 +196,15 @@ export class SignupComponent {
 	async signIn(email: string, pass: string) {
 		try {
 			await this.auth.signInToFirebase(email, pass);
-			if (!(await this.auth.isUserVerified())) throw new Error("Verify your account!");
+			if (!(this.auth.IsEmailVerified)) throw new Error("Verify your account!");
 
 			this.router.navigateByUrl('home');
 		} catch (error: any) {
 			Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
-			if (error instanceof NoUserLoggedError)
+			if (error instanceof NotLoggedError)
 				this.router.navigateByUrl('login');
 			else
 				this.router.navigateByUrl('account-verification');
-
-			return;
 		}
 	}
 

@@ -2,26 +2,61 @@ import { Injectable } from '@angular/core';
 import { Auth, User as FireUser, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from '@angular/fire/auth';
 import { User } from '../classes/user';
 import { DatabaseService } from './database.service';
-import { NoUserLoggedError } from '../errors/no-user-logged-error';
 import { Specialist } from '../classes/specialist';
+import { Loader } from '../environments/environment';
+import { NotLoggedError } from '../errors/not-logged-error';
+import { reload } from 'firebase/auth';
 const userPath = 'users';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class AuthService {
-	constructor(private auth: Auth, private db: DatabaseService) { }
+	private _fireUser: FireUser | null = null;
+	private _loggedUser: User | null = null;
+	private _isEmailVerified: boolean = false;
+	private _respectiveUrl: string = 'login'; //Url to be redirected depending on user status
 
-	/* async getCurrentFireUser() {
-		await this.auth.currentUser?.reload();
-		return this.auth.currentUser;
-	} */
+	public get FireUser(): FireUser | null {
+		this.auth.currentUser?.reload()
+			.then(() => {
+				this._fireUser = this.auth.currentUser;
+			});
+
+		return this._fireUser;
+	}
+	public get LoggedUser(): User | null {
+		return this._loggedUser;
+	}
+	public get IsEmailVerified(): boolean {
+		return this._isEmailVerified;
+	}
+	public get IsUserValid(): boolean {
+		return this.isFullyValidUser();
+	}
+	public get RespectiveUrl(): string {
+		return this._respectiveUrl;
+	}
+
+	constructor(private auth: Auth, private db: DatabaseService) {
+		this._fireUser = auth.currentUser;
+		if (this._fireUser) {
+			this.searchUserByEmail(this._fireUser.email!)
+				.then(user => this._loggedUser = user);
+			this._isEmailVerified = this._fireUser?.emailVerified!;
+		}
+		this.getRespectiveUserUrl()
+			.then(url => this._respectiveUrl = url);
+	}
 
 	async getLoggedUser(): Promise<User | null> {
-		// const user = await this.getCurrentFireUser().then((user) => { return user });
-		if (this.auth.currentUser && this.auth.currentUser.email) {
-			return this.searchUserByEmail(this.auth.currentUser.email)
-				.then((user) => { return user });
+		Loader.fire('Getting user data...');
+		if (this.FireUser) {
+			return this.searchUserByEmail(this.FireUser.email!)
+				.then((user) => {
+					Loader.close();
+					return user;
+				});
 		}
 
 		return null;
@@ -33,6 +68,7 @@ export class AuthService {
 			if (index !== -1) throw new Error('This ID is already registered.');
 
 			const userCredential = await createUserWithEmailAndPassword(this.auth, user.email, user.password);
+			this.auth.signOut(); //Signs out since createUser() signs in automatically.
 			await this.db.addDataAutoId(userPath, user);
 
 			return userCredential;
@@ -46,48 +82,105 @@ export class AuthService {
 	}
 
 	async signInToFirebase(email: string, pass: string) {
-		return signInWithEmailAndPassword(this.auth, email, pass)
-			.then(async (userCredential) => {
-				const user = await this.searchUserByEmail(email);
-				if (user.role == 'specialist' && !(user as Specialist).approved)
-					throw new Error('Your account has not been approved yet.');
+		try {
+			const userCred = await signInWithEmailAndPassword(this.auth, email, pass);
+			this._fireUser = userCred.user;
+			this._loggedUser = await this.searchUserByEmail(email);
+			this._isEmailVerified = this._fireUser.emailVerified;
+			this._respectiveUrl = 'home';
 
-				this.db.addData('logs', { email: email, role: user.role, log: new Date() });
-				return userCredential;
-			})
-			.catch((error) => {
-				if (error.code === 'auth/invalid-login-credentials') {
-					throw new Error(`Credentials don't match.`);
-				} else {
-					throw error;
-				}
-			});
+			this.db.addData('logs', { email: email, role: this.LoggedUser!.role, log: new Date() });
+
+			if (!this.IsEmailVerified) {
+				this._respectiveUrl = 'account-verification';
+				throw new Error('You have to verify your email.');
+			}
+
+			if (this.LoggedUser!.role == 'specialist' && !(this.LoggedUser as Specialist).isEnabled) {
+				this._respectiveUrl = 'specialist-enabling';
+				throw new Error('Your account has not been enabled yet.');
+			}
+
+			return userCred;
+		} catch (error: any) {
+			if (error.code === 'auth/invalid-login-credentials') {
+				this._respectiveUrl = 'login';
+				throw new Error(`Credentials don't match.`);
+			} else {
+				throw error;
+			}
+		}
 	}
 
 	signOut() {
-		if (this.auth.currentUser === null) throw new NoUserLoggedError("No user logged in.");
+		if (this.auth.currentUser === null) throw new NotLoggedError;
 
+		this._fireUser = null;
+		this._loggedUser = null;
+		this._isEmailVerified = false;
+		this._respectiveUrl = 'login';
 		return this.auth.signOut();
 	}
 
 	sendEmailVerif() {
 		const user = this.auth.currentUser;
-		if (user === null) throw new NoUserLoggedError("No user logged in.");
+		if (user === null) throw new NotLoggedError;
 
 		return sendEmailVerification(user);
 	}
 
 	async isUserVerified(): Promise<boolean> {
 		await this.auth.currentUser?.reload();
-		const emailVerified = this.auth.currentUser?.emailVerified;
-		if (emailVerified === undefined) throw new NoUserLoggedError("No user logged in.");
+		this._fireUser = this.auth.currentUser;
 
-		return emailVerified;
+		if (this.FireUser) {
+			this._isEmailVerified = this.FireUser.emailVerified;
+
+			return this.IsEmailVerified;
+		}
+
+		throw new NotLoggedError;
 	}
 
-	async searchUserByEmail<T extends User>(email: string): Promise<T> {
-		const arrayUsers = await this.db.getData<T>(userPath);
-		const index = await this.emailIndex(email);
+	async isSpecialistEnabled(): Promise<boolean> {
+		if (this.FireUser === null) throw new NotLoggedError;
+
+		const user = await this.searchUserByEmail(this.FireUser.email!);
+		if (user.role !== 'specialist') throw new Error("User is not specialist.");
+
+		return (user as Specialist).isEnabled;
+	}
+
+	isFullyValidUser(): boolean {
+		if (!this.LoggedUser || !this.IsEmailVerified) {
+			return false;
+		}
+
+		if (this.LoggedUser.role === 'specialist') {
+			return (this.LoggedUser as Specialist).isEnabled;
+		}
+
+		return true;
+	}
+
+	async getRespectiveUserUrl() {
+		if (this.LoggedUser !== null) {
+			if (this.IsEmailVerified) {
+				if (this.LoggedUser.role === 'specialist' && !this.IsUserValid) {
+					return 'specialist-enabling';
+				}
+
+				return 'home';
+			}
+			return 'account-verification'
+		}
+
+		return 'login';
+	}
+
+	async searchUserByEmail(email: string): Promise<User> {
+		const arrayUsers = await this.db.getData<User>(userPath);
+		const index = arrayUsers.findIndex((u) => u.email === email);
 		if (index === -1) throw new Error('This email address is not registered.');
 
 		return arrayUsers[index];
@@ -96,10 +189,5 @@ export class AuthService {
 	private async idNoIndex(idNo: number): Promise<number> {
 		const arrayUsers = await this.db.getData<User>(userPath);
 		return arrayUsers.findIndex((u) => u.idNo === idNo);
-	}
-
-	private async emailIndex(email: string): Promise<number> {
-		const arrayUsers = await this.db.getData<User>(userPath);
-		return arrayUsers.findIndex((u) => u.email === email);
 	}
 }
