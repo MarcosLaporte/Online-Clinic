@@ -55,8 +55,8 @@
 							<select class="form-control text-center" id="healthPlan" formControlName="select"
 								(change)="onSelectionChange($event, 'healthPlan')"
 								[class]="signUpForm.controls['select'].errors !== null && signUpForm.controls['select'].touched ? 'border-danger border-2' : ''">
-								<option value="" disabled selected> Select a health care plan</option>
-								<option *ngFor="let hcp of healthCarePlans" value="{{hcp.id}}">{{hcp.value}}</option>
+								<option [ngValue]="null" disabled selected>Select a health care plan</option>
+								<option *ngFor="let hcp of healthCarePlans" [ngValue]="hcp">{{hcp.value}}</option>
 							</select>
 							<div class="input-group-prepend"><span class="input-group-text rounded-start-0"><i
 										class="bi bi-box-arrow-down"></i></span></div>
@@ -66,11 +66,11 @@
 					<div class="col-md-6 mb-3" *ngIf="signUpForm.get('roleRadio')?.value === 'specialist'">
 						<label for="specialty">Specialty</label>
 						<div class="input-group">
-							<select class="form-control text-center" id="healthPlan" formControlName="select"
-								(change)="onSelectionChange($event, 'healthPlan')"
+							<select class="form-control text-center" id="specialty" formControlName="select"
+								(change)="onSelectionChange($event, 'specialty')"
 								[class]="signUpForm.controls['select'].errors !== null && signUpForm.controls['select'].touched ? 'border-danger border-2' : ''">
-								<option value="" disabled selected> Select a specialty</option>
-								<option *ngFor="let spec of specialties" value="{{spec.id}}">{{spec.value}}</option>
+								<option [ngValue]="null" disabled selected>Select a specialty</option>
+								<option *ngFor="let spec of specialties" [ngValue]="spec">{{spec.value}}</option>
 							</select>
 							<div class="input-group-prepend">
 								<span class="input-group-text rounded-start-0">
@@ -84,7 +84,7 @@
 				<hr class="mb-4">
 				<div class="row">
 					<div class="custom-file"
-						[class]="signUpForm.get('roleRadio')?.value === 'patient' ? 'col-md-6' : 'col-md-12'">
+						[class]="signUpForm.get('roleRadio')?.value === 'patient' ? 'col-md-6' : 'col-md-7 d-flex flex-wrap align-content-center'">
 						<div class="input-group">
 							<div class="input-group-prepend"><span
 									class="input-group-text rounded-end-0 d-flex justify-content-center"><i
@@ -97,11 +97,43 @@
 					<div class="custom-file col-md-6" *ngIf="signUpForm.get('roleRadio')?.value === 'patient'">
 						<div class="input-group">
 							<div class="input-group-prepend"><span
-									class="input-group-text rounded-end-0 d-flex justify-content-center"><i
-										class="bi bi-upload"></i></span></div>
+									class="input-group-text rounded-end-0 d-flex justify-content-center">
+									<i class="bi bi-upload"></i></span></div>
 							<label class="custom-file-label bg-white rounded-end text-truncate col" for="img2">
 								{{imgFile2Label}}</label>
 							<input type="file" class="form-control" accept="image/*" id="img2" (change)="imgUpload($event)">
+						</div>
+					</div>
+					<div class="col-md-5" *ngIf="signUpForm.get('roleRadio')?.value === 'specialist'">
+						<label for="workingDays">Select your working days:</label>
+						<div class="list-group-inline" id="workingDays">
+							<input type="checkbox" class="btn-check" value="0" id="sunday" autocomplete="off"
+								(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+							<label class="btn btn-outline-primary mx-1 mb-1" for="sunday">Sun</label>
+
+							<input type="checkbox" class="btn-check" value="1" id="monday" autocomplete="off"
+								(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+							<label class="btn btn-outline-primary mx-1 mb-1" for="monday">Mon</label>
+
+							<input type="checkbox" class="btn-check" value="2" id="tuesday" autocomplete="off"
+								(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+							<label class="btn btn-outline-primary mx-1 mb-1" for="tuesday">Tu</label>
+
+							<input type="checkbox" class="btn-check" value="3" id="wednesday" autocomplete="off"
+								(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+							<label class="btn btn-outline-primary mx-1 mb-1" for="wednesday">Wed</label>
+
+							<input type="checkbox" class="btn-check" value="4" id="thursday" autocomplete="off"
+								(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+							<label class="btn btn-outline-primary mx-1 mb-1" for="thursday">Thu</label>
+
+							<input type="checkbox" class="btn-check" value="5" id="friday" autocomplete="off"
+								(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+							<label class="btn btn-outline-primary mx-1 mb-1" for="friday">Fri</label>
+
+							<input type="checkbox" class="btn-check" value="6" id="saturday" autocomplete="off"
+								(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+							<label class="btn btn-outline-primary mx-1 mb-1" for="saturday">Sat</label>
 						</div>
 					</div>
 				</div>

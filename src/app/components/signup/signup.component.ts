@@ -61,7 +61,13 @@ export class SignupComponent {
 				]
 			],
 			select: [
-				'',
+				null,
+				[
+					Validators.required,
+				]
+			],
+			workingDays: [
+				{ value: [], disabled: true },
 				[
 					Validators.required,
 				]
@@ -114,13 +120,27 @@ export class SignupComponent {
 
 	protected roleChange() {
 		const select = this.signUpForm.get('select');
-		select?.setValue('');
+		const workingDays = this.signUpForm.get('workingDays');
+		select?.setValue(null);
+		workingDays?.setValue([]);
 
 		const role: string = this.signUpForm.get('roleRadio')?.value;
-		if (role === 'admin')
-			select?.clearValidators();
-		else
-			select?.addValidators(Validators.required);
+		switch (role) {
+			case 'admin':
+				select?.clearValidators();
+				workingDays?.clearValidators();
+				workingDays?.disable();
+				break;
+			case 'patient':
+				select?.addValidators(Validators.required);
+				workingDays?.clearValidators();
+				workingDays?.disable();
+				break;
+			case 'specialist':
+				select?.addValidators(Validators.required);
+				workingDays?.addValidators(Validators.required);
+				break;
+		}
 
 		select?.updateValueAndValidity();
 	}
@@ -128,6 +148,8 @@ export class SignupComponent {
 	protected onSelectionChange(event: Event, formControl: string) {
 		const value = (event.target as HTMLSelectElement).value;
 		this.signUpForm.get(formControl)?.setValue(value);
+		if (formControl === 'specialty')
+			this.signUpForm.controls['workingDays'].enable();
 	}
 
 	imgsUploaded(): boolean {
@@ -157,6 +179,24 @@ export class SignupComponent {
 		}
 	}
 
+	onWorkDayClick($event: any) {
+		const dayNum = parseInt($event.target.value);
+		const checked = $event.target.checked;
+		const formControl = this.signUpForm.get('workingDays');
+		const auxArray: Array<number> = (formControl?.value).sort((n: number, m: number) => n - m);
+
+		if (checked)
+			auxArray.push(dayNum);
+		else {
+			const index = auxArray.indexOf(dayNum);
+			auxArray.splice(index, 1);
+		}
+
+		console.log(auxArray);
+		
+		formControl?.setValue(auxArray.sort((n, m) => n - m));
+	}
+
 	async signUp() {
 		try {
 			if (!(this.imgFile1 instanceof File)) throw new Error(`There's been a problem with the image.`);
@@ -168,7 +208,8 @@ export class SignupComponent {
 			const age: number = this.signUpForm.get('age')?.value;
 			const email: string = this.signUpForm.get('email')?.value;
 			const password: string = this.signUpForm.get('password')?.value;
-			const selectValue: string = this.signUpForm.get('select')?.value;
+			const selectValue: { id: string, value: string } = this.signUpForm.get('select')?.value;
+			const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
 
 			Loader.fire();
 			const imgUrl1 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}`);
@@ -179,11 +220,11 @@ export class SignupComponent {
 
 				user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, selectValue);
 			} else if (role === 'specialist') {
-				user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, selectValue, false);
+				user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, selectValue, false, workingDays);
 			} else {
 				user = new Admin('', firstName, lastName, age, idNo, imgUrl1, email, password);
 			}
-			
+
 			await this.auth.createAccount<typeof user>(user);
 			await this.auth.sendEmailVerif();
 			await this.signIn(email, password);
