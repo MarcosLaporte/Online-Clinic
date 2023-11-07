@@ -47,8 +47,10 @@ export class NewAppointmentComponent {
 					.map(spec => spec as Specialist);
 			});
 
-		if (this.user.role === 'patient')
+		if (this.user.role === 'patient'){
 			this.patientIdNo = this.user.idNo;
+			this.patient = this.user as Patient;
+		}
 		Loader.close();
 	}
 
