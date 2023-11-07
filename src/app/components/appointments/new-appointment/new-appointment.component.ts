@@ -7,7 +7,7 @@ import { Appointment } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
-import { Loader, StringKeyValuePair, Toast } from 'src/app/environments/environment';
+import { Loader, StringIdValuePair, Toast } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
@@ -21,7 +21,7 @@ import Swal from 'sweetalert2';
 export class NewAppointmentComponent {
 
 	user: User;
-	specialtyArray: Array<StringKeyValuePair> = [];
+	specialtyArray: Array<StringIdValuePair> = [];
 	private specialistArray: Array<Specialist> = [];
 	availableSpecialists: Array<Specialist> = []; //Specialists of the chosen specialty
 	private availableDates: Array<Date> = [];
@@ -33,12 +33,12 @@ export class NewAppointmentComponent {
 
 	patientIdNo: number = 0;
 	patient: Patient | null = null;
-	specialty: StringKeyValuePair | null = null;
+	specialty: StringIdValuePair | null = null;
 	specialist: Specialist | null = null;
 
 	async ngOnInit() {
 		Loader.fire();
-		this.specialtyArray = await this.db.getData<StringKeyValuePair>('specialties');
+		this.specialtyArray = await this.db.getData<StringIdValuePair>('specialties');
 
 		await this.db.getData<User>('users')
 			.then(data => {

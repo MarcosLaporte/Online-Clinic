@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { Loader, StringKeyValuePair, Toast } from 'src/app/environments/environment';
+import { Loader, StringIdValuePair, Toast } from 'src/app/environments/environment';
 import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -21,8 +21,8 @@ const uppercasePipe = new UpperCasePipe();
 export class SignupComponent {
 	signUpForm: FormGroup;
 
-	protected healthCarePlans: Array<StringKeyValuePair> = [];
-	protected specialties: Array<StringKeyValuePair> = [];
+	protected healthCarePlans: Array<StringIdValuePair> = [];
+	protected specialties: Array<StringIdValuePair> = [];
 	imgFile1: File | undefined;
 	imgFile2: File | undefined;
 	imgFile1Label: string = 'Choose an image';
@@ -100,10 +100,10 @@ export class SignupComponent {
 	async ngOnInit() {
 		let auxArray = [];
 		Loader.fire();
-		auxArray = await this.db.getData<StringKeyValuePair>('healthCarePlans');
+		auxArray = await this.db.getData<StringIdValuePair>('healthCarePlans');
 		this.healthCarePlans = auxArray.sort((h1, h2) => h1.value > h2.value ? 1 : -1);
 
-		auxArray = await this.db.getData<StringKeyValuePair>('specialties');
+		auxArray = await this.db.getData<StringIdValuePair>('specialties');
 		this.specialties = auxArray.sort((s1, s2) => s1.value > s2.value ? 1 : -1);
 		Loader.close();
 	}
@@ -206,7 +206,7 @@ export class SignupComponent {
 			const age: number = this.signUpForm.get('age')?.value;
 			const email: string = this.signUpForm.get('email')?.value;
 			const password: string = this.signUpForm.get('password')?.value;
-			const selectValue: StringKeyValuePair = this.signUpForm.get('select')?.value;
+			const selectValue: StringIdValuePair = this.signUpForm.get('select')?.value;
 			const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
 
 			Loader.fire();
