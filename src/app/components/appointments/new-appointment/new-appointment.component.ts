@@ -98,7 +98,7 @@ export class NewAppointmentComponent {
 		startDate.setDate(startDate.getDate() + 1); //Next day
 		startDate.setHours(8, 30, 0, 0);
 		const endDate: Date = new Date(startDate);
-		startDate.setDate(endDate.getDate() + 15); //15 days from start day
+		endDate.setDate(endDate.getDate() + 15); //15 days from start day
 		endDate.setHours(18, 30, 0, 0);
 
 		let auxDate: Date = new Date(startDate);
