@@ -5,5 +5,5 @@ import { Specialist } from '../classes/specialist';
 
 export const notEnabledSpecGuard: CanActivateFn = (route, state) => {
 	const user = inject(AuthService).LoggedUser as Specialist;
-  return user.isEnabled;
+  return !user.isEnabled;
 };

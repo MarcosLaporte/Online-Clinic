@@ -15,7 +15,7 @@
 		</div>
 
 		<input type="password" id="inputPassword" class="form-control mb-0" placeholder="Password"
-			formControlName="password" name="password" required>
+			formControlName="password" name="current-password" required>
 		<div class="bg-danger bg-opacity-50 m-auto w-75"
 			*ngIf="loginForm.controls['password'].errors !== null && loginForm.controls['password'].touched">
 			<small *ngIf="loginForm.controls['password'].errors!['required']">

@@ -22,13 +22,13 @@
 				<div class="row">
 					<div class="col-md-6 mb-3">
 						<label for="firstName">First name</label>
-						<input type="text" class="form-control" id="firstName" formControlName="firstName"
+						<input type="text" class="form-control" id="firstName" name="firstName" formControlName="firstName"
 							[class]="signUpForm.controls['firstName'].errors !== null && signUpForm.controls['firstName'].touched ? 'border-danger border-2' : ''">
 					</div>
 
 					<div class="col-md-6 mb-3">
 						<label for="lastName">Last name</label>
-						<input type="text" class="form-control" id="lastName" formControlName="lastName"
+						<input type="text" class="form-control" id="lastName" name="lastName" formControlName="lastName"
 							[class]="signUpForm.controls['lastName'].errors !== null && signUpForm.controls['lastName'].touched ? 'border-danger border-2' : ''">
 					</div>
 				</div>
@@ -36,7 +36,7 @@
 				<div class="row">
 					<div class="col-md-2 mb-3">
 						<label for="age">Age</label>
-						<input type="number" class="form-control" id="age" min="0" max="125" formControlName="age"
+						<input type="number" class="form-control" id="age" name="age" min="0" max="125" formControlName="age"
 							[class]="signUpForm.controls['age'].errors !== null && signUpForm.controls['age'].touched ? 'border-danger border-2' : ''">
 					</div>
 
@@ -84,7 +84,7 @@
 				<hr class="mb-4">
 				<div class="row">
 					<div class="custom-file"
-						[class]="signUpForm.get('roleRadio')?.value === 'patient' ? 'col-md-6' : 'col-md-7 d-flex flex-wrap align-content-center'">
+						[class]="signUpForm.get('roleRadio')?.value === 'patient' ? 'col-md-6' : signUpForm.get('roleRadio')?.value === 'specialist' ? 'col-md-7 d-flex flex-wrap align-content-center' : 'col'">
 						<div class="input-group">
 							<div class="input-group-prepend"><span
 									class="input-group-text rounded-end-0 d-flex justify-content-center"><i
@@ -143,7 +143,7 @@
 					<label for="email">Email adress</label>
 					<div class="input-group">
 						<div class="input-group-prepend"><span class="input-group-text rounded-end-0">@</span></div>
-						<input type="email" class="form-control" id="email" placeholder="you@example.com" formControlName="email"
+						<input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" formControlName="email"
 							[class]="signUpForm.controls['email'].errors !== null && signUpForm.controls['email'].touched ? 'border-danger border-2' : ''">
 					</div>
 				</div>
@@ -151,12 +151,12 @@
 				<div class="row">
 					<div class="col-md-6 mb-3">
 						<label for="password">Password</label>
-						<input type="password" class="form-control" id="password" formControlName="password"
+						<input type="password" class="form-control" id="password" name="new-password" formControlName="password"
 							[class]="signUpForm.controls['password'].errors !== null && signUpForm.controls['password'].touched ? 'border-danger border-2' : ''">
 					</div>
 					<div class="col-md-6 mb-3">
 						<label for="passCheck">Password check</label>
-						<input type="password" class="form-control" id="passCheck" formControlName="passCheck"
+						<input type="password" class="form-control" id="passCheck" name="new-password" formControlName="passCheck"
 							[class]="signUpForm.controls['passCheck'].errors !== null && signUpForm.controls['passCheck'].touched ? 'border-danger border-2' : ''">
 					</div>
 				</div>

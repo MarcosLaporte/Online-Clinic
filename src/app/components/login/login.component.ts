@@ -47,25 +47,25 @@ export class LoginComponent {
 
 	async quickFill(role: 'patient' | 'specialist' | 'admin') {
 		let email = '';
-		let password = '';
+		// let password = '';
 		switch (role) {
 			case 'patient':
-				email = 'doufrafovoiprau-5447@yopmail.com';
-				password = 'patone';
+				email = 'wummauwubritou-6588@yopmail.com';
+				// password = 'patone';
 				break;
 			case 'specialist':
-				email = 'lettitteiffihou-7765@yopmail.com';
-				password = 'specone';
+				email = 'cajuletudo-5654@yopmail.com';
+				// password = 'specone';
 				break;
 			case 'admin':
 				email = 'marcoslaporte2015@gmail.com';
-				password = 'UTNFRA';
+				// password = 'UTNFRA';
 				break;
 		}
 
 		this.loginForm.patchValue({
 			email: email,
-			password: password
+			password: 'UTNFRA'
 		})
 
 		this.signIn();
