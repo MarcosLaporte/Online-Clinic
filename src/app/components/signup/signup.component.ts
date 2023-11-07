@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { Loader, Toast } from 'src/app/environments/environment';
+import { Loader, StringKeyValuePair, Toast } from 'src/app/environments/environment';
 import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -21,8 +21,8 @@ const uppercasePipe = new UpperCasePipe();
 export class SignupComponent {
 	signUpForm: FormGroup;
 
-	protected healthCarePlans: Array<{ id: string, value: string }> = [];
-	protected specialties: Array<{ id: string, value: string }> = [];
+	protected healthCarePlans: Array<StringKeyValuePair> = [];
+	protected specialties: Array<StringKeyValuePair> = [];
 	imgFile1: File | undefined;
 	imgFile2: File | undefined;
 	imgFile1Label: string = 'Choose an image';
@@ -100,10 +100,10 @@ export class SignupComponent {
 	async ngOnInit() {
 		let auxArray = [];
 		Loader.fire();
-		auxArray = await this.db.getData<{ id: string, value: string }>('healthCarePlans');
+		auxArray = await this.db.getData<StringKeyValuePair>('healthCarePlans');
 		this.healthCarePlans = auxArray.sort((h1, h2) => h1.value > h2.value ? 1 : -1);
 
-		auxArray = await this.db.getData<{ id: string, value: string }>('specialties');
+		auxArray = await this.db.getData<StringKeyValuePair>('specialties');
 		this.specialties = auxArray.sort((s1, s2) => s1.value > s2.value ? 1 : -1);
 		Loader.close();
 	}
@@ -191,8 +191,6 @@ export class SignupComponent {
 			const index = auxArray.indexOf(dayNum);
 			auxArray.splice(index, 1);
 		}
-
-		console.log(auxArray);
 		
 		formControl?.setValue(auxArray.sort((n, m) => n - m));
 	}
@@ -208,7 +206,7 @@ export class SignupComponent {
 			const age: number = this.signUpForm.get('age')?.value;
 			const email: string = this.signUpForm.get('email')?.value;
 			const password: string = this.signUpForm.get('password')?.value;
-			const selectValue: { id: string, value: string } = this.signUpForm.get('select')?.value;
+			const selectValue: StringKeyValuePair = this.signUpForm.get('select')?.value;
 			const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
 
 			Loader.fire();

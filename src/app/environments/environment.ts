@@ -27,3 +27,8 @@ export const Loader = Swal.mixin({
 		Swal.showLoading();
 	}
 });
+
+export interface StringKeyValuePair {
+	id: string;
+	value: string;
+}
