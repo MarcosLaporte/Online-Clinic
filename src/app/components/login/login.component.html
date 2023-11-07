@@ -14,8 +14,8 @@
 			</small>
 		</div>
 
-		<input type="password" id="inputPassword" class="form-control mb-0" placeholder="Password" formControlName="password"
-			name="password" required>
+		<input type="password" id="inputPassword" class="form-control mb-0" placeholder="Password"
+			formControlName="password" name="password" required>
 		<div class="bg-danger bg-opacity-50 m-auto w-75"
 			*ngIf="loginForm.controls['password'].errors !== null && loginForm.controls['password'].touched">
 			<small *ngIf="loginForm.controls['password'].errors!['required']">
@@ -25,12 +25,22 @@
 
 		<button class="btn btn-lg btn-primary btn-block mt-3" [disabled]="loginForm.invalid" type="submit">Sign in</button>
 
+		<a class="nav nav-link active text-decoration-underline" routerLink="/signup">Create your Account</a>
 		<ul class="nav justify-content-center">
 			<li class="nav-item">
-				<a class="nav-link active text-decoration-underline" routerLink="/signup">Create your Account</a>
+				<span class="nav-link active text-decoration-underline" (click)="quickFill('patient')" role="button">
+					Quick patient
+				</span>
 			</li>
 			<li class="nav-item">
-				<span class="nav-link active text-decoration-underline" (click)="quickFill()" role="button">Quick fill</span>
+				<span class="nav-link active text-decoration-underline" (click)="quickFill('specialist')" role="button">
+					Quick specialist
+				</span>
+			</li>
+			<li class="nav-item">
+				<span class="nav-link active text-decoration-underline" (click)="quickFill('admin')" role="button">
+					Quick admin
+				</span>
 			</li>
 		</ul>
 	</form>
