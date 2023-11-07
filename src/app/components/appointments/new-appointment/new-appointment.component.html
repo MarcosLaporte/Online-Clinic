@@ -1,0 +1,74 @@
+<div class="main min-vh-100 text-center bg-custom-gradient">
+	<div class="container py-4 w-75">
+		<div class="card bg-light bg-opacity-50 rounded px-5 py-3">
+			<h2 class="mb-3 font-weight-normal">Get an appointment</h2>
+			<form class="needs-validation">
+
+				<div class="col mb-3">
+					<label for="patientId">Patient ID Number</label>
+					<input [readOnly]="user.role === 'patient'" type="number" class="form-control text-center mb-2" id="patientId"
+						[(ngModel)]="patientIdNo" name="patientIdNo">
+					<button *ngIf="user.role !== 'patient'" class="btn btn-primary btn-lg btn-block" (click)="lookUpPatient()">
+						Look up patient
+					</button>
+				</div>
+
+				<div *ngIf="patient" class="row">
+					<div class="col-md-6">
+						<label for="specialty">Specialty</label>
+						<div class="input-group">
+							<select class="form-control text-center" id="specialty" [(ngModel)]="specialty" name="specialty"
+								(change)="selectSpecialty()">
+								<option [ngValue]="null" disabled selected>Select a specialty</option>
+								<option *ngFor="let spec of specialtyArray" [ngValue]="spec">{{spec.value}}</option>
+							</select>
+							<div class="input-group-prepend">
+								<span class="input-group-text rounded-start-0">
+									<i class="bi bi-box-arrow-down"></i>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<label for="specialist">Specialist</label>
+						<div class="input-group">
+							<select class="form-control text-center" id="specialist" [(ngModel)]="specialist" name="specialist"
+								(change)="selectSpecialist($event)">
+								<option [ngValue]="null" disabled selected>Select a specialist</option>
+								<option *ngFor="let spec of availableSpecialists" [ngValue]="spec">
+									{{spec.firstName}} {{spec.lastName}}
+								</option>
+							</select>
+							<div class="input-group-prepend">
+								<span class="input-group-text rounded-start-0">
+									<i class="bi bi-box-arrow-down"></i>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<hr class="mb-4">
+				<!-- <div *ngIf="specialist" class="row"*ngFor="let apptDate of availableDates">
+					<div class="col-md-2"></div>
+					<div class="col-md-10"></div>
+				</div> -->
+				<div *ngIf="specialist">
+					<div class="row" *ngFor="let dateGroup of groupedDates">
+						<div class="col-md-5 text-primary fs-5">
+							<p>{{ dateGroup[0] }}</p>
+						</div>
+						<div class="col-md-7 btn-group flex-wrap">
+							<button class="btn btn-light border-primary rounded me-1 mb-1" *ngFor="let date of dateGroup[1]"
+								type="submit" (click)="selectDate(date)">
+								{{ date | date: 'HH:mm' }}
+							</button>
+						</div>
+						<hr class="my-2">
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

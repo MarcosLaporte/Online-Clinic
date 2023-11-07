@@ -180,8 +180,16 @@ export class AuthService {
 
 	async searchUserByEmail(email: string): Promise<User> {
 		const arrayUsers = await this.db.getData<User>(userPath);
-		const index = arrayUsers.findIndex((u) => u.email === email);
+		const index = arrayUsers.findIndex(u => u.email === email);
 		if (index === -1) throw new Error('This email address is not registered.');
+
+		return arrayUsers[index];
+	}
+
+	async searchUserByIdNo (idNo: number): Promise<User> {
+		const arrayUsers = await this.db.getData<User>(userPath);
+		const index = arrayUsers.findIndex(u => u.idNo === idNo);
+		if (index === -1) throw new Error('This id number is not registered.');
 
 		return arrayUsers[index];
 	}

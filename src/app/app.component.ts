@@ -19,4 +19,8 @@ export class AppComponent {
 	isAdmin() {
 		return this.auth.LoggedUser?.role === 'admin';
 	}
+	
+	isNotSpec() {
+		return this.auth.LoggedUser?.role !== 'specialist';
+	}
 }
