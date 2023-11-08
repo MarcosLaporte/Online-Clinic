@@ -5,6 +5,7 @@
 		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 			<li class="nav-item"><a class="nav-link" routerLink="/home">Home</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="isNotSpec()" routerLink="/new-appointment">New Appointment</a></li>
+			<li class="nav-item"><a class="nav-link" routerLink="/appointments">Appointments</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="isAdmin()" routerLink="/users">Users</a></li>
 			<li class="nav-item"><a class="nav-link" routerLink="/account">Account</a></li>
 		</ul>

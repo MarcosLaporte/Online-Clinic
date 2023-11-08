@@ -15,6 +15,7 @@ import { SpecialistNotEnabledComponent } from './components/specialist-not-enabl
 import { UserListComponent } from './components/user-list/user-list.component';
 import { notSpecGuard } from './guards/not-spec.guard';
 import { NewAppointmentComponent } from './components/appointments/new-appointment/new-appointment.component';
+import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
 
 const routes: Routes = [
 	{
@@ -62,7 +63,12 @@ const routes: Routes = [
 		path: 'new-appointment',
 		canActivate: [loggedGuard, notSpecGuard],
 		component: NewAppointmentComponent
-	}
+	},
+	{
+		path: 'appointments',
+		canActivate: [validAccountGuard],
+		component: ListAppointmentComponent
+	},
 ]
 
 @NgModule({

@@ -1,0 +1,132 @@
+<h2 class="text-center mt-5">Appointments</h2>
+<div class="filters">
+	<div class="d-flex justify-content-center">
+		<div class="row">
+			<div class="col">
+				<div class="form-check form-check-inline" *ngFor="let spec of SpecialtyArray">
+					<input class="form-check-input" type="radio" name="specialtyFilter" [id]="spec.id" [value]="spec"
+						[(ngModel)]="specialtyRadio" (click)="specialtyRadioChange(spec)">
+					<label class="form-check-label" [for]="spec.id">{{spec.value}}</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="d-flex justify-content-center" *ngIf="user.role !== 'specialist'">
+		<div class="row">
+			<div class="col">
+				<div class="form-check form-check-inline" *ngFor="let spec of SpecialistArray">
+					<input class="form-check-input" type="radio" name="specialistFilter" [id]="spec.id" [value]="spec"
+						[(ngModel)]="specialistRadio" (click)="specialistRadioChange(spec)">
+					<label class="form-check-label" [for]="spec.id">{{spec.lastName}}</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="d-flex justify-content-center" *ngIf="user.role === 'specialist'">
+		<div class="row">
+			<div class="col">
+				<div class="form-check form-check-inline" *ngFor="let pat of PatientArray">
+					<input class="form-check-input" type="radio" name="patientFilter" [id]="pat.id" [value]="pat"
+						[(ngModel)]="patientRadio" (click)="patientRadioChange(pat)">
+					<label class="form-check-label" [for]="pat.id">{{pat.lastName}}</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="d-flex justify-content-center">
+		<span class="nav-link active text-decoration-underline" (click)="resetFilter()" role="button">
+			Reset filters
+		</span>
+	</div>
+</div>
+
+<div class="container d-flex justify-content-center">
+	<table class="table table-striped align-middle mb-0 bg-white table-hover w-75">
+		<thead class="bg-light">
+			<tr>
+				<th>{{user.role === 'patient' ? 'Specialist' : 'Patient'}}</th>
+				<th *ngIf="user.role === 'admin'">Specialist</th>
+				<th class="text-center">Date</th>
+				<th class="text-center">Status</th>
+				<th class="text-center">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let appt of appointmentsToShow">
+				<td class="col-md-auto">
+					<div class="d-flex align-items-center">
+						<div class="ms-3" *ngIf="user.role === 'patient'">
+							<p class="fw-bold mb-0">{{appt.specialist.firstName}} {{appt.specialist.lastName}}</p>
+							<p class="text-muted mb-0">{{appt.specialty.value}}</p>
+						</div>
+						<div class="ms-3" *ngIf="user.role !== 'patient'">
+							<p class="fw-bold mb-0">{{appt.patient.firstName}} {{appt.patient.lastName}}</p>
+							<p class="text-muted mb-0">{{appt.patient.healthPlan.value}}</p>
+						</div>
+					</div>
+				</td>
+				<td *ngIf="user.role === 'admin'" class="col-md-auto">
+					<div class="d-flex align-items-center">
+						<div class="ms-3">
+							<p class="fw-bold mb-0">{{appt.specialist.firstName}} {{appt.specialist.lastName}}</p>
+							<p class="text-muted mb-0">{{appt.specialty.value}}</p>
+						</div>
+					</div>
+				</td>
+				<td class="col-md-auto text-center">
+						<p class="fw-normal mb-0">{{appt.date | date: 'short'}}</p>
+				</td>
+				<td class="col-md-auto text-center">
+						<span class="badge rounded-pill" [class]="getBgClassApptStatus(appt.status)">
+							{{appt.status | uppercase}}
+						</span>
+				</td>
+				<td class="col-md-auto">
+					<div class="ms-3">
+						<ul class="nav list-group-inline justify-content-center">
+							<li *ngIf="appt.status === 'pending'" class="nav-item">
+								<button class="nav-link active text-decoration-underline px-1"
+									(click)="toggleApptStatus(appt, 'cancelled')">
+									Cancel
+								</button>
+							</li>
+							<li *ngIf="appt.status !== 'pending' && appt.status !== 'accepted'" class="nav-item">
+								<button class="nav-link active text-decoration-underline px-1"
+								[disabled]="!appt.specReview" (click)="showReview(appt)">
+									See Review
+								</button>
+							</li>
+							<li *ngIf="user.role === 'patient' && appt.status === 'done' && appt.specReview" class="nav-item">
+								<button class="nav-link active text-decoration-underline px-1" (click)="fillSurvey(appt)">
+									Fill Survey
+								</button>
+							</li>
+							<li *ngIf="user.role === 'patient' && appt.status === 'done'" class="nav-item">
+								<button class="nav-link active text-decoration-underline px-1" (click)="rateService(appt)">
+									Rate Service
+								</button>
+							</li>
+							<li *ngIf="user.role === 'specialist' && appt.status === 'pending'" class="nav-item">
+								<button class="nav-link active text-decoration-underline px-1"
+									(click)="toggleApptStatus(appt, 'declined')">
+									Decline
+								</button>
+							</li>
+							<li *ngIf="user.role === 'specialist' && appt.status === 'pending'" class="nav-item">
+								<button class="nav-link active text-decoration-underline px-1"
+									(click)="toggleApptStatus(appt, 'accepted')">
+									Accept
+								</button>
+							</li>
+							<li *ngIf="user.role === 'specialist' && appt.status === 'accepted'" class="nav-item">
+								<button class="nav-link active text-decoration-underline px-1" (click)="toggleApptStatus(appt, 'done')">
+									Finish
+								</button>
+							</li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

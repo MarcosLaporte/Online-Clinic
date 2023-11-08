@@ -54,3 +54,18 @@ export interface StringIdValuePair {
 	id: string;
 	value: string;
 }
+
+export const InputSwal = Swal.mixin({
+	input: "textarea",
+	inputPlaceholder: "Type your message here...",
+	inputAttributes: {
+		"aria-label": "Type your message here"
+	},
+	showCancelButton: true,
+	inputValidator: (value) => {
+		if (!value) {
+			return "You need to write something!";
+		}
+		return undefined;
+	},
+});

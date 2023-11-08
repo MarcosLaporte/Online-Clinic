@@ -17,6 +17,7 @@ import { EmailVerificationComponent } from './components/email-verification/emai
 import { SpecialistNotEnabledComponent } from './components/specialist-not-enabled/specialist-not-enabled.component';
 import { UserListComponent } from './components/user-list/user-list.component';
 import { NewAppointmentComponent } from './components/appointments/new-appointment/new-appointment.component';
+import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
 
 @NgModule({
 	declarations: [
@@ -29,6 +30,7 @@ import { NewAppointmentComponent } from './components/appointments/new-appointme
 		SpecialistNotEnabledComponent,
 		UserListComponent,
 		NewAppointmentComponent,
+		ListAppointmentComponent,
 	],
 	imports: [
 		BrowserModule,
