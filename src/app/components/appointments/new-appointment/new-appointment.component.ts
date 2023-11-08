@@ -12,6 +12,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
 
+const apptDbPath = 'appointments';
+const usersDbPath = 'users';
 @Component({
 	selector: 'app-new-appointment',
 	templateUrl: './new-appointment.component.html',
@@ -40,7 +42,7 @@ export class NewAppointmentComponent {
 		Loader.fire();
 		this.specialtyArray = await this.db.getData<StringIdValuePair>('specialties');
 
-		await this.db.getData<User>('users')
+		await this.db.getData<User>(usersDbPath)
 			.then(data => {
 				this.specialistArray = data
 					.filter(user => user.role === 'specialist' && (user as Specialist).isEnabled)
@@ -80,7 +82,7 @@ export class NewAppointmentComponent {
 	async selectSpecialist(event: Event) {
 		const allDates = this.getAllSpecDates();
 		let takenDates: Array<Date> = [];
-		await this.db.getData<Appointment>('appointments')
+		await this.db.getData<Appointment>(apptDbPath)
 			.then(data => {
 				takenDates = data
 					.filter(appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled')
@@ -148,8 +150,10 @@ export class NewAppointmentComponent {
 			confirmButtonText: "Confirm"
 		}).then((result) => {
 			if (result.isConfirmed) {
-				const newAppt = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, 'pending');
-				this.db.addDataAutoId('appointments', newAppt);
+				const newAppt: any = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, 'pending', '');
+				newAppt.patient = this.db.getDocRef(usersDbPath, newAppt.patient.id);
+				newAppt.specialist = this.db.getDocRef(usersDbPath, newAppt.specialist.id);
+				this.db.addDataAutoId(apptDbPath, newAppt);
 				Swal.fire({
 					title: "Date assigned!",
 					text: "We'll be waiting for you at Av. Mitre 750.",

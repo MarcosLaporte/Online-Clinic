@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, addDoc, collection, doc, getDocs, setDoc, deleteDoc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, addDoc, collection, doc, getDocs, setDoc, deleteDoc, updateDoc, getDoc, DocumentReference, DocumentData } from '@angular/fire/firestore';
 @Injectable({
 	providedIn: 'root'
 })
@@ -40,9 +40,17 @@ export class DatabaseService {
 	}
 
 	updateDoc(dbPath: string, docId: string, data: any) {
-		const col = collection(this.firestore, dbPath);
-		const docRef = doc(col);
+		const docRef = doc(this.firestore, dbPath, docId);
 
 		return updateDoc(docRef, { ...data });
+	}
+
+	getDocRef(dbPath: string, docId: string): DocumentReference<DocumentData> {
+		return doc(this.firestore, dbPath, docId);
+	}
+
+	async getObjDataByRef<T>(docRef: DocumentReference<DocumentData>) {
+		const docSnap = await getDoc(docRef);
+		return docSnap.data() as T;
 	}
 }
