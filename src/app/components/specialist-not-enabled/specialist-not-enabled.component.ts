@@ -4,9 +4,9 @@ import { Toast } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
-  selector: 'app-specialist-not-enabled',
-  templateUrl: './specialist-not-enabled.component.html',
-  styleUrls: ['./specialist-not-enabled.component.css']
+	selector: 'app-specialist-not-enabled',
+	templateUrl: './specialist-not-enabled.component.html',
+	styleUrls: ['./specialist-not-enabled.component.css']
 })
 export class SpecialistNotEnabledComponent {
 	constructor(private auth: AuthService, private router: Router) { }

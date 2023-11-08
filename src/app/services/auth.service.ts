@@ -12,19 +12,10 @@ const userPath = 'users';
 	providedIn: 'root'
 })
 export class AuthService {
-	private _fireUser: FireUser | null = null;
 	private _loggedUser: User | null = null;
 	private _isEmailVerified: boolean = false;
 	private _respectiveUrl: string = 'login'; //Url to be redirected depending on user status
 
-	public get FireUser(): FireUser | null {
-		this.auth.currentUser?.reload()
-			.then(() => {
-				this._fireUser = this.auth.currentUser;
-			});
-
-		return this._fireUser;
-	}
 	public get LoggedUser(): User | null {
 		return this._loggedUser;
 	}
@@ -39,27 +30,33 @@ export class AuthService {
 	}
 
 	constructor(private auth: Auth, private db: DatabaseService) {
-		this._fireUser = auth.currentUser;
-		if (this._fireUser) {
-			this.searchUserByEmail(this._fireUser.email!)
-				.then(user => this._loggedUser = user);
-			this._isEmailVerified = this._fireUser?.emailVerified!;
-		}
-		this.getRespectiveUserUrl()
-			.then(url => this._respectiveUrl = url);
+		this.getFireUser()
+			.then(fireUser => {
+				if (fireUser) {
+					this.searchUserByEmail(fireUser.email!)
+						.then(user => this._loggedUser = user);
+					this._isEmailVerified = fireUser?.emailVerified!;
+				}
+				this.getRespectiveUserUrl()
+					.then(url => this._respectiveUrl = url);
+			})
 	}
 
-	async getLoggedUser(): Promise<User | null> {
+	async getFireUser(): Promise<FireUser | null> {
+		await this.auth.currentUser?.reload();
+		return this.auth.currentUser;
+	}
+
+	async updateLoggedUser(): Promise<void> {
 		Loader.fire('Getting user data...');
-		if (this.FireUser) {
-			return this.searchUserByEmail(this.FireUser.email!)
-				.then((user) => {
+		const fireUser = await this.getFireUser();
+		if (fireUser) {
+			this.searchUserByEmail(fireUser.email!)
+				.then(user => {
+					this._loggedUser = user;
 					Loader.close();
-					return user;
 				});
 		}
-
-		return null;
 	}
 
 	async createAccount<T extends User>(user: T): Promise<UserCredential> {
@@ -84,9 +81,8 @@ export class AuthService {
 	async signInToFirebase(email: string, pass: string) {
 		try {
 			const userCred = await signInWithEmailAndPassword(this.auth, email, pass);
-			this._fireUser = userCred.user;
 			this._loggedUser = await this.searchUserByEmail(email);
-			this._isEmailVerified = this._fireUser.emailVerified;
+			this._isEmailVerified = (await this.getFireUser())!.emailVerified!;
 			this._respectiveUrl = 'home';
 
 			this.db.addData('logs', { email: email, role: this.LoggedUser!.role, log: new Date() });
@@ -115,7 +111,6 @@ export class AuthService {
 	signOut() {
 		if (this.auth.currentUser === null) throw new NotLoggedError;
 
-		this._fireUser = null;
 		this._loggedUser = null;
 		this._isEmailVerified = false;
 		this._respectiveUrl = 'login';
@@ -130,11 +125,10 @@ export class AuthService {
 	}
 
 	async isUserVerified(): Promise<boolean> {
-		await this.auth.currentUser?.reload();
-		this._fireUser = this.auth.currentUser;
+		const fireUser = await this.getFireUser();
 
-		if (this.FireUser) {
-			this._isEmailVerified = this.FireUser.emailVerified;
+		if (fireUser) {
+			this._isEmailVerified = fireUser.emailVerified;
 
 			return this.IsEmailVerified;
 		}
@@ -143,12 +137,10 @@ export class AuthService {
 	}
 
 	async isSpecialistEnabled(): Promise<boolean> {
-		if (this.FireUser === null) throw new NotLoggedError;
+		await this.updateLoggedUser();
+		if (this._loggedUser?.role !== 'specialist') throw new Error("User is not specialist.");
 
-		const user = await this.searchUserByEmail(this.FireUser.email!);
-		if (user.role !== 'specialist') throw new Error("User is not specialist.");
-
-		return (user as Specialist).isEnabled;
+		return (this._loggedUser as Specialist).isEnabled;
 	}
 
 	isFullyValidUser(): boolean {
@@ -186,7 +178,7 @@ export class AuthService {
 		return arrayUsers[index];
 	}
 
-	async searchUserByIdNo (idNo: number): Promise<User> {
+	async searchUserByIdNo(idNo: number): Promise<User> {
 		const arrayUsers = await this.db.getData<User>(userPath);
 		const index = arrayUsers.findIndex(u => u.idNo === idNo);
 		if (index === -1) throw new Error('This id number is not registered.');
