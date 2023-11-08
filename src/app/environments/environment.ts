@@ -12,7 +12,29 @@ export const environment = {
 	}
 }
 
-export const Toast = Swal.mixin({
+export const ToastSuccess = Swal.mixin({
+	icon: 'success',
+	background: '#a5dc86',
+	toast: true,
+	position: 'top-right',
+	iconColor: 'white',
+	showConfirmButton: false,
+	timer: 1500,
+});
+
+export const ToastWarning = Swal.mixin({
+	icon: 'warning',
+	background: '#3fc3ee',
+	toast: true,
+	position: 'top-right',
+	iconColor: 'white',
+	showConfirmButton: false,
+	timer: 1500,
+});
+
+export const ToastError = Swal.mixin({
+	icon: 'error',
+	background: '#f27474',
 	toast: true,
 	position: 'top-right',
 	iconColor: 'white',

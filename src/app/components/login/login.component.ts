@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Loader, Toast } from 'src/app/environments/environment';
+import { Loader, ToastError } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -39,7 +39,7 @@ export class LoginComponent {
 			await this.auth.signInToFirebase(email, password);
 			Loader.close();
 		} catch (error: any) {
-			Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
+			ToastError.fire({ title: 'Oops...', text: error.message });
 		} finally {
 			this.router.navigateByUrl(this.auth.RespectiveUrl);
 		}

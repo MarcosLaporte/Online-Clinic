@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Toast } from 'src/app/environments/environment';
+import { Loader, ToastError, ToastSuccess, ToastWarning } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -12,10 +12,12 @@ export class SpecialistNotEnabledComponent {
 	constructor(private auth: AuthService, private router: Router) { }
 
 	checkEnabled() {
+		Loader.fire();
 		this.auth.isSpecialistEnabled()
 			.then((specEnabled) => {
+				Loader.close();
 				if (!specEnabled)
-					Toast.fire({ icon: 'error', title: 'Oops...', text: 'Your account has not been enabled yet.', background: '#f27474' });
+					ToastError.fire({ title: 'Oops...', text: 'Your account has not been enabled yet.' });
 				else
 					this.router.navigateByUrl('home');
 			});
@@ -24,14 +26,14 @@ export class SpecialistNotEnabledComponent {
 	signOut() {
 		this.auth.signOut()
 			.then(() => {
-				Toast.fire({ icon: 'success', title: 'Signed out!', background: '#a5dc86' });
+				ToastSuccess.fire({ title: 'Signed out!' });
 				this.router.navigateByUrl('login');
 			})
 			.catch((error: any) => {
 				if (error)
-					Toast.fire({ icon: 'warning', title: 'Oops...', text: error.message, background: '#3fc3ee' });
+					ToastWarning.fire({ title: 'Oops...', text: error.message });
 				else
-					Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
+					ToastError.fire({ title: 'Oops...', text: error.message });
 			});
 	}
 }

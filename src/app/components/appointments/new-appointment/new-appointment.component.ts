@@ -7,7 +7,7 @@ import { Appointment } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
-import { Loader, StringIdValuePair, Toast } from 'src/app/environments/environment';
+import { Loader, StringIdValuePair, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
@@ -47,7 +47,7 @@ export class NewAppointmentComponent {
 					.map(spec => spec as Specialist);
 			});
 
-		if (this.user.role === 'patient'){
+		if (this.user.role === 'patient') {
 			this.patientIdNo = this.user.idNo;
 			this.patient = this.user as Patient;
 		}
@@ -61,13 +61,13 @@ export class NewAppointmentComponent {
 					throw new Error('This ID does not belong to a patient.');
 
 				const patient = user as Patient;
-				Toast.fire({ icon: 'success', title: `${patient.firstName} ${patient.lastName}, ${patient.healthPlan.value}`, background: '#a5dc86' });
+				ToastSuccess.fire({ title: `${patient.firstName} ${patient.lastName}, ${patient.healthPlan.value}` });
 				this.patient = patient;
 			})
 			.catch(error => {
 				this.patient = null;
 				this.specialist = null;
-				Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
+				ToastError.fire({ title: 'Oops...', text: error.message });
 			});
 	}
 
@@ -83,7 +83,7 @@ export class NewAppointmentComponent {
 		await this.db.getData<Appointment>('appointments')
 			.then(data => {
 				takenDates = data
-					.filter(appt => appt.specialist.id == this.specialist!.id && appt.isActive)
+					.filter(appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled')
 					.map(appt => appt.date instanceof Timestamp ? appt.date.toDate() : appt.date);
 			});
 
@@ -148,7 +148,7 @@ export class NewAppointmentComponent {
 			confirmButtonText: "Confirm"
 		}).then((result) => {
 			if (result.isConfirmed) {
-				const newAppt = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, true);
+				const newAppt = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, 'pending');
 				this.db.addDataAutoId('appointments', newAppt);
 				Swal.fire({
 					title: "Date assigned!",

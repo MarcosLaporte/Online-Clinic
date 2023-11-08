@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from 'src/app/classes/user';
-import { Toast } from 'src/app/environments/environment';
+import { ToastSuccess, ToastError, ToastWarning } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -28,14 +28,14 @@ export class AccountComponent {
 	signOut() {
 		this.auth.signOut()
 			.then(() => {
-				Toast.fire({ icon: 'success', title: 'Signed out!', background: '#a5dc86' });
+				ToastSuccess.fire({ title: 'Signed out!' });
 				this.router.navigateByUrl('login');
 			})
 			.catch((error: any) => {
 				if (error)
-					Toast.fire({ icon: 'warning', title: 'Oops...', text: error.message, background: '#3fc3ee' });
+					ToastWarning.fire({ title: 'Oops...', text: error.message });
 				else
-					Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
+					ToastError.fire({ title: 'Oops...', text: error.message });
 			});
 	}
 }

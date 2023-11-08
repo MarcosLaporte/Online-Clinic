@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { Loader, StringIdValuePair, Toast } from 'src/app/environments/environment';
+import { Loader, StringIdValuePair, ToastError } from 'src/app/environments/environment';
 import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -191,7 +191,7 @@ export class SignupComponent {
 			const index = auxArray.indexOf(dayNum);
 			auxArray.splice(index, 1);
 		}
-		
+
 		formControl?.setValue(auxArray.sort((n, m) => n - m));
 	}
 
@@ -239,7 +239,7 @@ export class SignupComponent {
 
 			this.router.navigateByUrl('home');
 		} catch (error: any) {
-			Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' });
+			ToastError.fire({ title: 'Oops...', text: error.message });
 			if (error instanceof NotLoggedError)
 				this.router.navigateByUrl('login');
 			else

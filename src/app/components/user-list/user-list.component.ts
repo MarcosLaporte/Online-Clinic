@@ -3,7 +3,7 @@ import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
-import { Toast } from 'src/app/environments/environment';
+import { Loader, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
@@ -33,17 +33,18 @@ export class UserListComponent {
 	}
 
 	parseSpecialist(user: User) {
-			return user as Specialist;
+		return user as Specialist;
 	}
 
 	async toggleEnable(specialist: Specialist) {
 		const newValue = !specialist.isEnabled;
+		Loader.fire();
 		await this.db.updateDoc('users', specialist.id, { isEnabled: newValue })
 			.then(() => {
 				const status = newValue ? 'enabled' : 'disabled';
-				Toast.fire({ icon: 'success', title: 'Done!', text: `Specialist #${specialist.idNo} ${status}!`, background: '#a5dc86' });
+				ToastSuccess.fire({ title: 'Done!', text: `Specialist #${specialist.idNo} ${status}!` });
 				specialist.isEnabled = newValue;
 			})
-			.catch((error) => { Toast.fire({ icon: 'error', title: 'Oops...', text: error.message, background: '#f27474' }); });
+			.catch((error) => { ToastError.fire({ title: 'Oops...', text: error.message }); });
 	}
 }
