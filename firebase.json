@@ -1,20 +1,13 @@
 {
-  "hosting": [
-    {
-      "source": "dist/labo-iv-tp2-laporte",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "frameworksBackend": {
-        "region": "us-east1"
-      }
-    },
-    {
-      "target": "LaboIV_TP2_Laporte",
-      "source": ".",
-      "frameworksBackend": {}
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-east1"
     }
-  ]
+  }
 }
