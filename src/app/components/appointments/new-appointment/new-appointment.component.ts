@@ -81,15 +81,11 @@ export class NewAppointmentComponent {
 
 	async selectSpecialist(event: Event) {
 		const allDates = this.getAllSpecDates();
-		let takenDates: Array<Date> = [];
-		await this.db.getData<Appointment>(apptDbPath)
-			.then(data => {
-				takenDates = data
-					.filter(appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled')
-					.map(appt => appt.date instanceof Timestamp ? appt.date.toDate() : appt.date);
-			});
+		const existingAppts = await Appointment.getAppointments(this.db, appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled');
 
+		const takenDates = existingAppts.map(appt => appt.date instanceof Timestamp ? appt.date.toDate() : appt.date);
 		this.availableDates = allDates.filter(date => !takenDates.some(apptDate => apptDate.getTime() === date.getTime()));
+		
 		this.groupDatesByDay();
 	}
 
@@ -150,7 +146,7 @@ export class NewAppointmentComponent {
 			confirmButtonText: "Confirm"
 		}).then((result) => {
 			if (result.isConfirmed) {
-				const newAppt: any = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, 'pending', '');
+				const newAppt: any = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, 'pending', '', null);
 				newAppt.patient = this.db.getDocRef(usersDbPath, newAppt.patient.id);
 				newAppt.specialist = this.db.getDocRef(usersDbPath, newAppt.specialist.id);
 				this.db.addDataAutoId(apptDbPath, newAppt);
