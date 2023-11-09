@@ -64,8 +64,7 @@ export class AuthService {
 			if (index !== -1) throw new Error('This ID is already registered.');
 
 			const userCredential = await createUserWithEmailAndPassword(this.auth, user.email, user.password);
-			this.auth.signOut(); //Signs out since createUser() signs in automatically.
-			await this.db.addDataAutoId(userPath, user);
+			this.db.addDataAutoId(userPath, user);
 
 			return userCredential;
 		} catch (error: any) {

@@ -71,6 +71,7 @@
 								[class]="signUpForm.controls['select'].errors !== null && signUpForm.controls['select'].touched ? 'border-danger border-2' : ''">
 								<option [ngValue]="null" disabled selected>Select a specialty</option>
 								<option *ngFor="let spec of specialties" [ngValue]="spec">{{spec.value}}</option>
+								<option value="addNew" *ngIf="allowAddNew" class="text-muted">--Add a new specialty--</option>
 							</select>
 							<div class="input-group-prepend">
 								<span class="input-group-text rounded-start-0">

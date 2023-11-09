@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastSuccess, ToastWarning, ToastError } from 'src/app/environments/environment';
+import { ToastSuccess, ToastWarning, ToastError, ToastInfo } from 'src/app/environments/environment';
 import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -26,6 +26,7 @@ export class EmailVerificationComponent {
 
 	newVerify() {
 		this.auth.sendEmailVerif();
+		ToastInfo.fire('Email sent!');
 	}
 
 	signOut() {

@@ -5,12 +5,12 @@ import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { Loader, StringIdValuePair, ToastError } from 'src/app/environments/environment';
+import { InputSwal, Loader, StringIdValuePair, ToastError } from 'src/app/environments/environment';
 import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { StorageService } from 'src/app/services/storage.service';
-import Swal from 'sweetalert2';
+import Swal, { SweetAlertResult } from 'sweetalert2';
 
 const uppercasePipe = new UpperCasePipe();
 @Component({
@@ -27,6 +27,8 @@ export class SignupComponent {
 	imgFile2: File | undefined;
 	imgFile1Label: string = 'Choose an image';
 	imgFile2Label: string = 'Choose second image';
+	newOption: string = '';
+	allowAddNew: boolean = true;
 	private recaptcha: string = '';
 
 	constructor(private router: Router, private auth: AuthService, private fb: FormBuilder, private db: DatabaseService, private storage: StorageService) {
@@ -146,11 +148,28 @@ export class SignupComponent {
 		select?.updateValueAndValidity();
 	}
 
-	protected onSelectionChange(event: Event, formControl: string) {
-		const value = (event.target as HTMLSelectElement).value;
-		this.signUpForm.get(formControl)?.setValue(value);
-		if (formControl === 'specialty')
+	protected async onSelectionChange(event: Event, formControl: string) {
+		let value: string | null = (event.target as HTMLSelectElement).value;
+		if (formControl === 'specialty') {
 			this.signUpForm.controls['workingDays'].enable();
+			if (value === 'addNew') {
+				this.allowAddNew = false;
+				const newSpecialty: SweetAlertResult<string> | undefined =
+					await InputSwal.fire({ input: 'text', inputLabel: "Add new specialty." });
+
+				if (newSpecialty?.value) {
+					const docId = this.db.addDataAutoId('specialties', { value: newSpecialty.value });
+					value = docId;
+					this.specialties = await this.db.getData('specialties');
+				} else {
+					ToastError.fire('Operation cancelled.');
+					value = null;
+				}
+			}
+		}
+
+		this.signUpForm.get(formControl)?.patchValue(value);
+		this.allowAddNew = true;
 	}
 
 	imgsUploaded(): boolean {

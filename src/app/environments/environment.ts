@@ -42,6 +42,16 @@ export const ToastError = Swal.mixin({
 	timer: 1500,
 });
 
+export const ToastInfo = Swal.mixin({
+	icon: 'info',
+	background: '#0dcaf0',
+	toast: true,
+	position: 'top-right',
+	iconColor: 'white',
+	showConfirmButton: false,
+	timer: 1500,
+});
+
 export const Loader = Swal.mixin({
 	allowEscapeKey: false,
 	allowOutsideClick: false,
