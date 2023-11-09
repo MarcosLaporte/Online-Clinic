@@ -14,9 +14,10 @@ export class Appointment {
 	date: Date;
 	status: ApptStatus;
 	specReview: string;
+	patReview: string;
 	patSurvey: Survey | null;
 
-	constructor(id: string = '', patient: Patient, specialty: StringIdValuePair, specialist: Specialist, date: Date, status: ApptStatus = 'pending', specReview: string = '', patSurvey: Survey | null) {
+	constructor(id: string = '', patient: Patient, specialty: StringIdValuePair, specialist: Specialist, date: Date, status: ApptStatus = 'pending', specReview: string = '', patReview: string = '', patSurvey: Survey | null) {
 		this.id = id;
 		this.patient = patient;
 		this.specialty = specialty;
@@ -24,6 +25,7 @@ export class Appointment {
 		this.date = date;
 		this.status = status;
 		this.specReview = specReview;
+		this.patReview = patReview;
 		this.patSurvey = patSurvey;
 	}
 

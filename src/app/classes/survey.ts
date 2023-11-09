@@ -5,7 +5,7 @@ export class Survey {
 	recommendGrade: number;
 	comments: string;
 
-	constructor(id: string, attentionQualityGrade: number, accessibilityGrade: number, recommendGrade: number, comments: string) {
+	constructor(id: string = '', attentionQualityGrade: number, accessibilityGrade: number, recommendGrade: number, comments: string) {
 		this.id = id;
 		this.attentionQualityGrade = attentionQualityGrade;
 		this.accessibilityGrade = accessibilityGrade;

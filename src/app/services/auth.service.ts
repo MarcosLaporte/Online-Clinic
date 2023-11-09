@@ -5,7 +5,6 @@ import { DatabaseService } from './database.service';
 import { Specialist } from '../classes/specialist';
 import { Loader } from '../environments/environment';
 import { NotLoggedError } from '../errors/not-logged-error';
-import { reload } from 'firebase/auth';
 const userPath = 'users';
 
 @Injectable({

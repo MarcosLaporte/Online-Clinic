@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
@@ -18,6 +20,7 @@ import { SpecialistNotEnabledComponent } from './components/specialist-not-enabl
 import { UserListComponent } from './components/user-list/user-list.component';
 import { NewAppointmentComponent } from './components/appointments/new-appointment/new-appointment.component';
 import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
+import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-survey.component';
 
 @NgModule({
 	declarations: [
@@ -31,6 +34,7 @@ import { ListAppointmentComponent } from './components/appointments/list-appoint
 		UserListComponent,
 		NewAppointmentComponent,
 		ListAppointmentComponent,
+		ApptSurveyComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -41,6 +45,8 @@ import { ListAppointmentComponent } from './components/appointments/list-appoint
 		provideStorage(() => getStorage()),
 		FormsModule,
 		ReactiveFormsModule,
+		MatDialogModule,
+		BrowserAnimationsModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent]

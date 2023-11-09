@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { DocumentReference, Timestamp } from 'firebase/firestore';
+import { MatDialog } from '@angular/material/dialog';
 import { Appointment, ApptStatus } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
@@ -8,6 +8,8 @@ import { InputSwal, Loader, StringIdValuePair, ToastError, ToastSuccess } from '
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal, { SweetAlertResult } from 'sweetalert2';
+import { ApptSurveyComponent } from '../appt-survey/appt-survey.component';
+import { Admin } from 'src/app/classes/admin';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -16,7 +18,7 @@ const apptDbPath = 'appointments';
 	styleUrls: ['./list-appointment.component.css']
 })
 export class ListAppointmentComponent {
-	user: User;
+	user: Patient | Specialist | Admin;
 	private appointments: Array<Appointment> = [];
 	appointmentsToShow: Array<Appointment> = [];
 	private specialtyArray: Array<StringIdValuePair> = [];
@@ -33,7 +35,7 @@ export class ListAppointmentComponent {
 		return this.patientArray;
 	}
 
-	constructor(private auth: AuthService, private db: DatabaseService) {
+	constructor(private auth: AuthService, private db: DatabaseService, private dialog: MatDialog) {
 		this.user = inject(AuthService).LoggedUser!;
 	}
 
@@ -115,7 +117,7 @@ export class ListAppointmentComponent {
 	}
 	//#endregion
 
-	async toggleApptStatus(appt: Appointment, newStatus: ApptStatus) {
+	async changeApptStatus(appt: Appointment, newStatus: ApptStatus) {
 		let review: SweetAlertResult<string> | undefined;
 		if (newStatus === 'cancelled' || newStatus === 'declined') {
 			if (this.user.role !== 'patient') {
@@ -138,12 +140,18 @@ export class ListAppointmentComponent {
 			});
 			if (!confirmed) return;
 
-			if (review?.value)
+			if (review?.value) {
+				appt.specReview = review.value;
 				this.db.updateDoc(apptDbPath, appt.id, { specReview: review.value });
+			}
+
 		} else if (newStatus === 'done') {
+
 			review = await InputSwal.fire({ inputLabel: "Leave a review for the patient." });
-			if (review?.value)
+			if (review?.value) {
+				appt.specReview = review.value;
 				this.db.updateDoc(apptDbPath, appt.id, { specReview: review.value });
+			}
 		}
 
 		appt.status = newStatus;
@@ -151,15 +159,39 @@ export class ListAppointmentComponent {
 	}
 
 	showReview(appt: Appointment) {
-		Swal.fire(`Dr. ${appt.specialist.lastName} said:`, appt.specReview);
+		if (this.user.role === 'patient')
+			Swal.fire(`Dr. ${appt.specialist.lastName} said:`, appt.specReview);
+		else
+			Swal.fire(`${appt.patient.lastName} said:`, appt.patReview);
 	}
 
 	fillSurvey(appt: Appointment) {
+		const dialogRef = this.dialog.open(ApptSurveyComponent, {
+			width: '800px',
 
+		});
+		dialogRef.componentInstance.patient = this.user as Patient;
+
+		dialogRef.afterClosed().subscribe(survey => {
+			if (survey) {
+				const surveyRef = this.db.getDocRef('surveys', survey.id);
+				appt.patSurvey = survey;
+				this.db.updateDoc(apptDbPath, appt.id, { patSurvey: surveyRef })
+					.then(() => ToastSuccess.fire('Survey uploaded!', 'Appointment closed.'));
+			}
+		});
 	}
 
-	rateService(appt: Appointment) {
+	async patientReview(appt: Appointment) {
+		let review: SweetAlertResult<string> | undefined;
+		if (this.user.role === 'patient') {
+			review = await InputSwal.fire({ inputLabel: "Leave a review for the specialist." });
+		}
 
+		if (review?.value) {
+			appt.patReview = review.value;
+			this.db.updateDoc(apptDbPath, appt.id, { patReview: review.value });
+		}
 	}
 
 	getBgClassApptStatus(status: ApptStatus) {

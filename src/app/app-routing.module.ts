@@ -16,6 +16,7 @@ import { UserListComponent } from './components/user-list/user-list.component';
 import { notSpecGuard } from './guards/not-spec.guard';
 import { NewAppointmentComponent } from './components/appointments/new-appointment/new-appointment.component';
 import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
+import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-survey.component';
 
 const routes: Routes = [
 	{
@@ -68,6 +69,11 @@ const routes: Routes = [
 		path: 'appointments',
 		canActivate: [validAccountGuard],
 		component: ListAppointmentComponent
+	},
+	{
+		path: 'appointment-survey',
+		canActivate: [validAccountGuard],
+		component: ApptSurveyComponent
 	},
 ]
 

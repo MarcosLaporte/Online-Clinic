@@ -74,57 +74,57 @@
 					</div>
 				</td>
 				<td class="col-md-auto text-center">
-						<p class="fw-normal mb-0">{{appt.date | date: 'short'}}</p>
+					<p class="fw-normal mb-0">{{appt.date | date: 'short'}}</p>
 				</td>
 				<td class="col-md-auto text-center">
-						<span class="badge rounded-pill" [class]="getBgClassApptStatus(appt.status)">
-							{{appt.status | uppercase}}
-						</span>
+					<span class="badge rounded-pill" [class]="getBgClassApptStatus(appt.status)">
+						{{appt.status | uppercase}}
+					</span>
 				</td>
 				<td class="col-md-auto">
-					<div class="ms-3">
-						<ul class="nav list-group-inline justify-content-center">
-							<li *ngIf="appt.status === 'pending'" class="nav-item">
-								<button class="nav-link active text-decoration-underline px-1"
-									(click)="toggleApptStatus(appt, 'cancelled')">
-									Cancel
-								</button>
-							</li>
-							<li *ngIf="appt.status !== 'pending' && appt.status !== 'accepted'" class="nav-item">
-								<button class="nav-link active text-decoration-underline px-1"
-								[disabled]="!appt.specReview" (click)="showReview(appt)">
-									See Review
-								</button>
-							</li>
-							<li *ngIf="user.role === 'patient' && appt.status === 'done' && appt.specReview" class="nav-item">
-								<button class="nav-link active text-decoration-underline px-1" (click)="fillSurvey(appt)">
-									Fill Survey
-								</button>
-							</li>
-							<li *ngIf="user.role === 'patient' && appt.status === 'done'" class="nav-item">
-								<button class="nav-link active text-decoration-underline px-1" (click)="rateService(appt)">
-									Rate Service
-								</button>
-							</li>
-							<li *ngIf="user.role === 'specialist' && appt.status === 'pending'" class="nav-item">
-								<button class="nav-link active text-decoration-underline px-1"
-									(click)="toggleApptStatus(appt, 'declined')">
-									Decline
-								</button>
-							</li>
-							<li *ngIf="user.role === 'specialist' && appt.status === 'pending'" class="nav-item">
-								<button class="nav-link active text-decoration-underline px-1"
-									(click)="toggleApptStatus(appt, 'accepted')">
-									Accept
-								</button>
-							</li>
-							<li *ngIf="user.role === 'specialist' && appt.status === 'accepted'" class="nav-item">
-								<button class="nav-link active text-decoration-underline px-1" (click)="toggleApptStatus(appt, 'done')">
-									Finish
-								</button>
-							</li>
-						</ul>
-					</div>
+					<ul class="nav list-group-inline justify-content-center">
+						<li *ngIf="appt.status === 'pending'" class="nav-item">
+							<button class="nav-link active text-decoration-underline px-1"
+								(click)="changeApptStatus(appt, 'cancelled')">
+								Cancel
+							</button>
+						</li>
+						<li *ngIf="appt.status !== 'pending' && appt.status !== 'accepted' &&
+									((user.role === 'specialist' && appt.patReview) || (user.role === 'patient' && appt.specReview))"
+							class="nav-item">
+							<button class="nav-link active text-decoration-underline px-1" (click)="showReview(appt)">
+								See Review
+							</button>
+						</li>
+						<li *ngIf="user.role === 'patient' && appt.status === 'done' && appt.specReview && !appt.patSurvey"
+							class="nav-item">
+							<button class="nav-link active text-decoration-underline px-1" (click)="fillSurvey(appt)">
+								Fill Survey
+							</button>
+						</li>
+						<li *ngIf="user.role === 'patient' && appt.status === 'done' && !appt.patReview" class="nav-item">
+							<button class="nav-link active text-decoration-underline px-1" (click)="patientReview(appt)">
+								Write Review
+							</button>
+						</li>
+						<li *ngIf="user.role === 'specialist' && appt.status === 'pending'" class="nav-item">
+							<button class="nav-link active text-decoration-underline px-1"
+								(click)="changeApptStatus(appt, 'declined')">
+								Decline
+							</button>
+						</li>
+						<li *ngIf="user.role === 'specialist' && appt.status === 'pending'" class="nav-item">
+							<button class="nav-link active text-decoration-underline px-1"
+								(click)="changeApptStatus(appt, 'accepted')">
+								Accept
+							</button>
+						</li>
+						<li *ngIf="user.role === 'specialist' && appt.status === 'accepted'" class="nav-item">
+							<button class="nav-link active text-decoration-underline px-1" (click)="changeApptStatus(appt, 'done')">
+								Finish
+							</button>
+						</li>
+					</ul>
 				</td>
 			</tr>
 		</tbody>

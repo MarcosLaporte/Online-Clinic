@@ -24,7 +24,7 @@ export class DatabaseService {
 		addDoc(col, { ...data });
 	}
 
-	addDataAutoId(dbPath: string, data: any) {
+	addDataAutoId(dbPath: string, data: any): string {
 		const col = collection(this.firestore, dbPath);
 		const newDoc = doc(col);
 		data.id = newDoc.id;

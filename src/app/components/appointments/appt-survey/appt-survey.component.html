@@ -1,0 +1,42 @@
+<div class="container my-1 p-3">
+	<h1 mat-dialog-title>Fill in this survey</h1>
+	<form mat-dialog-content class="needs-validation" [formGroup]="surveyForm" (ngSubmit)="submitSurvey()">
+		<h4>{{patient?.firstName}} {{patient?.lastName}}</h4>
+
+		<div class="text-center">
+			<h4 class="d-flex justify-content-between align-items-center">
+				<span class="text-muted fs-5">How would you rate the medical attention?</span>
+			</h4>
+			<label for="attRange" class="form-label">From 1 to 10</label>
+			<input type="range" class="form-range" min="1" max="10" id="attRange" formControlName="attention">
+		</div>
+
+		<div class="text-center">
+			<h4 class="d-flex justify-content-between align-items-center">
+				<span class="text-muted fs-5">How would you rate our accessibility?</span>
+			</h4>
+			<label for="accessRange" class="form-label">From 1 to 10</label>
+			<input type="range" class="form-range" min="1" max="10" id="accessRange" formControlName="accessibility">
+		</div>
+
+		<div class="text-center">
+			<h4 class="d-flex justify-content-between align-items-center">
+				<span class="text-muted fs-5">How likely are you to recommend us?</span>
+			</h4>
+			<label for="recomRange" class="form-label">From 1 to 10</label>
+			<input type="range" class="form-range" min="1" max="10" id="recomRange" formControlName="recommend">
+		</div>
+
+		<div class="mt-1">
+			<h4 class="d-flex justify-content-between align-items-center mb-3">
+				<span class="text-muted fs-5">Do you have any suggestion or comments?</span>
+			</h4>
+			<textarea type="text" rows="5" class="form-control overflow-y-scroll" formControlName="comments"></textarea>
+		</div>
+
+		<div class="d-flex justify-content-center mt-3">
+			<button mat-dialog-actions class="btn btn-primary btn-lg btn-block" type="submit"
+				[disabled]="surveyForm.invalid">Submit</button>
+		</div>
+	</form>
+</div>
