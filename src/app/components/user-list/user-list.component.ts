@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
 import { Loader, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { DatabaseService } from 'src/app/services/database.service';
+import { NewAccountTemplateComponent } from '../new-account-template/new-account-template.component';
 
 @Component({
 	selector: 'app-user-list',
@@ -13,7 +15,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 })
 export class UserListComponent {
 	users: Array<User> = [];
-	constructor(private db: DatabaseService) { }
+	constructor(private db: DatabaseService, private dialog: MatDialog) { }
 
 	async ngOnInit() {
 		const auxUsers = await this.db.getData<User>('users');
@@ -46,5 +48,21 @@ export class UserListComponent {
 				specialist.isEnabled = newValue;
 			})
 			.catch((error) => { ToastError.fire({ title: 'Oops...', text: error.message }); });
+	}
+
+	newAccount() {
+		const dialogRef = this.dialog.open(NewAccountTemplateComponent, {
+			width: '800px',
+			
+		});
+
+
+		dialogRef.afterClosed().subscribe(survey => {
+			if (survey) {
+				// const surveyRef = this.db.getDocRef('surveys', survey.id);
+				// this.db.updateDoc(apptDbPath, appt.id, { patSurvey: surveyRef })
+				// 	.then(() => ToastSuccess.fire('Survey uploaded!', 'Appointment closed.'));
+			}
+		});
 	}
 }

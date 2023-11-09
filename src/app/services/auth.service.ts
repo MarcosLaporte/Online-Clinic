@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Auth, User as FireUser, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from '@angular/fire/auth';
+import { Auth, User as FireUser, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updateCurrentUser } from '@angular/fire/auth';
 import { User } from '../classes/user';
 import { DatabaseService } from './database.service';
 import { Specialist } from '../classes/specialist';
@@ -58,15 +58,27 @@ export class AuthService {
 		}
 	}
 
-	async createAccount<T extends User>(user: T): Promise<UserCredential> {
+	createAccount<T extends User>(user: T, fireUser: FireUser | null): Promise<UserCredential> {
 		try {
-			const index = await this.idNoIndex(user.idNo);
-			if (index !== -1) throw new Error('This ID is already registered.');
+			this.idNoIndex(user.idNo).then(index => {
+				if (index !== -1) throw new Error('This ID is already registered.');
+			});
 
-			const userCredential = await createUserWithEmailAndPassword(this.auth, user.email, user.password);
-			this.db.addDataAutoId(userPath, user);
+			return createUserWithEmailAndPassword(this.auth, user.email, user.password)
+				.then(async userCredential => {
+					await this.db.addDataAutoId(userPath, user);
+					this.db.addData('logs', { email: user.email, role: user.role, log: new Date() });
+					this.sendEmailVerif();
 
-			return userCredential;
+					if (!fireUser) {
+						this._loggedUser = user;
+						this._isEmailVerified = false;
+						this._respectiveUrl = 'home';
+					} else this.auth.updateCurrentUser(fireUser);
+
+					return userCredential;
+				});
+
 		} catch (error: any) {
 			if (error.code === 'auth/email-already-in-use') {
 				throw new Error('This email address is already registered.');

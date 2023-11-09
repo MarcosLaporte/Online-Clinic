@@ -1,28 +1,4 @@
-.list-group-item:hover {
-	cursor: pointer;
-	z-index: 1;
-  color: var(--bs-list-group-action-hover-color);
-  text-decoration: none;
-  background-color: var(--bs-list-group-action-hover-bg);
-}
-
 .bg-custom-gradient {
 	background: rgb(63, 94, 251);
 	background: radial-gradient(circle, rgb(206, 70, 252) 0%, rgb(63, 251, 213) 100%);
-}
-
-/* Image input */
-input[type="file"] {
-	display: none;
-}
-
-.custom-file-label {
-	border: 1px solid #ccc;
-	display: inline-block;
-	padding: 6px 12px;
-	cursor: pointer;
-}
-
-.w-84 {
-	width: 84% !important;
 }

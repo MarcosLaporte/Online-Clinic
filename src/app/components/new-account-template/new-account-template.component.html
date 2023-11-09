@@ -1,0 +1,172 @@
+<div class="card bg-light bg-opacity-50 text-center rounded px-5 py-3">
+	<h2 class="mb-3 font-weight-normal ">Create an account</h2>
+	<form class="needs-validation" [formGroup]="signUpForm" (ngSubmit)="signUp()">
+		<div class="d-flex justify-content-center">
+			<div class="btn-group role-radio-group">
+				<input type="radio" class="btn-check" id="spec_radio" value="specialist" formControlName="roleRadio"
+					(change)="roleChange()" />
+				<label class="btn btn-primary" for="spec_radio">Specialist</label>
+
+				<input type="radio" class="btn-check" id="pat_radio" value="patient" checked formControlName="roleRadio"
+					(change)="roleChange()" />
+				<label class="btn btn-primary" for="pat_radio">Patient</label>
+
+				<input type="radio" class="btn-check" id="admin_radio" value="admin" formControlName="roleRadio"
+					(change)="roleChange()" />
+				<label class="btn btn-primary" for="admin_radio">Admin</label>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-6 mb-3">
+				<label for="firstName">First name</label>
+				<input type="text" class="form-control" id="firstName" name="firstName" formControlName="firstName"
+					[class]="signUpForm.controls['firstName'].errors !== null && signUpForm.controls['firstName'].touched ? 'border-danger border-2' : ''">
+			</div>
+
+			<div class="col-md-6 mb-3">
+				<label for="lastName">Last name</label>
+				<input type="text" class="form-control" id="lastName" name="lastName" formControlName="lastName"
+					[class]="signUpForm.controls['lastName'].errors !== null && signUpForm.controls['lastName'].touched ? 'border-danger border-2' : ''">
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-2 mb-3">
+				<label for="age">Age</label>
+				<input type="number" class="form-control" id="age" name="age" min="0" max="125" formControlName="age"
+					[class]="signUpForm.controls['age'].errors !== null && signUpForm.controls['age'].touched ? 'border-danger border-2' : ''">
+			</div>
+
+			<div class="mb-3" [class]="signUpForm.get('roleRadio')?.value !== 'admin' ? 'col-md-4' : 'col-md-10'">
+				<label for="idNo">ID Number</label>
+				<div class="input-group">
+					<div class="input-group-prepend"><span class="input-group-text rounded-end-0">#</span></div>
+					<input type="text" class="form-control" id="idNo" placeholder="" formControlName="idNo"
+						[class]="signUpForm.controls['idNo'].errors !== null && signUpForm.controls['idNo'].touched ? 'border-danger border-2' : ''">
+				</div>
+			</div>
+
+			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('roleRadio')?.value === 'patient'">
+				<label for="healthPlan">Healthcare plan</label>
+				<div class="input-group">
+					<select class="form-control text-center" id="healthPlan" formControlName="select"
+						(change)="onSelectionChange($event, 'healthPlan')"
+						[class]="signUpForm.controls['select'].errors !== null && signUpForm.controls['select'].touched ? 'border-danger border-2' : ''">
+						<option [ngValue]="null" disabled selected>Select a health care plan</option>
+						<option *ngFor="let hcp of healthCarePlans" [ngValue]="hcp">{{hcp.value}}</option>
+					</select>
+					<div class="input-group-prepend"><span class="input-group-text rounded-start-0"><i
+								class="bi bi-box-arrow-down"></i></span></div>
+				</div>
+			</div>
+
+			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('roleRadio')?.value === 'specialist'">
+				<label for="specialty">Specialty</label>
+				<div class="input-group">
+					<select class="form-control text-center" id="specialty" formControlName="select"
+						(change)="onSelectionChange($event, 'specialty')"
+						[class]="signUpForm.controls['select'].errors !== null && signUpForm.controls['select'].touched ? 'border-danger border-2' : ''">
+						<option [ngValue]="null" disabled selected>Select a specialty</option>
+						<option *ngFor="let spec of specialties" [ngValue]="spec">{{spec.value}}</option>
+						<option value="addNew" *ngIf="allowAddNew" class="text-muted">--Add a new specialty--</option>
+					</select>
+					<div class="input-group-prepend">
+						<span class="input-group-text rounded-start-0">
+							<i class="bi bi-box-arrow-down"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<hr class="mb-4">
+		<div class="row">
+			<div class="custom-file"
+				[class]="signUpForm.get('roleRadio')?.value === 'patient' ? 'col-md-6' : signUpForm.get('roleRadio')?.value === 'specialist' ? 'col-md-7 d-flex flex-wrap align-content-center' : 'col'">
+				<div class="input-group">
+					<div class="input-group-prepend"><span
+							class="input-group-text rounded-end-0 d-flex justify-content-center"><i
+								class="bi bi-upload"></i></span></div>
+					<label class="custom-file-label bg-white rounded-end text-truncate col" for="img1">
+						{{imgFile1Label}}</label>
+					<input type="file" class="form-control" accept="image/*" id="img1" (change)="imgUpload($event)">
+				</div>
+			</div>
+			<div class="custom-file col-md-6" *ngIf="signUpForm.get('roleRadio')?.value === 'patient'">
+				<div class="input-group">
+					<div class="input-group-prepend"><span
+							class="input-group-text rounded-end-0 d-flex justify-content-center">
+							<i class="bi bi-upload"></i></span></div>
+					<label class="custom-file-label bg-white rounded-end text-truncate col" for="img2">
+						{{imgFile2Label}}</label>
+					<input type="file" class="form-control" accept="image/*" id="img2" (change)="imgUpload($event)">
+				</div>
+			</div>
+			<div class="col-md-5" *ngIf="signUpForm.get('roleRadio')?.value === 'specialist'">
+				<label for="workingDays">Select your working days:</label>
+				<div class="list-group-inline" id="workingDays">
+					<input type="checkbox" class="btn-check" value="0" id="sunday" autocomplete="off"
+						(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+					<label class="btn btn-outline-primary mx-1 mb-1" for="sunday">Sun</label>
+
+					<input type="checkbox" class="btn-check" value="1" id="monday" autocomplete="off"
+						(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+					<label class="btn btn-outline-primary mx-1 mb-1" for="monday">Mon</label>
+
+					<input type="checkbox" class="btn-check" value="2" id="tuesday" autocomplete="off"
+						(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+					<label class="btn btn-outline-primary mx-1 mb-1" for="tuesday">Tu</label>
+
+					<input type="checkbox" class="btn-check" value="3" id="wednesday" autocomplete="off"
+						(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+					<label class="btn btn-outline-primary mx-1 mb-1" for="wednesday">Wed</label>
+
+					<input type="checkbox" class="btn-check" value="4" id="thursday" autocomplete="off"
+						(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+					<label class="btn btn-outline-primary mx-1 mb-1" for="thursday">Thu</label>
+
+					<input type="checkbox" class="btn-check" value="5" id="friday" autocomplete="off"
+						(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+					<label class="btn btn-outline-primary mx-1 mb-1" for="friday">Fri</label>
+
+					<input type="checkbox" class="btn-check" value="6" id="saturday" autocomplete="off"
+						(click)="onWorkDayClick($event)" [disabled]="signUpForm.controls['workingDays'].disabled">
+					<label class="btn btn-outline-primary mx-1 mb-1" for="saturday">Sat</label>
+				</div>
+			</div>
+		</div>
+
+		<hr class="mb-4">
+		<div class="mb-3">
+			<label for="email">Email adress</label>
+			<div class="input-group">
+				<div class="input-group-prepend"><span class="input-group-text rounded-end-0">&#64;</span></div>
+				<input type="email" class="form-control" id="email" name="email" placeholder="you@example.com"
+					formControlName="email"
+					[class]="signUpForm.controls['email'].errors !== null && signUpForm.controls['email'].touched ? 'border-danger border-2' : ''">
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-6 mb-3">
+				<label for="password">Password</label>
+				<input type="password" class="form-control" id="password" name="new-password" formControlName="password"
+					[class]="signUpForm.controls['password'].errors !== null && signUpForm.controls['password'].touched ? 'border-danger border-2' : ''">
+			</div>
+			<div class="col-md-6 mb-3">
+				<label for="passCheck">Password check</label>
+				<input type="password" class="form-control" id="passCheck" name="new-password" formControlName="passCheck"
+					[class]="signUpForm.controls['passCheck'].errors !== null && signUpForm.controls['passCheck'].touched ? 'border-danger border-2' : ''">
+			</div>
+		</div>
+
+		<div *ngIf="!adminInstance" class="captcha d-flex justify-content-center mb-2">
+			<re-captcha (resolved)="handleCaptchaResponse($event)"></re-captcha>
+		</div>
+
+		<button class="btn btn-primary btn-lg btn-block" type="submit"
+			[disabled]="signUpForm.invalid || !imgsUploaded()">Sign Up</button>
+
+	</form>
+</div>

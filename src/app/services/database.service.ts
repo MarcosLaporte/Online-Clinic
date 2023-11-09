@@ -19,21 +19,21 @@ export class DatabaseService {
 		return arrAux;
 	}
 
-	addData(dbPath: string, data: any) {
+	async addData(dbPath: string, data: any) {
 		const col = collection(this.firestore, dbPath);
-		addDoc(col, { ...data });
+		await addDoc(col, { ...data });
 	}
 
-	addDataAutoId(dbPath: string, data: any): string {
+	async addDataAutoId(dbPath: string, data: any): Promise<string> {
 		const col = collection(this.firestore, dbPath);
 		const newDoc = doc(col);
 		data.id = newDoc.id;
 
 		try {
-			setDoc(newDoc, { ...data });
+			await setDoc(newDoc, { ...data });
 		} catch (error) {
 			deleteDoc(newDoc);
-			throw new Error('There was a problem uploading the user.', { cause: error });
+			throw new Error('There was a problem while uploading.', { cause: error });
 		}
 
 		return data.id;
