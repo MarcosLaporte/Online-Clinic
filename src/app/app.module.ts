@@ -21,6 +21,7 @@ import { UserListComponent } from './components/user-list/user-list.component';
 import { NewAppointmentComponent } from './components/appointments/new-appointment/new-appointment.component';
 import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
 import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-survey.component';
+import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
 
 @NgModule({
 	declarations: [
@@ -47,8 +48,16 @@ import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-
 		ReactiveFormsModule,
 		MatDialogModule,
 		BrowserAnimationsModule,
+		RecaptchaModule,
 	],
-	providers: [],
+	providers: [
+		{
+			provide: RECAPTCHA_SETTINGS,
+			useValue: {
+				siteKey: '6LeSZAgpAAAAAHRPUZqCIcH8A67aH5hC3md1ykka',
+			} as RecaptchaSettings,
+		}
+	],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }

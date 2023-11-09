@@ -27,6 +27,7 @@ export class SignupComponent {
 	imgFile2: File | undefined;
 	imgFile1Label: string = 'Choose an image';
 	imgFile2Label: string = 'Choose second image';
+	private recaptcha: string = '';
 
 	constructor(private router: Router, private auth: AuthService, private fb: FormBuilder, private db: DatabaseService, private storage: StorageService) {
 		this.signUpForm = fb.group({
@@ -195,7 +196,16 @@ export class SignupComponent {
 		formControl?.setValue(auxArray.sort((n, m) => n - m));
 	}
 
+	handleCaptchaResponse(response: string) {
+		this.recaptcha = response;
+	}
+
 	async signUp() {
+		if (!this.recaptcha) {
+			ToastError.fire('Resolve the Captcha');
+			return;
+		}
+
 		try {
 			if (!(this.imgFile1 instanceof File)) throw new Error(`There's been a problem with the image.`);
 			const role: string = this.signUpForm.get('roleRadio')?.value;

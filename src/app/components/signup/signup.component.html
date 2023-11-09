@@ -143,7 +143,8 @@
 					<label for="email">Email adress</label>
 					<div class="input-group">
 						<div class="input-group-prepend"><span class="input-group-text rounded-end-0">&#64;</span></div>
-						<input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" formControlName="email"
+						<input type="email" class="form-control" id="email" name="email" placeholder="you@example.com"
+							formControlName="email"
 							[class]="signUpForm.controls['email'].errors !== null && signUpForm.controls['email'].touched ? 'border-danger border-2' : ''">
 					</div>
 				</div>
@@ -159,6 +160,10 @@
 						<input type="password" class="form-control" id="passCheck" name="new-password" formControlName="passCheck"
 							[class]="signUpForm.controls['passCheck'].errors !== null && signUpForm.controls['passCheck'].touched ? 'border-danger border-2' : ''">
 					</div>
+				</div>
+
+				<div class="captcha d-flex justify-content-center mb-2">
+					<re-captcha (resolved)="handleCaptchaResponse($event)"></re-captcha>
 				</div>
 
 				<button class="btn btn-primary btn-lg btn-block" type="submit"
