@@ -54,7 +54,7 @@ export class LoginComponent {
 				// password = 'patone';
 				break;
 			case 'specialist':
-				email = 'cajuletudo-5654@yopmail.com';
+				email = 'xaprobraugreprei-7355@yopmail.com';
 				// password = 'specone';
 				break;
 			case 'admin':
@@ -65,7 +65,7 @@ export class LoginComponent {
 
 		this.loginForm.patchValue({
 			email: email,
-			password: 'UTNFRA'
+			password: 'utnfra'
 		})
 
 		this.signIn();

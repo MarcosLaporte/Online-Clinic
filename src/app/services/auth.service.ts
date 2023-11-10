@@ -60,24 +60,24 @@ export class AuthService {
 
 	createAccount<T extends User>(user: T, fireUser: FireUser | null): Promise<UserCredential> {
 		try {
-			this.idNoIndex(user.idNo).then(index => {
+			return this.idNoIndex(user.idNo).then(index => {
 				if (index !== -1) throw new Error('This ID is already registered.');
+
+				return createUserWithEmailAndPassword(this.auth, user.email, user.password)
+					.then(async userCredential => {
+						await this.db.addDataAutoId(userPath, user);
+						this.db.addData('logs', { email: user.email, role: user.role, log: new Date() });
+						this.sendEmailVerif();
+
+						if (!fireUser) {
+							this._loggedUser = user;
+							this._isEmailVerified = false;
+							this._respectiveUrl = 'home';
+						} else this.auth.updateCurrentUser(fireUser);
+
+						return userCredential;
+					});
 			});
-
-			return createUserWithEmailAndPassword(this.auth, user.email, user.password)
-				.then(async userCredential => {
-					await this.db.addDataAutoId(userPath, user);
-					this.db.addData('logs', { email: user.email, role: user.role, log: new Date() });
-					this.sendEmailVerif();
-
-					if (!fireUser) {
-						this._loggedUser = user;
-						this._isEmailVerified = false;
-						this._respectiveUrl = 'home';
-					} else this.auth.updateCurrentUser(fireUser);
-
-					return userCredential;
-				});
 
 		} catch (error: any) {
 			if (error.code === 'auth/email-already-in-use') {
@@ -168,16 +168,14 @@ export class AuthService {
 	async getRespectiveUserUrl() {
 		if (this.LoggedUser !== null) {
 			if (this.IsEmailVerified) {
-				if (this.LoggedUser.role === 'specialist' && !this.IsUserValid) {
+				if (this.LoggedUser.role === 'specialist' && !(this.LoggedUser as Specialist).isEnabled) {
 					return 'specialist-enabling';
 				}
-
-				return 'home';
 			}
 			return 'account-verification'
 		}
 
-		return 'login';
+		return 'home';
 	}
 
 	async searchUserByEmail(email: string): Promise<User> {

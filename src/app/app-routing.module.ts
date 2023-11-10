@@ -26,7 +26,6 @@ const routes: Routes = [
 	},
 	{
 		path: 'home',
-		canActivate: [validAccountGuard],
 		component: HomeComponent
 	},
 	{
@@ -47,22 +46,21 @@ const routes: Routes = [
 	{
 		path: 'specialist-enabling',
 		canActivate: [notEnabledSpecGuard],
-		canDeactivate: [specEnableDeactivateGuard],
 		component: SpecialistNotEnabledComponent
 	},
 	{
 		path: 'account',
-		canActivate: [validAccountGuard],
+		canActivate: [loggedGuard],
 		component: AccountComponent
 	},
 	{
 		path: 'users',
-		canActivate: [loggedGuard, adminGuard],
+		canActivate: [adminGuard],
 		component: UserListComponent
 	},
 	{
 		path: 'new-appointment',
-		canActivate: [loggedGuard, notSpecGuard],
+		canActivate: [validAccountGuard, notSpecGuard],
 		component: NewAppointmentComponent
 	},
 	{
