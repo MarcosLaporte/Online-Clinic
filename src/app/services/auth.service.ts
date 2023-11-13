@@ -1,117 +1,89 @@
 import { Injectable } from '@angular/core';
 import { Auth, User as FireUser, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, updateCurrentUser } from '@angular/fire/auth';
 import { User } from '../classes/user';
-import { DatabaseService } from './database.service';
 import { Specialist } from '../classes/specialist';
-import { Loader } from '../environments/environment';
 import { NotLoggedError } from '../errors/not-logged-error';
-const userPath = 'users';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Patient } from '../classes/patient';
+import { Admin } from '../classes/admin';
+import { DatabaseService } from './database.service';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class AuthService {
-	private _loggedUser: User | null = null;
-	private _isEmailVerified: boolean = false;
-	private _respectiveUrl: string = 'login'; //Url to be redirected depending on user status
+	//#region Properties, Subjects and Observables
+	urlRedirect: string = 'login';
 
-	public get LoggedUser(): User | null {
-		return this._loggedUser;
+	private _loggedUserSub = new BehaviorSubject<Patient | Specialist | Admin | null>(null);
+	public loggedUserObs = this._loggedUserSub.asObservable();
+	public get LoggedUser(): Patient | Specialist | Admin | null {
+		return this._loggedUserSub.getValue();
 	}
-	public get IsEmailVerified(): boolean {
-		return this._isEmailVerified;
+	private set LoggedUser(value: Patient | Specialist | Admin | null) {
+		this._loggedUserSub.next(value);
 	}
+
+	private _fireUserSub = new BehaviorSubject<FireUser | null>(null);
+	public fireUserObs = this._fireUserSub.asObservable();
+	public get FireUser(): FireUser | null {
+		return this._fireUserSub.getValue();
+	}
+	private set FireUser(value: FireUser | null) {
+		this._fireUserSub.next(value);
+	}
+
+	isEmailVerified: boolean = false;
+
 	public get IsUserValid(): boolean {
 		return this.isFullyValidUser();
 	}
-	public get RespectiveUrl(): string {
-		return this._respectiveUrl;
-	}
+	//#endregion
 
-	constructor(private auth: Auth, private db: DatabaseService) {
-		this.getFireUser()
-			.then(fireUser => {
-				if (fireUser) {
-					this.searchUserByEmail(fireUser.email!)
-						.then(user => this._loggedUser = user);
-					this._isEmailVerified = fireUser?.emailVerified!;
-				}
-				this.getRespectiveUserUrl()
-					.then(url => this._respectiveUrl = url);
-			})
-	}
+	constructor(private auth: Auth, private db: DatabaseService) { }
 
-	async getFireUser(): Promise<FireUser | null> {
-		await this.auth.currentUser?.reload();
-		return this.auth.currentUser;
-	}
+	async createAccount(user: User): Promise<UserCredential> {
+		this.db.searchUserByIdNo(user.idNo)
+			.then(() => { throw new Error("This id number is already registered.") })
+			.catch(() => { });
 
-	async updateLoggedUser(): Promise<void> {
-		Loader.fire('Getting user data...');
-		const fireUser = await this.getFireUser();
-		if (fireUser) {
-			this.searchUserByEmail(fireUser.email!)
-				.then(user => {
-					this._loggedUser = user;
-					Loader.close();
-				});
-		}
-	}
+		return createUserWithEmailAndPassword(this.auth, user.email, user.password)
+			.then(async userCredential => {
+				this.FireUser = this.auth.currentUser;
+				this.urlRedirect = 'account-verification';
+				this.LoggedUser = user;
+				this.sendEmailVerif();
+				await this.db.addDataAutoId('users', user);
 
-	createAccount<T extends User>(user: T, fireUser: FireUser | null): Promise<UserCredential> {
-		try {
-			return this.idNoIndex(user.idNo).then(index => {
-				if (index !== -1) throw new Error('This ID is already registered.');
-
-				return createUserWithEmailAndPassword(this.auth, user.email, user.password)
-					.then(async userCredential => {
-						await this.db.addDataAutoId(userPath, user);
-						this.db.addData('logs', { email: user.email, role: user.role, log: new Date() });
-						this.sendEmailVerif();
-
-						if (!fireUser) {
-							this._loggedUser = user;
-							this._isEmailVerified = false;
-							this._respectiveUrl = 'home';
-						} else this.auth.updateCurrentUser(fireUser);
-
-						return userCredential;
-					});
+				return userCredential
 			});
-
-		} catch (error: any) {
-			if (error.code === 'auth/email-already-in-use') {
-				throw new Error('This email address is already registered.');
-			} else {
-				throw error;
-			}
-		}
 	}
 
-	async signInToFirebase(email: string, pass: string) {
+	async signInToFirebase(email: string, password: string) {
 		try {
-			const userCred = await signInWithEmailAndPassword(this.auth, email, pass);
-			this._loggedUser = await this.searchUserByEmail(email);
-			this._isEmailVerified = (await this.getFireUser())!.emailVerified!;
-			this._respectiveUrl = 'home';
+			const userCred = await signInWithEmailAndPassword(this.auth, email, password);
+			this.FireUser = this.auth.currentUser;
+			await this.db.searchUserByEmail(this.FireUser?.email!)
+				.then(async user => {
+					this.LoggedUser = user;
+					this.isEmailVerified = this.FireUser!.emailVerified!;
+					this.urlRedirect = 'home';
 
-			this.db.addData('logs', { email: email, role: this.LoggedUser!.role, log: new Date() });
+					if (!this.isEmailVerified) {
+						this.urlRedirect = 'account-verification';
+						throw new Error('You have to verify your email.');
+					}
 
-			if (!this.IsEmailVerified) {
-				this._respectiveUrl = 'account-verification';
-				throw new Error('You have to verify your email.');
-			}
+					if (this.LoggedUser!.role === 'specialist' && !(this.LoggedUser as Specialist).isEnabled) {
+						this.urlRedirect = 'specialist-enabling';
+						throw new Error('Your account has not been enabled yet.');
+					}
 
-			if (this.LoggedUser!.role == 'specialist' && !(this.LoggedUser as Specialist).isEnabled) {
-				this._respectiveUrl = 'specialist-enabling';
-				throw new Error('Your account has not been enabled yet.');
-			}
-
-			return userCred;
+				});
 		} catch (error: any) {
 			if (error.code === 'auth/invalid-login-credentials') {
-				this._respectiveUrl = 'login';
-				throw new Error(`Credentials don't match.`);
+				this.urlRedirect = 'login';
+				throw new Error("Credentials don't match.");
 			} else {
 				throw error;
 			}
@@ -121,10 +93,14 @@ export class AuthService {
 	signOut() {
 		if (this.auth.currentUser === null) throw new NotLoggedError;
 
-		this._loggedUser = null;
-		this._isEmailVerified = false;
-		this._respectiveUrl = 'login';
-		return this.auth.signOut();
+		this.LoggedUser = null;
+		this.isEmailVerified = false;
+		this.urlRedirect = 'login';
+		return this.auth.signOut()
+			.then(() => {
+				this.auth.currentUser?.reload();
+				this.FireUser = this.auth.currentUser;
+			});
 	}
 
 	sendEmailVerif() {
@@ -134,27 +110,33 @@ export class AuthService {
 		return sendEmailVerification(user);
 	}
 
-	async isUserVerified(): Promise<boolean> {
-		const fireUser = await this.getFireUser();
+	async checkEmailVerif(): Promise<boolean> {
+		await this.auth.currentUser?.reload();
+		this.FireUser = this.auth.currentUser;
+		if (this.FireUser) {
+			if (this.FireUser.emailVerified) {
 
-		if (fireUser) {
-			this._isEmailVerified = fireUser.emailVerified;
+				this.isEmailVerified = this.FireUser.emailVerified;
+				if (this.LoggedUser!.role === 'specialist' && !(this.LoggedUser as Specialist).isEnabled)
+					this.urlRedirect = 'specialist-enabling';
 
-			return this.IsEmailVerified;
+				return true;
+			}
+
+			return false;
 		}
 
 		throw new NotLoggedError;
 	}
 
 	async isSpecialistEnabled(): Promise<boolean> {
-		await this.updateLoggedUser();
-		if (this._loggedUser?.role !== 'specialist') throw new Error("User is not specialist.");
+		if (this.LoggedUser?.role !== 'specialist') throw new Error("User is not specialist.");
 
-		return (this._loggedUser as Specialist).isEnabled;
+		return (this.LoggedUser as Specialist).isEnabled;
 	}
 
 	isFullyValidUser(): boolean {
-		if (!this.LoggedUser || !this.IsEmailVerified) {
+		if (!this.LoggedUser || !this.isEmailVerified) {
 			return false;
 		}
 
@@ -163,39 +145,5 @@ export class AuthService {
 		}
 
 		return true;
-	}
-
-	async getRespectiveUserUrl() {
-		if (this.LoggedUser !== null) {
-			if (this.IsEmailVerified) {
-				if (this.LoggedUser.role === 'specialist' && !(this.LoggedUser as Specialist).isEnabled) {
-					return 'specialist-enabling';
-				}
-			}
-			return 'account-verification'
-		}
-
-		return 'home';
-	}
-
-	async searchUserByEmail(email: string): Promise<User> {
-		const arrayUsers = await this.db.getData<User>(userPath);
-		const index = arrayUsers.findIndex(u => u.email === email);
-		if (index === -1) throw new Error('This email address is not registered.');
-
-		return arrayUsers[index];
-	}
-
-	async searchUserByIdNo(idNo: number): Promise<User> {
-		const arrayUsers = await this.db.getData<User>(userPath);
-		const index = arrayUsers.findIndex(u => u.idNo === idNo);
-		if (index === -1) throw new Error('This id number is not registered.');
-
-		return arrayUsers[index];
-	}
-
-	private async idNoIndex(idNo: number): Promise<number> {
-		const arrayUsers = await this.db.getData<User>(userPath);
-		return arrayUsers.findIndex((u) => u.idNo === idNo);
 	}
 }

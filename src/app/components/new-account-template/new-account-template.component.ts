@@ -1,5 +1,5 @@
 import { UpperCasePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
@@ -20,7 +20,7 @@ const uppercasePipe = new UpperCasePipe();
 })
 export class NewAccountTemplateComponent {
 	signUpForm: FormGroup;
-	readonly adminInstance: boolean;
+	// readonly adminInstance: boolean;
 
 	protected healthCarePlans: Array<StringIdValuePair> = [];
 	protected specialties: Array<StringIdValuePair> = [];
@@ -32,9 +32,14 @@ export class NewAccountTemplateComponent {
 	allowAddNew: boolean = true;
 	private recaptcha: string = '';
 
-	constructor(private router: Router, private auth: AuthService, private fb: FormBuilder, private db: DatabaseService, private storage: StorageService) {
-		this.adminInstance = auth.LoggedUser !== null;
-		this.signUpForm = fb.group({
+	constructor(
+		private router: Router,
+		private db: DatabaseService,
+		private storage: StorageService,
+		private auth: AuthService
+	) {
+		// this.adminInstance = auth.loggedUser !== null;
+		this.signUpForm = inject(FormBuilder).group({
 			roleRadio: ['patient'],
 			firstName: [
 				'',
@@ -222,59 +227,54 @@ export class NewAccountTemplateComponent {
 	}
 
 	async signUp() {
-		if (!this.adminInstance && !this.recaptcha) {
+		if (!this.recaptcha) {
 			ToastError.fire('Resolve the Captcha');
 			return;
 		}
 
-		try {
-			if (!(this.imgFile1 instanceof File)) throw new Error(`There's been a problem with the image.`);
-			const role: string = this.signUpForm.get('roleRadio')?.value;
+		Loader.fire();
+		await this.constructUser()
+			.then(async user => {
+				await this.auth.createAccount(user);
+				this.router.navigateByUrl(this.auth.urlRedirect);
+			})
+			.catch((error: any) => {
+				if (error instanceof NotLoggedError)
+					this.router.navigateByUrl('login');
+				else if (error.code === 'auth/email-already-in-use')
+					error.message = 'This email is already registered.';
 
-			const idNo: number = parseInt(this.signUpForm.get('idNo')?.value);
-			const firstName: string = uppercasePipe.transform(this.signUpForm.get('firstName')?.value);
-			const lastName: string = uppercasePipe.transform(this.signUpForm.get('lastName')?.value);
-			const age: number = this.signUpForm.get('age')?.value;
-			const email: string = this.signUpForm.get('email')?.value;
-			const password: string = this.signUpForm.get('password')?.value;
-			const selectValue: StringIdValuePair = this.signUpForm.get('select')?.value;
-			const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
+				ToastError.fire({ title: 'Oops...', text: error.message });
+			});
+		Loader.close();
+	}
 
-			Loader.fire();
-			const imgUrl1 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}`);
-			let user: Patient | Specialist | Admin;
-			if (role === 'patient') {
-				if (!(this.imgFile2 instanceof File)) throw new Error(`There's been a problem with the second image.`);
-				const imgUrl2 = await this.storage.uploadImage(this.imgFile2, `users/${idNo}-2`);
+	private async constructUser(): Promise<Patient | Specialist | Admin> {
+		if (!(this.imgFile1 instanceof File)) throw new Error(`There's been a problem with the image.`);
+		const role: string = this.signUpForm.get('roleRadio')?.value;
 
-				user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, selectValue);
-			} else if (role === 'specialist') {
-				user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, selectValue, false, workingDays);
-			} else {
-				user = new Admin('', firstName, lastName, age, idNo, imgUrl1, email, password);
-			}
+		const idNo: number = parseInt(this.signUpForm.get('idNo')?.value);
+		const firstName: string = uppercasePipe.transform(this.signUpForm.get('firstName')?.value);
+		const lastName: string = uppercasePipe.transform(this.signUpForm.get('lastName')?.value);
+		const age: number = this.signUpForm.get('age')?.value;
+		const email: string = this.signUpForm.get('email')?.value;
+		const password: string = this.signUpForm.get('password')?.value;
+		const selectValue: StringIdValuePair = this.signUpForm.get('select')?.value;
+		const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
 
+		const imgUrl1 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}`);
+		let user: Patient | Specialist | Admin;
+		if (role === 'patient') {
+			if (!(this.imgFile2 instanceof File)) throw new Error(`There's been a problem with the second image.`);
+			const imgUrl2 = await this.storage.uploadImage(this.imgFile2, `users/${idNo}-2`);
 
-			const adminFireUser = await this.auth.getFireUser();
-			this.auth.createAccount<typeof user>(user, adminFireUser)
-				.then(() => {
-					if (!adminFireUser) {
-						if (!(this.auth.IsEmailVerified))
-							throw new Error("Verify your account!");
-						else
-							this.router.navigateByUrl('home');
-					}
-				})
-				.catch((error: any) => {
-					ToastError.fire({ title: 'Oops...', text: error.message });
-					if (error instanceof NotLoggedError)
-						this.router.navigateByUrl('login');
-					else if (error.code !== 'auth/email-already-in-use')
-						this.router.navigateByUrl('account-verification');
-				});
-			Loader.close();
-		} catch (error: any) {
-			Swal.fire('Oops...', error.message, 'error');
+			user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, selectValue);
+		} else if (role === 'specialist') {
+			user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, selectValue, false, workingDays);
+		} else {
+			user = new Admin('', firstName, lastName, age, idNo, imgUrl1, email, password);
 		}
+
+		return user;
 	}
 }

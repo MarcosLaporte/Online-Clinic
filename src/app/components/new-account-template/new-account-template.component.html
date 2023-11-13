@@ -161,7 +161,7 @@
 			</div>
 		</div>
 
-		<div *ngIf="!adminInstance" class="captcha d-flex justify-content-center mb-2">
+		<div *ngIf="signUpForm.valid" class="captcha d-flex justify-content-center mb-2">
 			<re-captcha (resolved)="handleCaptchaResponse($event)"></re-captcha>
 		</div>
 

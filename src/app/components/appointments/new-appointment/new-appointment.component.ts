@@ -57,7 +57,7 @@ export class NewAppointmentComponent {
 	}
 
 	lookUpPatient() {
-		this.auth.searchUserByIdNo(this.patientIdNo)
+		this.db.searchUserByIdNo(this.patientIdNo)
 			.then(user => {
 				if (user.role !== 'patient')
 					throw new Error('This ID does not belong to a patient.');
@@ -66,7 +66,7 @@ export class NewAppointmentComponent {
 				ToastSuccess.fire({ title: `${patient.firstName} ${patient.lastName}, ${patient.healthPlan.value}` });
 				this.patient = patient;
 			})
-			.catch(error => {
+			.catch((error: any) => {
 				this.patient = null;
 				this.specialist = null;
 				ToastError.fire({ title: 'Oops...', text: error.message });

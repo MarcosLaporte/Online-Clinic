@@ -31,35 +31,29 @@ export class LoginComponent {
 	}
 
 	async signIn() {
-		Loader.fire()
+		Loader.fire();
 		const email = this.loginForm.get('email')?.value;
 		const password = this.loginForm.get('password')?.value;
 
-		try {
-			await this.auth.signInToFirebase(email, password);
-			Loader.close();
-		} catch (error: any) {
-			ToastError.fire({ title: 'Oops...', text: error.message });
-		} finally {
-			this.router.navigateByUrl(this.auth.RespectiveUrl);
-		}
+		await this.auth.signInToFirebase(email, password)
+			.catch((error: any) => ToastError.fire({ title: 'Oops...', text: error.message }));
+
+		this.router.navigateByUrl(this.auth.urlRedirect);
+		Loader.close();
 	}
 
-	async quickFill(role: 'patient' | 'specialist' | 'admin') {
-		let email = '';
-		// let password = '';
+	quickFill(role: 'patient' | 'specialist' | 'admin') {
+		let email: string;
+
 		switch (role) {
 			case 'patient':
 				email = 'wummauwubritou-6588@yopmail.com';
-				// password = 'patone';
 				break;
 			case 'specialist':
 				email = 'xaprobraugreprei-7355@yopmail.com';
-				// password = 'specone';
 				break;
 			case 'admin':
 				email = 'marcoslaporte2015@gmail.com';
-				// password = 'UTNFRA';
 				break;
 		}
 

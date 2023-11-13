@@ -4,10 +4,13 @@
 		<a class="navbar-brand" routerLink="/home">La Clínica</a>
 		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 			<li class="nav-item"><a class="nav-link" routerLink="/home">Home</a></li>
-			<li class="nav-item"><a class="nav-link" *ngIf="isNotSpec()" routerLink="/new-appointment">New Appointment</a></li>
-			<li class="nav-item"><a class="nav-link" routerLink="/appointments">Appointments</a></li>
-			<li class="nav-item"><a class="nav-link" *ngIf="isAdmin()" routerLink="/users">Users</a></li>
-			<li class="nav-item"><a class="nav-link" role="button" (click)="accountClick()">Account</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role !== 'specialist'" routerLink="/new-appointment">New Appointment</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="isValid" routerLink="/appointments">Appointments</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role === 'admin'" routerLink="/users">Users</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="isValid" routerLink="/account">Account</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role === 'specialist' && !isValid" routerLink="/specialist-enabling">Enable</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="user && !isEmailVerif" routerLink="/account-verification">Verify</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="!user" routerLink="/login">Login</a></li>
 		</ul>
 	</div>
 </nav>

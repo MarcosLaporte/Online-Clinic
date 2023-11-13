@@ -1,4 +1,4 @@
-export class User {
+export abstract class User {
 	role: 'patient' | 'specialist' | 'admin';
 	id: string;
 	firstName: string;
@@ -10,7 +10,7 @@ export class User {
 	email: string;
 	password: string;
 
-	protected constructor(role: 'patient' | 'specialist' | 'admin', id: string = '', firstName: string, lastName: string, age: number, idNo: number, imgUrl1: string, imgUrl2: string, email: string, password: string) {
+	constructor(role: 'patient' | 'specialist' | 'admin', id: string = '', firstName: string, lastName: string, age: number, idNo: number, imgUrl1: string, imgUrl2: string, email: string, password: string) {
 		this.role = role;
 		this.id = id;
 		this.firstName = firstName;
