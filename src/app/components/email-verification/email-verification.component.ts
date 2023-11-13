@@ -13,11 +13,10 @@ export class EmailVerificationComponent {
 	constructor(private auth: AuthService, private router: Router) { }
 
 	checkVerify() {
-		this.auth.isUserVerified()
-			.then(async userVerified => {
+		this.auth.checkEmailVerif()
+			.then(userVerified => {
 				if (userVerified) {
-					const url = await this.auth.getRespectiveUserUrl();
-					this.router.navigateByUrl(url);
+					this.router.navigateByUrl(this.auth.urlRedirect);
 				}
 				else
 					ToastError.fire({ title: 'Oops...', text: 'Verify your account!' });

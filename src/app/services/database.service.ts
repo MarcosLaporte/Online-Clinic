@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Firestore, addDoc, collection, doc, getDocs, setDoc, deleteDoc, updateDoc, getDoc, DocumentReference, DocumentData } from '@angular/fire/firestore';
+import { User } from '../classes/user';
+const userPath = 'users';
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -52,5 +55,21 @@ export class DatabaseService {
 	async getObjDataByRef<T>(docRef: DocumentReference<DocumentData>) {
 		const docSnap = await getDoc(docRef);
 		return docSnap.data() as T;
+	}
+	
+	async searchUserByEmail(email: string): Promise<User> {
+		const arrayUsers = await this.getData<User>(userPath);
+		const index = arrayUsers.findIndex(u => u.email === email);
+		if (index === -1) throw new Error('This email address is not registered.');
+
+		return arrayUsers[index];
+	}
+
+	async searchUserByIdNo(idNo: number): Promise<User> {
+		const arrayUsers = await this.getData<User>(userPath);
+		const index = arrayUsers.findIndex(u => u.idNo === idNo);
+		if (index === -1) throw new Error('This id number is not registered.');
+
+		return arrayUsers[index];
 	}
 }

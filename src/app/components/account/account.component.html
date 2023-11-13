@@ -15,7 +15,8 @@
 					</div>
 				</div>
 				<div class="usr-data">
-					<h1 class="display-0 fw-bold" id="usr-data-username">{{ user.firstName }} {{ user.lastName }}</h1>
+					<h1 class="display-0 fw-bold" id="usr-data-username" *ngIf="specialist">Dr. {{ user.firstName }} {{ user.lastName }}</h1>
+					<h1 class="display-0 fw-bold" id="usr-data-username" *ngIf="!specialist">{{ user.firstName }} {{ user.lastName }}</h1>
 					<p class="fs-4" id="usr-data-email">{{ user.email }}</p>
 					<small id="usr-data-email">{{ user.role | uppercase }}</small>
 				</div>
