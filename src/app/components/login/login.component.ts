@@ -36,7 +36,7 @@ export class LoginComponent {
 		const password = this.loginForm.get('password')?.value;
 
 		await this.auth.signInToFirebase(email, password)
-			.catch((error: any) => ToastError.fire({ title: 'Oops...', text: error.message }));
+			.catch(() => { });
 
 		this.router.navigateByUrl(this.auth.urlRedirect);
 		Loader.close();

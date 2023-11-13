@@ -14,7 +14,7 @@ export class EmailVerificationComponent {
 
 	checkVerify() {
 		this.auth.checkEmailVerif()
-			.then(async userVerified => {
+			.then(userVerified => {
 				if (userVerified) {
 					this.router.navigateByUrl(this.auth.urlRedirect);
 				}

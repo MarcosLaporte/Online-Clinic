@@ -115,8 +115,9 @@ export class AuthService {
 		this.FireUser = this.auth.currentUser;
 		if (this.FireUser) {
 			if (this.FireUser.emailVerified) {
-
 				this.isEmailVerified = this.FireUser.emailVerified;
+				this.urlRedirect = 'home';
+
 				if (this.LoggedUser!.role === 'specialist' && !(this.LoggedUser as Specialist).isEnabled)
 					this.urlRedirect = 'specialist-enabling';
 
