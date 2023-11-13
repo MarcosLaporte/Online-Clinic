@@ -6,7 +6,6 @@
 	background-color: var(--bs-list-group-action-hover-bg);
 }
 
-
 /* Image input */
 input[type="file"] {
 	display: none;
@@ -17,4 +16,14 @@ input[type="file"] {
 	display: inline-block;
 	padding: 6px 12px;
 	cursor: pointer;
+}
+
+/* Role Radio */
+.roles input[type="radio"]>img:hover {
+	cursor: pointer;
+}
+.roles input[type="radio"]:checked+label>img {
+	filter: brightness(105%);
+	transform: scale(1.25);
+	transition: all .5s ease;
 }

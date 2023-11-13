@@ -1,19 +1,22 @@
 <div class="card bg-light bg-opacity-50 text-center rounded px-5 py-3">
 	<h2 class="mb-3 font-weight-normal ">Create an account</h2>
 	<form class="needs-validation" [formGroup]="signUpForm" (ngSubmit)="signUp()">
-		<div class="d-flex justify-content-center">
-			<div class="btn-group role-radio-group">
-				<input type="radio" class="btn-check" id="spec_radio" value="specialist" formControlName="roleRadio"
-					(change)="roleChange()" />
-				<label class="btn btn-primary" for="spec_radio">Specialist</label>
-
-				<input type="radio" class="btn-check" id="pat_radio" value="patient" checked formControlName="roleRadio"
-					(change)="roleChange()" />
-				<label class="btn btn-primary" for="pat_radio">Patient</label>
-
-				<input type="radio" class="btn-check" id="admin_radio" value="admin" formControlName="roleRadio"
-					(change)="roleChange()" />
-				<label class="btn btn-primary" for="admin_radio">Admin</label>
+		<div class="roles row d-flex justify-content-center">
+			<div class="col-md-2 text-center">
+				<input type="radio" id="img-specialist" class="d-none" value="specialist" formControlName="role"
+					(change)="roleChange()">
+				<label for="img-specialist">
+					<img src="../../../assets/doctor.png" class=" border border-1 border-black rounded-2" role="button"
+						height="50px" alt="Specialist">
+				</label>
+			</div>
+			<div class="col-md-2 text-center">
+				<input type="radio" id="img-patient" class="d-none" value="patient" formControlName="role"
+					(change)="roleChange()">
+				<label for="img-patient">
+					<img src="../../../assets/patient.png" class=" border border-1 border-black rounded-2" role="button"
+						height="50px" alt="Patient">
+				</label>
 			</div>
 		</div>
 
@@ -38,7 +41,7 @@
 					[class]="signUpForm.controls['age'].errors !== null && signUpForm.controls['age'].touched ? 'border-danger border-2' : ''">
 			</div>
 
-			<div class="mb-3" [class]="signUpForm.get('roleRadio')?.value !== 'admin' ? 'col-md-4' : 'col-md-10'">
+			<div class="mb-3" [class]="signUpForm.get('role')?.value !== 'admin' ? 'col-md-4' : 'col-md-10'">
 				<label for="idNo">ID Number</label>
 				<div class="input-group">
 					<div class="input-group-prepend"><span class="input-group-text rounded-end-0">#</span></div>
@@ -47,7 +50,7 @@
 				</div>
 			</div>
 
-			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('roleRadio')?.value === 'patient'">
+			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('role')?.value === 'patient'">
 				<label for="healthPlan">Healthcare plan</label>
 				<div class="input-group">
 					<select class="form-control text-center" id="healthPlan" formControlName="select"
@@ -61,7 +64,7 @@
 				</div>
 			</div>
 
-			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('roleRadio')?.value === 'specialist'">
+			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('role')?.value === 'specialist'">
 				<label for="specialty">Specialty</label>
 				<div class="input-group">
 					<select class="form-control text-center" id="specialty" formControlName="select"
@@ -83,27 +86,25 @@
 		<hr class="mb-4">
 		<div class="row">
 			<div class="custom-file"
-				[class]="signUpForm.get('roleRadio')?.value === 'patient' ? 'col-md-6' : signUpForm.get('roleRadio')?.value === 'specialist' ? 'col-md-7 d-flex flex-wrap align-content-center' : 'col'">
+				[class]="signUpForm.get('role')?.value === 'patient' ? 'col-md-6' : signUpForm.get('role')?.value === 'specialist' ? 'col-md-7 d-flex flex-wrap align-content-center' : 'col'">
 				<div class="input-group">
-					<div class="input-group-prepend"><span
-							class="input-group-text rounded-end-0 d-flex justify-content-center"><i
+					<div class="input-group-prepend"><span class="input-group-text rounded-end-0 d-flex justify-content-center"><i
 								class="bi bi-upload"></i></span></div>
 					<label class="custom-file-label bg-white rounded-end text-truncate col" for="img1">
 						{{imgFile1Label}}</label>
 					<input type="file" class="form-control" accept="image/*" id="img1" (change)="imgUpload($event)">
 				</div>
 			</div>
-			<div class="custom-file col-md-6" *ngIf="signUpForm.get('roleRadio')?.value === 'patient'">
+			<div class="custom-file col-md-6" *ngIf="signUpForm.get('role')?.value === 'patient'">
 				<div class="input-group">
-					<div class="input-group-prepend"><span
-							class="input-group-text rounded-end-0 d-flex justify-content-center">
+					<div class="input-group-prepend"><span class="input-group-text rounded-end-0 d-flex justify-content-center">
 							<i class="bi bi-upload"></i></span></div>
 					<label class="custom-file-label bg-white rounded-end text-truncate col" for="img2">
 						{{imgFile2Label}}</label>
 					<input type="file" class="form-control" accept="image/*" id="img2" (change)="imgUpload($event)">
 				</div>
 			</div>
-			<div class="col-md-5" *ngIf="signUpForm.get('roleRadio')?.value === 'specialist'">
+			<div class="col-md-5" *ngIf="signUpForm.get('role')?.value === 'specialist'">
 				<label for="workingDays">Select your working days:</label>
 				<div class="list-group-inline" id="workingDays">
 					<input type="checkbox" class="btn-check" value="0" id="sunday" autocomplete="off"

@@ -40,7 +40,7 @@ export class NewAccountTemplateComponent {
 	) {
 		// this.adminInstance = auth.loggedUser !== null;
 		this.signUpForm = inject(FormBuilder).group({
-			roleRadio: ['patient'],
+			role: ['patient'],
 			firstName: [
 				'',
 				[
@@ -136,11 +136,6 @@ export class NewAccountTemplateComponent {
 
 		const role: string = this.signUpForm.get('roleRadio')?.value;
 		switch (role) {
-			case 'admin':
-				select?.clearValidators();
-				workingDays?.clearValidators();
-				workingDays?.disable();
-				break;
 			case 'patient':
 				select?.addValidators(Validators.required);
 				workingDays?.clearValidators();
