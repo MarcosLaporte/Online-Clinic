@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Loader, ToastError } from 'src/app/environments/environment';
+import { User } from 'src/app/classes/user';
+import { Loader } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
+import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
 	selector: 'app-login',
@@ -11,8 +13,9 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class LoginComponent {
 	loginForm: FormGroup;
+	protected quickAccessUsers: Array<User> = [];
 
-	constructor(private router: Router, private auth: AuthService, private fb: FormBuilder) {
+	constructor(private router: Router, private auth: AuthService, private db: DatabaseService, private fb: FormBuilder) {
 		this.loginForm = fb.group({
 			email: [
 				'',
@@ -30,6 +33,19 @@ export class LoginComponent {
 		});
 	}
 
+	async ngOnInit() {
+		Loader.fire();
+		await this.db.getData<User>('users')
+		.then(users => {
+			const filteredPatients = users.filter(user => user.role === 'patient').slice(0, 3);
+			const filteredSpecialists = users.filter(user => user.role === 'specialist').slice(0, 2);
+			const filteredAdmins = users.filter(user => user.role === 'admin').slice(0, 1);
+
+			this.quickAccessUsers = [...filteredPatients, ...filteredSpecialists, ...filteredAdmins];
+		})
+		Loader.close();
+	}
+
 	async signIn() {
 		Loader.fire();
 		const email = this.loginForm.get('email')?.value;
@@ -42,24 +58,10 @@ export class LoginComponent {
 		Loader.close();
 	}
 
-	quickFill(role: 'patient' | 'specialist' | 'admin') {
-		let email: string;
-
-		switch (role) {
-			case 'patient':
-				email = 'wummauwubritou-6588@yopmail.com';
-				break;
-			case 'specialist':
-				email = 'xaprobraugreprei-7355@yopmail.com';
-				break;
-			case 'admin':
-				email = 'marcoslaporte2015@gmail.com';
-				break;
-		}
-
+	quickFill(user: User) {
 		this.loginForm.patchValue({
-			email: email,
-			password: 'utnfra'
+			email: user.email,
+			password: user.password
 		})
 
 		this.signIn();

@@ -2,6 +2,16 @@
 	<form [formGroup]="loginForm" class="form-signin bg-light bg-opacity-50 rounded" (ngSubmit)="signIn()">
 		<h1 class="h3 mb-3 font-weight-normal">Member Login</h1>
 
+		<div class="quick-access row" *ngIf="quickAccessUsers.length > 0">
+			<div *ngFor="let qUser of quickAccessUsers" class="col-md-2 image-div d-flex flex-column align-items-center">
+				<img [src]="qUser.imgUrl1" [alt]="qUser.firstName + '_' + qUser.lastName" [id]="qUser.idNo" class="rounded-2"
+					role="button" (click)="quickFill(qUser)">
+			</div>
+			<div class="col-md-6 text-muted border-end">PATIENTS</div>
+			<div class="col-md-4 text-muted border-end">SPECIALISTS</div>
+			<div class="col-md-2 text-muted">ADMIN</div>
+		</div>
+
 		<input type="email" id="inputEmail" class="form-control" placeholder="Email address" formControlName="email"
 			name="email" required>
 		<div class="bg-danger bg-opacity-50 m-auto w-75"
@@ -23,25 +33,9 @@
 			</small>
 		</div>
 
-		<button class="btn btn-lg btn-primary btn-block mt-3" [disabled]="loginForm.invalid" type="submit">Sign in</button>
+		<button class="btn btn-lg btn-primary btn-block mt-3" [disabled]="loginForm.invalid" type="submit">Sign
+			in</button>
 
 		<a class="nav nav-link active text-decoration-underline" routerLink="/signup">Create your Account</a>
-		<ul class="nav justify-content-center">
-			<li class="nav-item">
-				<span class="nav-link active text-decoration-underline" (click)="quickFill('patient')" role="button">
-					Quick patient
-				</span>
-			</li>
-			<li class="nav-item">
-				<span class="nav-link active text-decoration-underline" (click)="quickFill('specialist')" role="button">
-					Quick specialist
-				</span>
-			</li>
-			<li class="nav-item">
-				<span class="nav-link active text-decoration-underline" (click)="quickFill('admin')" role="button">
-					Quick admin
-				</span>
-			</li>
-		</ul>
 	</form>
 </div>
