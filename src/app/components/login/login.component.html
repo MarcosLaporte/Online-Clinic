@@ -2,7 +2,7 @@
 	<form [formGroup]="loginForm" class="form-signin bg-light bg-opacity-50 rounded" (ngSubmit)="signIn()">
 		<h1 class="h3 mb-3 font-weight-normal">Member Login</h1>
 
-		<div class="quick-access row" *ngIf="quickAccessUsers.length > 0">
+		<div class="quick-access row d-flex align-items-center" *ngIf="quickAccessUsers.length > 0">
 			<div *ngFor="let qUser of quickAccessUsers" class="col-md-2 image-div d-flex flex-column align-items-center">
 				<img [src]="qUser.imgUrl1" [alt]="qUser.firstName + '_' + qUser.lastName" [id]="qUser.idNo" class="rounded-2"
 					role="button" (click)="quickFill(qUser)">

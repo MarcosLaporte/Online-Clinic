@@ -14,10 +14,11 @@ export class Appointment {
 	date: Date;
 	status: ApptStatus;
 	specReview: string;
+	diagnosis: string;
 	patReview: string;
 	patSurvey: Survey | null;
 
-	constructor(id: string = '', patient: Patient, specialty: StringIdValuePair, specialist: Specialist, date: Date, status: ApptStatus = 'pending', specReview: string = '', patReview: string = '', patSurvey: Survey | null) {
+	constructor(id: string = '', patient: Patient, specialty: StringIdValuePair, specialist: Specialist, date: Date, status: ApptStatus = 'pending', specReview: string = '', diagnosis: string = '', patReview: string = '', patSurvey: Survey | null) {
 		this.id = id;
 		this.patient = patient;
 		this.specialty = specialty;
@@ -25,6 +26,7 @@ export class Appointment {
 		this.date = date;
 		this.status = status;
 		this.specReview = specReview;
+		this.diagnosis = diagnosis;
 		this.patReview = patReview;
 		this.patSurvey = patSurvey;
 	}
@@ -32,13 +34,13 @@ export class Appointment {
 	/**
 	 * Gets the appointments from the database and parses the reference items into class objects.
 	 * @param db DataBase Service instance.
-	 * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the array.
+	 * @param filterFunc A function that accepts up to three arguments. The method calls the filter function one time for each element in the array.
 	 * @returns An Appointment array.
 	 */
-	static async getAppointments(db: DatabaseService, predicate: (value: Appointment, index: number, array: Appointment[]) => unknown) {
+	static async getAppointments(db: DatabaseService, filterFunc: (value: Appointment, index: number, array: Appointment[]) => unknown) {
 		const promises: Array<Promise<any>> = [];
 		const appointments =
-			(await db.getData<Appointment>('appointments')).filter(predicate);
+			(await db.getData<Appointment>('appointments')).filter(filterFunc);
 
 		appointments.forEach(appt => {
 			if (appt.patient instanceof DocumentReference)
@@ -46,7 +48,7 @@ export class Appointment {
 
 			if (appt.specialist instanceof DocumentReference)
 				promises.push(db.getObjDataByRef<Specialist>(appt.specialist).then(data => appt.specialist = data));
-			
+
 			if (appt.date instanceof Timestamp)
 				appt.date = appt.date.toDate();
 
