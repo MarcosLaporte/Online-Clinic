@@ -18,23 +18,21 @@ export class UserListComponent {
 	constructor(private db: DatabaseService, private dialog: MatDialog) { }
 
 	async ngOnInit() {
-		const auxUsers = await this.db.getData<User>('users');
-		for (let user of auxUsers) {
-			switch (user.role) {
-				case 'patient':
-					this.users.push(user as Patient);
-					break;
-				case 'specialist':
-					this.users.push(user as Specialist);
-					break;
-				case 'admin':
-					this.users.push(user as Admin);
-					break;
-			}
-		}
+		this.db.listenColChanges<User>('users', this.users, undefined, undefined, this.userMap);
 	}
+	
+	private readonly userMap = async (user: User) => {
+		switch (user.role) {
+			case 'patient':
+				return user as Patient;
+			case 'specialist':
+				return user as Specialist;
+			case 'admin':
+				return user as Admin;
+		}
+	};
 
-	parseSpecialist(user: User) {
+	parseSpecialist = (user: User) => {
 		return user as Specialist;
 	}
 
