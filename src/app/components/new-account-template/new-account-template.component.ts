@@ -20,7 +20,6 @@ const uppercasePipe = new UpperCasePipe();
 })
 export class NewAccountTemplateComponent {
 	signUpForm: FormGroup;
-	// readonly adminInstance: boolean;
 
 	protected healthCarePlans: Array<StringIdValuePair> = [];
 	protected specialties: Array<StringIdValuePair> = [];
@@ -38,7 +37,6 @@ export class NewAccountTemplateComponent {
 		private storage: StorageService,
 		private auth: AuthService
 	) {
-		// this.adminInstance = auth.loggedUser !== null;
 		this.signUpForm = inject(FormBuilder).group({
 			role: ['patient'],
 			firstName: [
@@ -61,6 +59,7 @@ export class NewAccountTemplateComponent {
 					Validators.required,
 					Validators.min(0),
 					Validators.max(125),
+					this.specAgeValidator,
 				]
 			],
 			idNo: [
@@ -119,7 +118,7 @@ export class NewAccountTemplateComponent {
 	}
 
 	private passwordMatchValidator(control: AbstractControl): null | object {
-		const password = control.parent?.value.password;
+		const password = <string>control.parent?.value.password;
 		const passCheck = <string>control.value;
 
 		if (password !== passCheck)
@@ -128,13 +127,23 @@ export class NewAccountTemplateComponent {
 		return null;
 	}
 
+	private specAgeValidator(control: AbstractControl): null | object {
+		const role = <string>control.parent?.value.role;
+		const age = <number>control.value;
+
+		if (role === 'specialist' && age < 18)
+			return { invalidAge: true };
+
+			return null;
+	}
+
 	protected roleChange() {
 		const select = this.signUpForm.get('select');
 		const workingDays = this.signUpForm.get('workingDays');
 		select?.setValue(null);
 		workingDays?.setValue([]);
 
-		const role: string = this.signUpForm.get('roleRadio')?.value;
+		const role: string = this.signUpForm.get('role')?.value;
 		switch (role) {
 			case 'patient':
 				select?.addValidators(Validators.required);
@@ -175,7 +184,7 @@ export class NewAccountTemplateComponent {
 	}
 
 	imgsUploaded(): boolean {
-		const role = this.signUpForm.get('roleRadio')?.value;
+		const role = this.signUpForm.get('role')?.value;
 		if (role === 'patient')
 			return this.imgFile1 instanceof File && this.imgFile2 instanceof File;
 		else if (role === 'specialist')
@@ -246,7 +255,7 @@ export class NewAccountTemplateComponent {
 
 	private async constructUser(): Promise<Patient | Specialist | Admin> {
 		if (!(this.imgFile1 instanceof File)) throw new Error(`There's been a problem with the image.`);
-		const role: string = this.signUpForm.get('roleRadio')?.value;
+		const role: string = this.signUpForm.get('role')?.value;
 
 		const idNo: number = parseInt(this.signUpForm.get('idNo')?.value);
 		const firstName: string = uppercasePipe.transform(this.signUpForm.get('firstName')?.value);
