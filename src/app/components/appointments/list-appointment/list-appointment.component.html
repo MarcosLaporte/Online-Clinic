@@ -127,6 +127,9 @@
 					</ul>
 				</td>
 			</tr>
+			<p *ngIf="appointmentsToShow.length === 0" class="text-center">
+				There are no appointments to show
+			</p>
 		</tbody>
 	</table>
 </div>

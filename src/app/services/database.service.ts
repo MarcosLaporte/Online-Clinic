@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, addDoc, collection, doc, getDocs, setDoc, deleteDoc, updateDoc, getDoc, DocumentReference, DocumentData } from '@angular/fire/firestore';
+import { Firestore, addDoc, collection, doc, getDocs, setDoc, deleteDoc, updateDoc, getDoc, DocumentReference, DocumentData, QuerySnapshot, onSnapshot, query } from '@angular/fire/firestore';
 import { User } from '../classes/user';
 const userPath = 'users';
 
@@ -56,7 +56,36 @@ export class DatabaseService {
 		const docSnap = await getDoc(docRef);
 		return docSnap.data() as T;
 	}
-	
+
+	listenColChanges<T extends { id: string }>(colPath: string, arrayPointer: Array<T>, filterFunc?: (item: T) => boolean, sortFunc?: (a: T, b: T) => number, transform?: (item: T) => Promise<T>) {
+		const col = collection(this.firestore, colPath);
+		const q = query(col);
+
+		onSnapshot(q, (addSnap: QuerySnapshot) => {
+			addSnap.docChanges().forEach(async (change) => {
+				const data = change.doc.data();
+				const newData = transform ? await transform(data as T) : data as T;
+				if (!filterFunc || filterFunc(newData)) {
+					if (change.type === 'added') {
+						arrayPointer.push(newData);
+					} else {
+						const index = arrayPointer.findIndex(t => t.id === newData.id);
+						if (change.type === 'modified')
+							arrayPointer[index] = newData;
+						else
+							arrayPointer.splice(index, 1);
+					}
+				}
+			})
+
+			if (sortFunc)
+				arrayPointer.sort(sortFunc);
+
+			console.log(colPath, arrayPointer);
+
+		});
+	}
+
 	async searchUserByEmail(email: string): Promise<User> {
 		const arrayUsers = await this.getData<User>(userPath);
 		const index = arrayUsers.findIndex(u => u.email === email);

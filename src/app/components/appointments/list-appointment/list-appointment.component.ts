@@ -3,13 +3,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { Appointment, ApptStatus } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { User } from 'src/app/classes/user';
 import { InputSwal, Loader, StringIdValuePair, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 import { ApptSurveyComponent } from '../appt-survey/appt-survey.component';
 import { Admin } from 'src/app/classes/admin';
+import { DocumentReference, Timestamp } from 'firebase/firestore';
+import { Survey } from 'src/app/classes/survey';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -24,6 +25,7 @@ export class ListAppointmentComponent {
 	private specialtyArray: Array<StringIdValuePair> = [];
 	private specialistArray: Array<Specialist> = [];
 	private patientArray: Array<Patient> = [];
+	private readonly apptRoleFilter: (appt: Appointment) => boolean;
 
 	public get SpecialtyArray() {
 		return this.specialtyArray;
@@ -35,8 +37,20 @@ export class ListAppointmentComponent {
 		return this.patientArray;
 	}
 
-	constructor(private auth: AuthService, private db: DatabaseService, private dialog: MatDialog) {
+	constructor(private db: DatabaseService, private dialog: MatDialog) {
 		this.user = inject(AuthService).LoggedUser!;
+
+		switch (this.user.role) {
+			case 'patient':
+				this.apptRoleFilter = (appt: Appointment) => appt.patient.id === this.user.id;
+				break;
+			case 'specialist':
+				this.apptRoleFilter = (appt: Appointment) => appt.specialist.id === this.user.id;
+				break;
+			case 'admin':
+				this.apptRoleFilter = (appt: Appointment) => appt !== null;
+				break;
+		}
 	}
 
 	specialtyRadio: StringIdValuePair | null = null;
@@ -45,40 +59,32 @@ export class ListAppointmentComponent {
 
 	async ngOnInit() {
 		Loader.fire();
-		await this.initAppointments();
-
 		this.specialtyArray = await this.db.getData<StringIdValuePair>('specialties');
 
-		await this.db.getData<User>('users')
-			.then(data => {
-				for (const user of data) {
-					if (user.role === 'specialist')
-						this.specialistArray.push(user as Specialist)
-					else if (user.role === 'patient')
-						this.patientArray.push(user as Patient)
-				}
-			});
+		this.db.listenColChanges<Specialist>('users', this.specialistArray, (usr => usr.role === 'specialist'));
+		this.db.listenColChanges<Patient>('users', this.patientArray, (usr => usr.role === 'patient'));
+		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, this.apptRoleFilter, undefined, this.apptMap);
 
 		this.appointmentsToShow = this.appointments.sort((appt1, appt2) => appt1.date > appt2.date ? 1 : -1);
 		Loader.close();
 	}
 
-	private async initAppointments() {
-		let roleFilter: (appt: Appointment) => boolean;
-		switch (this.user.role) {
-			case 'patient':
-				roleFilter = (appt: Appointment) => appt.patient.id === this.user.id;
-				break;
-			case 'specialist':
-				roleFilter = (appt: Appointment) => appt.specialist.id === this.user.id;
-				break;
-			case 'admin':
-				roleFilter = (appt: Appointment) => appt !== null;
-				break;
-		}
+	private readonly apptMap = async (appt: Appointment) => {
+		if (appt.patient instanceof DocumentReference)
+			appt.patient = await this.db.getObjDataByRef<Patient>(appt.patient);
 
-		this.appointments = await Appointment.getAppointments(this.db, roleFilter);
-	}
+		if (appt.specialist instanceof DocumentReference)
+			appt.specialist = await this.db.getObjDataByRef<Specialist>(appt.specialist);
+
+		if (appt.date instanceof Timestamp)
+			appt.date = appt.date.toDate();
+
+		if (appt.patSurvey instanceof DocumentReference)
+			appt.patSurvey = await this.db.getObjDataByRef<Survey>(appt.patSurvey);
+
+		return appt;
+	};
+
 
 	//#region Table Filters
 	specialtyRadioChange(specialty: StringIdValuePair) {
@@ -118,50 +124,59 @@ export class ListAppointmentComponent {
 	//#endregion
 
 	async changeApptStatus(appt: Appointment, newStatus: ApptStatus) {
-		let review: SweetAlertResult<string> | undefined;
-		if (newStatus === 'cancelled' || newStatus === 'declined') {
-			if (this.user.role !== 'patient') {
-				review = await InputSwal.fire({ inputLabel: "Why are you cancelling this appointment?" });
-			}
+		let swalInput: SweetAlertResult<string> | undefined;
+		switch (newStatus) {
+			case 'cancelled':
+			case 'declined':
+				if (this.user.role !== 'patient') {
+					swalInput = await InputSwal.fire({ inputLabel: "Why are you cancelling this appointment?" });
+					if (!swalInput?.value) break;
+				}
 
-			let confirmed = true;
-			await Swal.fire({
-				title: "Confirm",
-				text: 'Are you sure you want to cancel this appointment?',
-				icon: "question",
-				showCancelButton: true,
-				confirmButtonColor: "#3085d6",
-				cancelButtonColor: "#d33",
-				cancelButtonText: "No, go back",
-				confirmButtonText: "Yes, cancel"
-			}).then((result) => {
-				if (!result.isConfirmed)
-					confirmed = false;
-			});
-			if (!confirmed) return;
+				const confirmed = await Swal.fire({
+					title: "Confirm",
+					text: 'Are you sure you want to cancel this appointment?',
+					icon: "question",
+					showCancelButton: true,
+					confirmButtonColor: "#3085d6",
+					cancelButtonColor: "#d33",
+					cancelButtonText: "No, go back",
+					confirmButtonText: "Yes, cancel"
+				}).then((result) => result.isConfirmed);
 
-			if (review?.value) {
-				appt.specReview = review.value;
-				this.db.updateDoc(apptDbPath, appt.id, { specReview: review.value });
-			}
+				if (confirmed) {
+					appt.status = newStatus; //TODO: Delete this and update list autom
+					appt.specReview = swalInput?.value ? swalInput!.value : '';
+					this.db.updateDoc(apptDbPath, appt.id, { specReview: appt.specReview, status: newStatus });
+				}
+				break;
+			case 'accepted':
+				appt.status = newStatus;
+				this.db.updateDoc(apptDbPath, appt.id, { status: newStatus });
+				break;
+			case 'done':
+				swalInput = await InputSwal.fire({ inputLabel: "Leave a review for the patient." });
+				if (!swalInput?.value) break;
+				const review = swalInput?.value;
 
-		} else if (newStatus === 'done') {
+				swalInput = await InputSwal.fire({ inputLabel: "What was the diagnosis?" });
+				if (!swalInput?.value) break;
+				const diag = swalInput?.value;
 
-			review = await InputSwal.fire({ inputLabel: "Leave a review for the patient." });
-			if (review?.value) {
-				appt.specReview = review.value;
-				this.db.updateDoc(apptDbPath, appt.id, { specReview: review.value });
-			}
+				if (swalInput?.value) {
+					appt.status = newStatus;
+					appt.specReview = review;
+					this.db.updateDoc(apptDbPath, appt.id, { specReview: review, diagnosis: diag, status: newStatus });
+				}
+				break;
 		}
-
-		appt.status = newStatus;
-		this.db.updateDoc(apptDbPath, appt.id, { status: newStatus });
 	}
 
 	showReview(appt: Appointment) {
-		if (this.user.role === 'patient')
-			Swal.fire(`Dr. ${appt.specialist.lastName} said:`, appt.specReview);
-		else
+		if (this.user.role === 'patient') {
+			Swal.fire(`Dr. ${appt.specialist.lastName} said:`, appt.specReview)
+				.then(() => Swal.fire(`Diagnosis:`, appt.diagnosis));
+		} else
 			Swal.fire(`${appt.patient.lastName} said:`, appt.patReview);
 	}
 
