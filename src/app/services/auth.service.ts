@@ -133,7 +133,9 @@ export class AuthService {
 	async isSpecialistEnabled(): Promise<boolean> {
 		if (this.LoggedUser?.role !== 'specialist') throw new Error("User is not specialist.");
 
-		return (this.LoggedUser as Specialist).isEnabled;
+		const spec = await this.db.searchUserByIdNo(this.LoggedUser.idNo);
+		this.LoggedUser = spec;
+		return (spec as Specialist).isEnabled;
 	}
 
 	isFullyValidUser(): boolean {
