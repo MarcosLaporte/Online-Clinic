@@ -144,14 +144,10 @@ export class ListAppointmentComponent {
 					confirmButtonText: "Yes, cancel"
 				}).then((result) => result.isConfirmed);
 
-				if (confirmed) {
-					appt.status = newStatus; //TODO: Delete this and update list autom
-					appt.specReview = swalInput?.value ? swalInput!.value : '';
+				if (confirmed)
 					this.db.updateDoc(apptDbPath, appt.id, { specReview: appt.specReview, status: newStatus });
-				}
 				break;
 			case 'accepted':
-				appt.status = newStatus;
 				this.db.updateDoc(apptDbPath, appt.id, { status: newStatus });
 				break;
 			case 'done':
@@ -163,11 +159,8 @@ export class ListAppointmentComponent {
 				if (!swalInput?.value) break;
 				const diag = swalInput?.value;
 
-				if (swalInput?.value) {
-					appt.status = newStatus;
-					appt.specReview = review;
+				if (swalInput?.value)
 					this.db.updateDoc(apptDbPath, appt.id, { specReview: review, diagnosis: diag, status: newStatus });
-				}
 				break;
 		}
 	}
