@@ -34,7 +34,7 @@
 			</div>
 		</div>
 
-		<div class="row">
+		<div class="row align-items-center">
 			<div class="col-md-2 mb-3">
 				<label for="age">Age</label>
 				<input type="number" class="form-control" id="age" name="age" min="0" max="125" formControlName="age"
@@ -53,9 +53,8 @@
 			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('role')?.value === 'patient'">
 				<label for="healthPlan">Healthcare plan</label>
 				<div class="input-group">
-					<select class="form-control text-center" id="healthPlan" formControlName="select"
-						(change)="onSelectionChange($event, 'healthPlan')"
-						[class]="signUpForm.controls['select'].errors !== null && signUpForm.controls['select'].touched ? 'border-danger border-2' : ''">
+					<select class="form-control text-center" id="healthPlan" formControlName="hcp"
+						[class]="signUpForm.controls['hcp'].errors !== null && signUpForm.controls['hcp'].touched ? 'border-danger border-2' : ''">
 						<option [ngValue]="null" disabled selected>Select a health care plan</option>
 						<option *ngFor="let hcp of healthCarePlans" [ngValue]="hcp">{{hcp.value}}</option>
 					</select>
@@ -67,18 +66,15 @@
 			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('role')?.value === 'specialist'">
 				<label for="specialty">Specialty</label>
 				<div class="input-group">
-					<select class="form-control text-center" id="specialty" formControlName="select"
-						(change)="onSelectionChange($event, 'specialty')"
-						[class]="signUpForm.controls['select'].errors !== null && signUpForm.controls['select'].touched ? 'border-danger border-2' : ''">
-						<option [ngValue]="null" disabled selected>Select a specialty</option>
-						<option *ngFor="let spec of specialties" [ngValue]="spec">{{spec.value}}</option>
-						<option value="addNew" *ngIf="allowAddNew" class="text-muted">--Add a new specialty--</option>
-					</select>
-					<div class="input-group-prepend">
-						<span class="input-group-text rounded-start-0">
-							<i class="bi bi-box-arrow-down"></i>
+					<div class="input-group-prepend d-flex">
+						<span role="button" class="input-group-text rounded-end-0 flex-fill" (click)="addNewSpecialty()">
+							<i class="bi bi-plus-circle"></i>
 						</span>
 					</div>
+					<ng-select class="text-center col" [multiple]="true" [closeOnSelect]="false" [hideSelected]="true"
+						formControlName="specialties" placeholder="← Add new or select from list">
+						<ng-option *ngFor="let spec of specialties" [value]="spec">{{spec.value}}</ng-option>
+					</ng-select>
 				</div>
 			</div>
 		</div>
@@ -89,7 +85,8 @@
 				[class]="signUpForm.get('role')?.value === 'patient' ? 'col-md-6' : signUpForm.get('role')?.value === 'specialist' ? 'col-md-7 d-flex flex-wrap align-content-center' : 'col'">
 				<div class="input-group">
 					<div class="input-group-prepend"><span class="input-group-text rounded-end-0 d-flex justify-content-center"><i
-								class="bi bi-upload"></i></span></div>
+								class="bi bi-upload"></i></span>
+					</div>
 					<label class="custom-file-label bg-white rounded-end text-truncate col" for="img1">
 						{{imgFile1Label}}</label>
 					<input type="file" class="form-control" accept="image/*" id="img1" (change)="imgUpload($event)">

@@ -80,9 +80,6 @@ export class DatabaseService {
 
 			if (sortFunc)
 				arrayPointer.sort(sortFunc);
-
-			console.log(colPath, arrayPointer);
-
 		});
 	}
 

@@ -22,6 +22,7 @@ input[type="file"] {
 .roles input[type="radio"]>img:hover {
 	cursor: pointer;
 }
+
 .roles input[type="radio"]:checked+label>img {
 	filter: brightness(105%);
 	transform: scale(1.25);

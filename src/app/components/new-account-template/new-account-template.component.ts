@@ -1,11 +1,11 @@
 import { UpperCasePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { InputSwal, Loader, StringIdValuePair, ToastError } from 'src/app/environments/environment';
+import { InputSwal, Loader, StringIdValuePair, ToastError, ToastInfo } from 'src/app/environments/environment';
 import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -27,30 +27,29 @@ export class NewAccountTemplateComponent {
 	imgFile2: File | undefined;
 	imgFile1Label: string = 'Choose an image';
 	imgFile2Label: string = 'Choose second image';
-	newOption: string = '';
-	allowAddNew: boolean = true;
 	private recaptcha: string = '';
 
 	constructor(
 		private router: Router,
+		private fb: FormBuilder,
 		private db: DatabaseService,
 		private storage: StorageService,
 		private auth: AuthService
 	) {
-		this.signUpForm = inject(FormBuilder).group({
-			role: ['patient'],
+		this.signUpForm = fb.group({
+			role: 'specialist',
 			firstName: [
 				'',
 				[
 					Validators.required,
-					Validators.pattern(/^[a-zA-Z]+$/),
+					Validators.pattern(/[\p{L}\p{M}]+/u),
 				]
 			],
 			lastName: [
 				'',
 				[
 					Validators.required,
-					Validators.pattern(/^[a-zA-Z]+$/),
+					Validators.pattern(/[\p{L}\p{M}]+/u),
 				]
 			],
 			age: [
@@ -69,11 +68,12 @@ export class NewAccountTemplateComponent {
 					Validators.pattern(/^\d{8}/),
 				]
 			],
-			select: [
-				null,
+			hcp: null,
+			specialties: [
+				[],
 				[
-					Validators.required,
-				]
+					Validators.minLength(1)
+				],
 			],
 			workingDays: [
 				{ value: [], disabled: true },
@@ -107,14 +107,8 @@ export class NewAccountTemplateComponent {
 	}
 
 	async ngOnInit() {
-		let auxArray = [];
-		Loader.fire();
-		auxArray = await this.db.getData<StringIdValuePair>('healthCarePlans');
-		this.healthCarePlans = auxArray.sort((h1, h2) => h1.value > h2.value ? 1 : -1);
-
-		auxArray = await this.db.getData<StringIdValuePair>('specialties');
-		this.specialties = auxArray.sort((s1, s2) => s1.value > s2.value ? 1 : -1);
-		Loader.close();
+		this.db.listenColChanges<StringIdValuePair>('specialties', this.specialties, undefined, (h1, h2) => h1.value > h2.value ? 1 : -1);
+		this.db.listenColChanges<StringIdValuePair>('healthCarePlans', this.healthCarePlans, undefined, (h1, h2) => h1.value > h2.value ? 1 : -1);
 	}
 
 	private passwordMatchValidator(control: AbstractControl): null | object {
@@ -134,53 +128,46 @@ export class NewAccountTemplateComponent {
 		if (role === 'specialist' && age < 18)
 			return { invalidAge: true };
 
-			return null;
+		return null;
 	}
 
 	protected roleChange() {
-		const select = this.signUpForm.get('select');
+		const hcp = this.signUpForm.get('hcp');
+		const specs = this.signUpForm.get('specialties');
 		const workingDays = this.signUpForm.get('workingDays');
-		select?.setValue(null);
+		hcp?.setValue(null);
+		specs?.setValue([]);
 		workingDays?.setValue([]);
 
-		const role: string = this.signUpForm.get('role')?.value;
-		switch (role) {
-			case 'patient':
-				select?.addValidators(Validators.required);
-				workingDays?.clearValidators();
-				workingDays?.disable();
-				break;
-			case 'specialist':
-				select?.addValidators(Validators.required);
-				workingDays?.addValidators(Validators.required);
-				break;
+		if (this.signUpForm.get('role')?.value === 'patient') {
+			hcp?.enable();
+			hcp?.addValidators(Validators.required);
+			specs?.clearValidators();
+			specs?.disable();
+			workingDays?.clearValidators();
+			workingDays?.disable();
+		} else {
+			hcp?.clearValidators();
+			hcp?.disable();
+			specs?.enable();
+			specs?.addValidators(Validators.required);
+			workingDays?.enable();
+			workingDays?.addValidators(Validators.required);
 		}
 
-		select?.updateValueAndValidity();
+		hcp?.updateValueAndValidity();
+		specs?.updateValueAndValidity();
+		workingDays?.updateValueAndValidity();
 	}
 
-	protected async onSelectionChange(event: Event, formControl: string) {
-		let value: string | null = (event.target as HTMLSelectElement).value;
-		if (formControl === 'specialty') {
-			this.signUpForm.controls['workingDays'].enable();
-			if (value === 'addNew') {
-				this.allowAddNew = false;
-				const newSpecialty: SweetAlertResult<string> | undefined =
-					await InputSwal.fire({ input: 'text', inputLabel: "Add new specialty." });
+	protected async addNewSpecialty() {
+		const newSpecialty: SweetAlertResult<string> | undefined =
+			await InputSwal.fire({ input: 'text', inputLabel: "Add new specialty." });
 
-				if (newSpecialty?.value) {
-					const docId = await this.db.addDataAutoId('specialties', { value: newSpecialty.value });
-					value = docId;
-					this.specialties = await this.db.getData('specialties');
-				} else {
-					ToastError.fire('Operation cancelled.');
-					value = null;
-				}
-			}
-		}
-
-		this.signUpForm.get(formControl)?.patchValue(value);
-		this.allowAddNew = true;
+		if (newSpecialty?.value)
+			await this.db.addDataAutoId('specialties', { value: newSpecialty.value });
+		else
+			ToastError.fire('Operation cancelled.');
 	}
 
 	imgsUploaded(): boolean {
@@ -263,20 +250,19 @@ export class NewAccountTemplateComponent {
 		const age: number = this.signUpForm.get('age')?.value;
 		const email: string = this.signUpForm.get('email')?.value;
 		const password: string = this.signUpForm.get('password')?.value;
-		const selectValue: StringIdValuePair = this.signUpForm.get('select')?.value;
-		const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
 
 		const imgUrl1 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}`);
 		let user: Patient | Specialist | Admin;
 		if (role === 'patient') {
+			const hcp: StringIdValuePair = this.signUpForm.get('hcp')?.value;
 			if (!(this.imgFile2 instanceof File)) throw new Error(`There's been a problem with the second image.`);
 			const imgUrl2 = await this.storage.uploadImage(this.imgFile2, `users/${idNo}-2`);
 
-			user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, selectValue);
-		} else if (role === 'specialist') {
-			user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, selectValue, false, workingDays);
+			user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, hcp);
 		} else {
-			user = new Admin('', firstName, lastName, age, idNo, imgUrl1, email, password);
+			const specialties: Array<StringIdValuePair> = this.signUpForm.get('specialties')?.value;
+			const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
+			user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, specialties, false, workingDays);
 		}
 
 		return user;

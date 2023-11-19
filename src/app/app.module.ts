@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
@@ -23,6 +22,7 @@ import { ListAppointmentComponent } from './components/appointments/list-appoint
 import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-survey.component';
 import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
 import { NewAccountTemplateComponent } from './components/new-account-template/new-account-template.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
 	declarations: [
@@ -49,8 +49,8 @@ import { NewAccountTemplateComponent } from './components/new-account-template/n
 		FormsModule,
 		ReactiveFormsModule,
 		MatDialogModule,
-		BrowserAnimationsModule,
 		RecaptchaModule,
+		NgSelectModule,
 	],
 	providers: [
 		{
