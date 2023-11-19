@@ -20,10 +20,11 @@
 					</div>
 				</td>
 				<td class="col-md-1 text-center">
-					<div class="ms-3">
-						<span class="badge rounded-pill"
-							[class]="user.role == 'admin' ? 'bg-success' : user.role == 'patient' ? 'bg-danger' : 'bg-warning'">
-							{{user.role | uppercase}}</span>
+					<div class="ms-3" [ngSwitch]="user.role">
+						<span class="badge rounded-pill bg-success" *ngSwitchCase="'admin'">{{user.role | uppercase}}</span>
+						<span class="badge rounded-pill bg-danger" *ngSwitchCase="'patient'">{{user.role | uppercase}}</span>
+						<span class="badge rounded-pill bg-warning" role="button" *ngSwitchCase="'specialist'"
+							(click)="showSpecs(parseSpecialist(user))">{{user.role | uppercase}}</span>
 					</div>
 				</td>
 				<td class="col-md-1 text-center">

@@ -40,19 +40,14 @@ export class NewAppointmentComponent {
 
 	async ngOnInit() {
 		Loader.fire();
-		this.specialtyArray = await this.db.getData<StringIdValuePair>('specialties');
-
-		await this.db.getData<User>(usersDbPath)
-			.then(data => {
-				this.specialistArray = data
-					.filter(user => user.role === 'specialist' && (user as Specialist).isEnabled)
-					.map(spec => spec as Specialist);
-			});
-
 		if (this.user.role === 'patient') {
 			this.patientIdNo = this.user.idNo;
 			this.patient = this.user as Patient;
 		}
+
+		this.db.listenColChanges<StringIdValuePair>('specialties', this.specialtyArray);
+		this.db.listenColChanges<Specialist>(usersDbPath, this.specialistArray, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
+
 		Loader.close();
 	}
 
@@ -76,7 +71,8 @@ export class NewAppointmentComponent {
 	selectSpecialty() {
 		this.specialist = null;
 		this.availableSpecialists =
-			this.specialistArray.filter(spec => spec.specialty.id === this.specialty?.id);
+			this.specialistArray.filter(doc => doc.specialties.some((spec) => spec.id === this.specialty!.id)
+			);
 	}
 
 	async selectSpecialist(event: Event) {
@@ -94,12 +90,20 @@ export class NewAppointmentComponent {
 	 */
 	private getAllSpecDates(): Array<Date> {
 		let datesArray: Array<Date> = [];
+
+		let [hoursStr, minutesStr] = this.specialist!.shiftStart.split(':');
+		const hoursStart = parseInt(hoursStr, 10);
+		const minutesStart = parseInt(minutesStr, 10);
 		const startDate: Date = new Date();
 		startDate.setDate(startDate.getDate() + 1); //Next day
-		startDate.setHours(8, 30, 0, 0);
+		startDate.setHours(hoursStart, minutesStart, 0, 0);
+
+		[hoursStr, minutesStr] = this.specialist!.shiftEnd.split(':');
+		const hoursEnd = parseInt(hoursStr, 10);
+		const minutesEnd = parseInt(minutesStr, 10);
 		const endDate: Date = new Date(startDate);
 		endDate.setDate(endDate.getDate() + 15); //15 days from start day
-		endDate.setHours(18, 30, 0, 0);
+		endDate.setHours(hoursEnd, minutesEnd, 0, 0);
 
 		let auxDate: Date = new Date(startDate);
 
