@@ -12,6 +12,7 @@ import { AfReferencesService } from 'src/app/services/af-references.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
+import { UserListConfig } from '../../user-btn-list/user-btn-list.component';
 
 const apptDbPath = 'appointments';
 const usersDbPath = 'users';
@@ -51,9 +52,19 @@ export class NewAppointmentComponent {
 
 		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, undefined, undefined, this.apptMapFunc);
 		this.db.listenColChanges<StringIdValuePair>('specialties', this.specialtyArray);
-		this.db.listenColChanges<Specialist>(usersDbPath, this.specialistArray, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
+		this.db.listenColChanges<Specialist>(usersDbPath, this.availableSpecialists, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
 
 		Loader.close();
+	}
+
+	readonly specBtnListConfig: UserListConfig = {
+		containerClasses: 'col-auto image-div d-flex flex-column align-items-center',
+		userBtnClasses: 'rounded-circle',
+		patientAmount: 0,
+		specialistAmount: Number.MAX_SAFE_INTEGER,
+		adminAmount: 0,
+		roleDisplay: 'none',
+		nameDisplay: 'top',
 	}
 
 	lookUpPatient() {
@@ -80,7 +91,8 @@ export class NewAppointmentComponent {
 			);
 	}
 
-	async selectSpecialist() {
+	async selectSpecialist(specialist: User) {
+		this.specialist = specialist as Specialist;
 		const allDates = this.getAllSpecDates();
 		const existingAppts = this.appointments.filter(appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled');
 

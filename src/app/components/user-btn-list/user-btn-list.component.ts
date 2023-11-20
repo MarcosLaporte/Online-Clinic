@@ -2,12 +2,13 @@ import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { User } from 'src/app/classes/user';
 
 export interface UserListConfig {
-	containerClasses?: string,
-	userBtnClasses?: string,
-	showRole: boolean,
-	patientAmount?: number,
-	specialistAmount?: number,
-	adminAmount?: number,
+	containerClasses: string,
+	userBtnClasses: string,
+	roleDisplay: 'none' | 'top' | 'bottom',
+	nameDisplay: 'none' | 'top' | 'bottom',
+	patientAmount: number,
+	specialistAmount: number,
+	adminAmount: number,
 }
 
 @Component({
@@ -18,7 +19,9 @@ export interface UserListConfig {
 export class UserBtnListComponent {
 	@Input() config: UserListConfig = {
 		containerClasses: "image-div d-flex flex-column align-items-center",
-		showRole: false,
+		userBtnClasses: 'rounded-2',
+		roleDisplay: 'none',
+		nameDisplay: 'none',
 		patientAmount: Number.MAX_SAFE_INTEGER,
 		specialistAmount: Number.MAX_SAFE_INTEGER,
 		adminAmount: Number.MAX_SAFE_INTEGER,

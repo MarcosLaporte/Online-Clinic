@@ -40,7 +40,8 @@ export class LoginComponent {
 		patientAmount: 3,
 		specialistAmount: 2,
 		adminAmount: 1,
-		showRole: true,
+		roleDisplay: 'bottom',
+		nameDisplay: 'none',
 	}
 
 	async ngOnInit() {

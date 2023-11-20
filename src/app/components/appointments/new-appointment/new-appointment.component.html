@@ -13,8 +13,13 @@
 					</button>
 				</div>
 
+				<div class="mb-2" *ngIf="availableSpecialists.length > 0">
+					<app-user-btn-list [userList]="availableSpecialists" (btnPressed)="selectSpecialist($event)"
+						[config]="specBtnListConfig"></app-user-btn-list>
+				</div>
+
 				<div *ngIf="patient" class="row">
-					<div class="col-md-6">
+					<div class="col">
 						<label for="specialty">Specialty</label>
 						<div class="input-group">
 							<select class="form-control text-center" id="specialty" [(ngModel)]="specialty" name="specialty"
@@ -29,8 +34,7 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="col-md-6">
+					<!-- <div class="col-md-6">
 						<label for="specialist">Specialist</label>
 						<div class="input-group">
 							<select class="form-control text-center" id="specialist" [(ngModel)]="specialist" name="specialist"
@@ -46,8 +50,9 @@
 								</span>
 							</div>
 						</div>
-					</div>
+					</div> -->
 				</div>
+
 
 				<hr class="mb-4">
 				<div *ngIf="specialist">
