@@ -2,6 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { ToastInfo } from './environments/environment';
+import { Specialist } from './classes/specialist';
 import { User } from './classes/user';
 
 @Component({
@@ -26,8 +27,12 @@ export class AppComponent {
 
 		auth.loggedUserObs.subscribe(user => {
 			this.user = user;
-			this.isValid = auth.IsUserValid;
-			if (!user) {
+			if (user) {
+				if (user.role === 'specialist' && !((user as Specialist).isEnabled))
+					this.isValid = false;
+				else
+					this.isValid = true;
+			} else {
 				ToastInfo.fire('No user in session.');
 				router.navigateByUrl('home');
 			}
