@@ -5,6 +5,7 @@ import { User } from 'src/app/classes/user';
 import { Loader } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
+import { UserListConfig } from '../user-btn-list/user-btn-list.component';
 
 @Component({
 	selector: 'app-login',
@@ -13,7 +14,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 })
 export class LoginComponent {
 	loginForm: FormGroup;
-	protected quickAccessUsers: Array<User> = [];
+	protected users: Array<User> = [];
 
 	constructor(private router: Router, private auth: AuthService, private db: DatabaseService, private fb: FormBuilder) {
 		this.loginForm = fb.group({
@@ -33,16 +34,18 @@ export class LoginComponent {
 		});
 	}
 
+	readonly usrBtnListConfig: UserListConfig = {
+		containerClasses: "col-md-2 image-div d-flex flex-column align-items-center",
+		userBtnClasses: "rounded-2",
+		patientAmount: 3,
+		specialistAmount: 2,
+		adminAmount: 1,
+		showRole: true,
+	}
+
 	async ngOnInit() {
 		Loader.fire();
-		await this.db.getData<User>('users')
-		.then(users => {
-			const filteredPatients = users.filter(user => user.role === 'patient').slice(0, 3);
-			const filteredSpecialists = users.filter(user => user.role === 'specialist').slice(0, 2);
-			const filteredAdmins = users.filter(user => user.role === 'admin').slice(0, 1);
-
-			this.quickAccessUsers = [...filteredPatients, ...filteredSpecialists, ...filteredAdmins];
-		})
+		this.users = await this.db.getData<User>('users');
 		Loader.close();
 	}
 

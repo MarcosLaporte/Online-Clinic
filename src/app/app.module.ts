@@ -23,6 +23,7 @@ import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-
 import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
 import { NewAccountTemplateComponent } from './components/new-account-template/new-account-template.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { UserBtnListComponent } from './components/user-btn-list/user-btn-list.component';
 
 @NgModule({
 	declarations: [
@@ -38,6 +39,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 		ListAppointmentComponent,
 		ApptSurveyComponent,
 		NewAccountTemplateComponent,
+		UserBtnListComponent,
 	],
 	imports: [
 		BrowserModule,
