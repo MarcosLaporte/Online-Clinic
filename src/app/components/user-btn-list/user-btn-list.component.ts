@@ -38,11 +38,6 @@ export class UserBtnListComponent {
 		filteredSpecialists = this.config.specialistAmount! > 0 ? filteredSpecialists.slice(0, this.config.specialistAmount) : [];
 		filteredAdmins = this.config.adminAmount! > 0 ? filteredAdmins.slice(0, this.config.adminAmount) : [];
 
-		console.log(filteredPatients);
-		console.log(filteredSpecialists);
-		console.log(filteredAdmins);
-
-
 		this.usersToShow = [...filteredPatients, ...filteredSpecialists, ...filteredAdmins];
 	}
 }

@@ -24,6 +24,8 @@ import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recap
 import { NewAccountTemplateComponent } from './components/new-account-template/new-account-template.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { UserBtnListComponent } from './components/user-btn-list/user-btn-list.component';
+import { MyPatientsComponent } from './components/my-patients/my-patients.component';
+import { PatientHistoryComponent } from './components/patient-history/patient-history.component';
 
 @NgModule({
 	declarations: [
@@ -40,6 +42,8 @@ import { UserBtnListComponent } from './components/user-btn-list/user-btn-list.c
 		ApptSurveyComponent,
 		NewAccountTemplateComponent,
 		UserBtnListComponent,
+		MyPatientsComponent,
+		PatientHistoryComponent,
 	],
 	imports: [
 		BrowserModule,

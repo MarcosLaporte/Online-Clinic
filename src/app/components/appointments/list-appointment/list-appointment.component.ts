@@ -3,14 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { Appointment, ApptStatus } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { InputSwal, Loader, StringIdValuePair, ToastError, ToastSuccess } from 'src/app/environments/environment';
+import { InputSwal, Loader, StringIdValuePair, ToastSuccess } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 import { ApptSurveyComponent } from '../appt-survey/appt-survey.component';
 import { Admin } from 'src/app/classes/admin';
-import { DocumentReference, Timestamp } from 'firebase/firestore';
-import { Survey } from 'src/app/classes/survey';
+import { AfReferencesService } from 'src/app/services/af-references.service';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -26,6 +25,7 @@ export class ListAppointmentComponent {
 	private specialistArray: Array<Specialist> = [];
 	private patientArray: Array<Patient> = [];
 	private readonly apptRoleFilter: (appt: Appointment) => boolean;
+	private readonly apptMapFunc: (appt: Appointment) => Promise<Appointment>;
 
 	public get SpecialtyArray() {
 		return this.specialtyArray;
@@ -39,6 +39,7 @@ export class ListAppointmentComponent {
 
 	constructor(private db: DatabaseService, private dialog: MatDialog) {
 		this.user = inject(AuthService).LoggedUser!;
+		this.apptMapFunc = inject(AfReferencesService).apptMap;
 
 		switch (this.user.role) {
 			case 'patient':
@@ -63,28 +64,11 @@ export class ListAppointmentComponent {
 
 		this.db.listenColChanges<Specialist>('users', this.specialistArray, (usr => usr.role === 'specialist'));
 		this.db.listenColChanges<Patient>('users', this.patientArray, (usr => usr.role === 'patient'));
-		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, this.apptRoleFilter, undefined, this.apptMap);
+		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, this.apptRoleFilter, undefined, this.apptMapFunc);
 
 		this.appointmentsToShow = this.appointments.sort((appt1, appt2) => appt1.date > appt2.date ? 1 : -1);
 		Loader.close();
 	}
-
-	private readonly apptMap = async (appt: Appointment) => {
-		if (appt.patient instanceof DocumentReference)
-			appt.patient = await this.db.getObjDataByRef<Patient>(appt.patient);
-
-		if (appt.specialist instanceof DocumentReference)
-			appt.specialist = await this.db.getObjDataByRef<Specialist>(appt.specialist);
-
-		if (appt.date instanceof Timestamp)
-			appt.date = appt.date.toDate();
-
-		if (appt.patSurvey instanceof DocumentReference)
-			appt.patSurvey = await this.db.getObjDataByRef<Survey>(appt.patSurvey);
-
-		return appt;
-	};
-
 
 	//#region Table Filters
 	specialtyRadioChange(specialty: StringIdValuePair) {

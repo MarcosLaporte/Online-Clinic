@@ -8,7 +8,7 @@ import { AccountComponent } from './components/account/account.component';
 import { loggedGuard } from './guards/logged.guard';
 import { notLoggedGuard } from './guards/not-logged.guard';
 import { adminGuard } from './guards/admin.guard';
-import { specEnableDeactivateGuard } from './guards/spec-enable-deactivate.guard';
+import { specGuard } from './guards/spec.guard';
 import { notEnabledSpecGuard } from './guards/not-enabled-spec.guard';
 import { validAccountGuard } from './guards/valid-account.guard';
 import { SpecialistNotEnabledComponent } from './components/specialist-not-enabled/specialist-not-enabled.component';
@@ -17,6 +17,7 @@ import { notSpecGuard } from './guards/not-spec.guard';
 import { NewAppointmentComponent } from './components/appointments/new-appointment/new-appointment.component';
 import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
 import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-survey.component';
+import { MyPatientsComponent } from './components/my-patients/my-patients.component';
 
 const routes: Routes = [
 	{
@@ -72,6 +73,11 @@ const routes: Routes = [
 		path: 'appointment-survey',
 		canActivate: [validAccountGuard],
 		component: ApptSurveyComponent
+	},
+	{
+		path: 'my-patients',
+		canActivate: [specGuard, validAccountGuard],
+		component: MyPatientsComponent
 	},
 ]
 

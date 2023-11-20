@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
@@ -7,6 +7,8 @@ import { User } from 'src/app/classes/user';
 import { Loader, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
+import { PatientHistoryComponent } from '../patient-history/patient-history.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
 	selector: 'app-user-list',
@@ -14,13 +16,18 @@ import Swal from 'sweetalert2';
 	styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent {
+	readonly userInSession: Patient | Specialist | Admin;
 	users: Array<User> = [];
+
+	@Input() userFilter: ((user: User) => boolean) | undefined;
 	creatingUser: boolean = false;
 
-	constructor(private db: DatabaseService, private dialog: MatDialog) { }
+	constructor(private db: DatabaseService, private dialog: MatDialog) {
+		this.userInSession = inject(AuthService).LoggedUser!;
+	}
 
 	async ngOnInit() {
-		this.db.listenColChanges<User>('users', this.users, undefined, (u1: User, u2: User) => u1.lastName > u2.lastName ? 1 : -1, this.userMap);
+		this.db.listenColChanges<User>('users', this.users, this.userFilter, (u1: User, u2: User) => u1.lastName > u2.lastName ? 1 : -1, this.userMap);
 	}
 
 	private readonly userMap = async (user: User) => {
@@ -36,6 +43,10 @@ export class UserListComponent {
 
 	parseSpecialist = (user: User) => {
 		return user as Specialist;
+	}
+
+	parsePatient = (user: User) => {
+		return user as Patient;
 	}
 
 	showSpecs(specialist: Specialist) {
@@ -57,6 +68,15 @@ export class UserListComponent {
 				specialist.isEnabled = newValue;
 			})
 			.catch((error) => { ToastError.fire({ title: 'Oops...', text: error.message }); });
+	}
+
+	async showMedicalHistory(patient: Patient) {
+		const dialogRef = this.dialog.open(PatientHistoryComponent, {
+			width: '800px'
+		});
+
+		dialogRef.componentInstance.patient = patient;
+
 	}
 
 	newAccount(user: Patient | Specialist | Admin) {

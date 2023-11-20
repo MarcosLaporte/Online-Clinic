@@ -6,7 +6,7 @@
 				<th>User</th>
 				<th class="text-center">Role</th>
 				<th class="text-center">Pers. ID</th>
-				<th class="text-center">Spec</th>
+				<th class="text-center">Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -34,6 +34,10 @@
 				</td>
 				<td class="col-md-1 text-center">
 					<div class="ms-3">
+						<button class="btn btn-primary fw-normal mb-0" *ngIf="user.role === 'patient'"
+							(click)="showMedicalHistory(parsePatient(user))">
+							History
+						</button>
 						<button class="btn btn-primary fw-normal mb-0" *ngIf="user.role === 'specialist'"
 							(click)="toggleEnable(parseSpecialist(user))">
 							{{(parseSpecialist(user))!.isEnabled ? 'Disable' : 'Enable'}}
@@ -45,19 +49,19 @@
 	</table>
 </div>
 
-<div *ngIf="!creatingUser" class="new-user d-flex justify-content-center">
-	<hr class="my-2">
-	<span class="nav nav-link active text-decoration-underline mx-5" role="button" (click)="creatingUser = true">
-		Create new Account
-	</span>
-</div>
-<div class="newUser" *ngIf="creatingUser">
-	<div class="new-user d-flex justify-content-center">
+<hr class="my-2">
+<div *ngIf="userInSession.role === 'admin'" class="new-user d-flex justify-content-center mb-4">
+	<div *ngIf="!creatingUser">
+		<span class="nav nav-link active text-decoration-underline mx-5" role="button" (click)="creatingUser = true">
+			Create new Account
+		</span>
+	</div>
+	<div *ngIf="creatingUser">
 		<hr class="my-2">
 		<span class="nav nav-link active text-decoration-underline mx-5" role="button" (click)="creatingUser = false">
 			Cancel
 		</span>
-	</div>
 
-	<app-new-account-template [admin]="true" (createdUser)="newAccount($event)"></app-new-account-template>
+		<app-new-account-template [admin]="true" (createdUser)="newAccount($event)"></app-new-account-template>
+	</div>
 </div>

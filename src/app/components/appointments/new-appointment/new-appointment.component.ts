@@ -8,6 +8,7 @@ import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
 import { Loader, StringIdValuePair, ToastError, ToastSuccess } from 'src/app/environments/environment';
+import { AfReferencesService } from 'src/app/services/af-references.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
@@ -21,6 +22,8 @@ const usersDbPath = 'users';
 	providers: [DatePipe]
 })
 export class NewAppointmentComponent {
+	private appointments: Array<Appointment> = [];
+	private readonly apptMapFunc: (appt: Appointment) => Promise<Appointment>;
 
 	user: User;
 	specialtyArray: Array<StringIdValuePair> = [];
@@ -29,8 +32,9 @@ export class NewAppointmentComponent {
 	private availableDates: Array<Date> = [];
 	groupedDates: [string, Date[]][] = [];
 
-	constructor(private db: DatabaseService, private auth: AuthService, private router: Router, private datePipe: DatePipe) {
+	constructor(private db: DatabaseService, private router: Router, private datePipe: DatePipe) {
 		this.user = inject(AuthService).LoggedUser!;
+		this.apptMapFunc = inject(AfReferencesService).apptMap;
 	}
 
 	patientIdNo: number = 0;
@@ -45,6 +49,7 @@ export class NewAppointmentComponent {
 			this.patient = this.user as Patient;
 		}
 
+		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, undefined, undefined, this.apptMapFunc);
 		this.db.listenColChanges<StringIdValuePair>('specialties', this.specialtyArray);
 		this.db.listenColChanges<Specialist>(usersDbPath, this.specialistArray, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
 
@@ -75,9 +80,9 @@ export class NewAppointmentComponent {
 			);
 	}
 
-	async selectSpecialist(event: Event) {
+	async selectSpecialist() {
 		const allDates = this.getAllSpecDates();
-		const existingAppts = await Appointment.getAppointments(this.db, appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled');
+		const existingAppts = this.appointments.filter(appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled');
 
 		const takenDates = existingAppts.map(appt => appt.date instanceof Timestamp ? appt.date.toDate() : appt.date);
 		this.availableDates = allDates.filter(date => !takenDates.some(apptDate => apptDate.getTime() === date.getTime()));

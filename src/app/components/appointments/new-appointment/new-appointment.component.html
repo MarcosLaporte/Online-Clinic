@@ -34,7 +34,7 @@
 						<label for="specialist">Specialist</label>
 						<div class="input-group">
 							<select class="form-control text-center" id="specialist" [(ngModel)]="specialist" name="specialist"
-								(change)="selectSpecialist($event)">
+								(change)="selectSpecialist()">
 								<option [ngValue]="null" disabled selected>Select a specialist</option>
 								<option *ngFor="let spec of availableSpecialists" [ngValue]="spec">
 									{{spec.firstName}} {{spec.lastName}}

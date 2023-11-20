@@ -30,33 +30,4 @@ export class Appointment {
 		this.patReview = patReview;
 		this.patSurvey = patSurvey;
 	}
-
-	/**
-	 * Gets the appointments from the database and parses the reference items into class objects.
-	 * @param db DataBase Service instance.
-	 * @param filterFunc A function that accepts up to three arguments. The method calls the filter function one time for each element in the array.
-	 * @returns An Appointment array.
-	 */
-	static async getAppointments(db: DatabaseService, filterFunc: (value: Appointment, index: number, array: Appointment[]) => unknown) {
-		const promises: Array<Promise<any>> = [];
-		const appointments =
-			(await db.getData<Appointment>('appointments')).filter(filterFunc);
-
-		appointments.forEach(appt => {
-			if (appt.patient instanceof DocumentReference)
-				promises.push(db.getObjDataByRef<Patient>(appt.patient).then(data => appt.patient = data));
-
-			if (appt.specialist instanceof DocumentReference)
-				promises.push(db.getObjDataByRef<Specialist>(appt.specialist).then(data => appt.specialist = data));
-
-			if (appt.date instanceof Timestamp)
-				appt.date = appt.date.toDate();
-
-			if (appt.patSurvey instanceof DocumentReference)
-				promises.push(db.getObjDataByRef<Survey>(appt.patSurvey).then(data => appt.patSurvey = data));
-		});
-
-		await Promise.all(promises);
-		return appointments;
-	}
 }
