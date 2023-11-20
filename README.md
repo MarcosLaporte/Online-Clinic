@@ -1,27 +1,63 @@
-# LaboIVTP2Laporte
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.1.
+# 🏥 Clínica Online
 
-## Development server
+Un sistema de gestión de turnos ideado para instituciones dedicadas a la Salud, que les permite destacarse no sólo por la calidad de su atención médica, sino también por brindar una experiencia de usuario satisfactoria tanto a los pacientes como a especialistas y administradores.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Secciones
 
-## Code scaffolding
+**Primero se ingresa al sistema.**
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Una vez dentro, las diferentes secciones aquí expuestas son fácilmente accesibles a través del *menú*,
+visible a lo largo de toda la aplicación.
 
-## Build
+### ✔️ Página de bienvenida
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+![1700413299375](image/README/1700413299375.png)
 
-## Running unit tests
+### ✔️ Registro
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Disponible para pacientes y especialistas.
 
-## Running end-to-end tests
+Luego de registrarse, *deben verificar su correo electrónico* antes de ingresar por primera vez; y los especialistas deben ser habilitados por un administrador.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+![1700436521350](image/README/1700436521350.png)
 
-## Further help
+### ✔️ Login
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Brinda acceso a pacientes, especialistas y administradores por igual, siempre y cuando se encuentren *verificados* y, en el caso de los especialistas, *habilitados*.
+
+![1700419636968](image/README/1700419636968.png)
+
+### ✔️ Solicitar turno
+
+Diseñada para que los pacientes puedan **pedir turno** en 3 simples pasos:
+
+1. Seleccionar la especialidad que se desea
+2. Elegir un especialista
+3. Elegir una fecha y horario
+4. Confirmar
+
+Los administradores *también* pueden solicitar turno en nombre de algún paciente
+que así lo desee, indicando su número de documento.
+
+![1700434124332](image/README/1700434124332.png)
+
+### ✔️ Turnos / Mis turnos
+
+Aquí, pacientes y especialistas pueden **ver sus turnos pendientes y realizados**, al detalle.
+
+Los administradores pueden ver *todos* los turnos de la clínica.
+
+Además, desde esta sección se van a poder **administrar los turnos reservados**.
+
+✔️ Mi perfil
+
+Muestra la **información personal** del usuario logeado.
+
+![1700438546002](image/README/1700438546002.png)
+
+### ✔️ Usuarios
+
+En esta sección, los administradores pueden **ver información acerca de todos los usuarios**, habilitar o deshabilitar el acceso a especialistas y **generar nuevos usuarios.**
+
+![1700438655813](image/README/1700438655813.png)
