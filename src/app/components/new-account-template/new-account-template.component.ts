@@ -41,7 +41,7 @@ export class NewAccountTemplateComponent {
 		this.signUpForm = inject(FormBuilder).group({
 			role: 'patient',
 			firstName: [
-				'Test',
+				'',
 				[
 					Validators.required,
 					Validators.pattern(/[\p{L}\p{M}]+/u),
@@ -55,7 +55,7 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			age: [
-				50,
+				0,
 				[
 					Validators.required,
 					Validators.min(0),
@@ -64,7 +64,7 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			idNo: [
-				'10000003',
+				'',
 				[
 					Validators.required,
 					Validators.pattern(/^\d{8}/),
@@ -89,14 +89,14 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			email: [
-				'heheffauddoiffei-1049@yopmail.com',
+				'',
 				[
 					Validators.required,
 					Validators.email,
 				]
 			],
 			password: [
-				'utnfra',
+				'',
 				[
 					Validators.required,
 					Validators.minLength(6),
@@ -104,7 +104,7 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			passCheck: [
-				'utnfra',
+				'',
 				[
 					Validators.required,
 					this.passwordMatchValidator,
@@ -189,10 +189,8 @@ export class NewAccountTemplateComponent {
 		const role = this.signUpForm.get('role')?.value;
 		if (role === 'patient')
 			return this.imgFile1 instanceof File && this.imgFile2 instanceof File;
-		else if (role === 'specialist')
-			return this.imgFile1 instanceof File;
 		else
-			return true;
+			return this.imgFile1 instanceof File;
 	}
 
 	imgUpload($event: any) {

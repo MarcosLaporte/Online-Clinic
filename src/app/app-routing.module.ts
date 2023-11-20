@@ -50,17 +50,17 @@ const routes: Routes = [
 	},
 	{
 		path: 'account',
-		canActivate: [loggedGuard],
+		canActivate: [loggedGuard, validAccountGuard],
 		component: AccountComponent
 	},
 	{
 		path: 'users',
-		canActivate: [adminGuard],
+		canActivate: [adminGuard, validAccountGuard],
 		component: UserListComponent
 	},
 	{
 		path: 'new-appointment',
-		canActivate: [validAccountGuard, notSpecGuard],
+		canActivate: [notSpecGuard, validAccountGuard],
 		component: NewAppointmentComponent
 	},
 	{
