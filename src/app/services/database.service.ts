@@ -57,12 +57,12 @@ export class DatabaseService {
 		return docSnap.data() as T;
 	}
 
-	listenColChanges<T extends { id: string }>(colPath: string, arrayPointer: Array<T>, filterFunc?: (item: T) => boolean, sortFunc?: (a: T, b: T) => number, transform?: (item: T) => Promise<T>) {
+	listenColChanges<T extends { id: string }>(colPath: string, arrayPointer: Array<T>, filterFunc?: (item: T) => boolean, sortFunc?: (a: any, b: any) => number, transform?: (item: T) => Promise<T>) {
 		const col = collection(this.firestore, colPath);
 		const q = query(col);
 
-		onSnapshot(q, (addSnap: QuerySnapshot) => {
-			addSnap.docChanges().forEach(async (change) => {
+		onSnapshot(q, async (addSnap: QuerySnapshot) => {
+			for (const change of addSnap.docChanges()) {
 				const data = change.doc.data();
 				const newData = transform ? await transform(data as T) : data as T;
 				if (!filterFunc || filterFunc(newData)) {
@@ -76,7 +76,7 @@ export class DatabaseService {
 							arrayPointer.splice(index, 1);
 					}
 				}
-			})
+			}
 
 			if (sortFunc)
 				arrayPointer.sort(sortFunc);
