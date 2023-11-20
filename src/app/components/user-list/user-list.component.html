@@ -45,9 +45,19 @@
 	</table>
 </div>
 
-<div class="new-user d-flex justify-content-center">
+<div *ngIf="!creatingUser" class="new-user d-flex justify-content-center">
 	<hr class="my-2">
-	<span class="nav nav-link active text-decoration-underline mx-5" role="button" (click)="newAccount()">
+	<span class="nav nav-link active text-decoration-underline mx-5" role="button" (click)="creatingUser = true">
 		Create new Account
 	</span>
+</div>
+<div class="newUser" *ngIf="creatingUser">
+	<div class="new-user d-flex justify-content-center">
+		<hr class="my-2">
+		<span class="nav nav-link active text-decoration-underline mx-5" role="button" (click)="creatingUser = false">
+			Cancel
+		</span>
+	</div>
+
+	<app-new-account-template (createdUser)="newAccount($event)"></app-new-account-template>
 </div>

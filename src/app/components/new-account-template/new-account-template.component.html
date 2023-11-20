@@ -18,6 +18,14 @@
 						height="50px" alt="Patient">
 				</label>
 			</div>
+			<div *ngIf="admin" class="col-md-2 text-center">
+				<input type="radio" id="img-admin" class="d-none" value="admin" formControlName="role"
+					(change)="roleChange()">
+				<label for="img-admin">
+					<img src="../../../assets/admin.png" class=" border border-1 border-black rounded-2" role="button"
+						height="50px" alt="Admin">
+				</label>
+			</div>
 		</div>
 
 		<div class="row">

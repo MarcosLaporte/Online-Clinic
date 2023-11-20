@@ -6,7 +6,6 @@ import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
 import { Loader, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { DatabaseService } from 'src/app/services/database.service';
-import { NewAccountTemplateComponent } from '../new-account-template/new-account-template.component';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -16,12 +15,14 @@ import Swal from 'sweetalert2';
 })
 export class UserListComponent {
 	users: Array<User> = [];
+	creatingUser: boolean = false;
+
 	constructor(private db: DatabaseService, private dialog: MatDialog) { }
 
 	async ngOnInit() {
-		this.db.listenColChanges<User>('users', this.users, undefined, undefined, this.userMap);
+		this.db.listenColChanges<User>('users', this.users, undefined, (u1: User, u2: User) => u1.lastName > u2.lastName ? 1 : -1, this.userMap);
 	}
-	
+
 	private readonly userMap = async (user: User) => {
 		switch (user.role) {
 			case 'patient':
@@ -39,7 +40,7 @@ export class UserListComponent {
 
 	showSpecs(specialist: Specialist) {
 		let specsStr: string = "";
-		for(const spec of specialist.specialties) {
+		for (const spec of specialist.specialties) {
 			specsStr += '+ ' + spec.value + '<br>';
 		}
 
@@ -52,25 +53,14 @@ export class UserListComponent {
 		await this.db.updateDoc('users', specialist.id, { isEnabled: newValue })
 			.then(() => {
 				const status = newValue ? 'enabled' : 'disabled';
-				ToastSuccess.fire({ title: 'Done!', text: `Specialist #${specialist.idNo} ${status}!` });
+				ToastSuccess.fire('Done!', `Specialist #${specialist.idNo} ${status}!`);
 				specialist.isEnabled = newValue;
 			})
 			.catch((error) => { ToastError.fire({ title: 'Oops...', text: error.message }); });
 	}
 
-	newAccount() {
-		const dialogRef = this.dialog.open(NewAccountTemplateComponent, {
-			width: '800px',
-			
-		});
-
-
-		dialogRef.afterClosed().subscribe(survey => {
-			if (survey) {
-				// const surveyRef = this.db.getDocRef('surveys', survey.id);
-				// this.db.updateDoc(apptDbPath, appt.id, { patSurvey: surveyRef })
-				// 	.then(() => ToastSuccess.fire('Survey uploaded!', 'Appointment closed.'));
-			}
-		});
+	newAccount(user: Patient | Specialist | Admin) {
+		ToastSuccess.fire('User created!', `${user.role} #${user.idNo}.`);
+		this.creatingUser = false;
 	}
 }

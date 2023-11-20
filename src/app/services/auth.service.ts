@@ -43,16 +43,28 @@ export class AuthService {
 	constructor(private auth: Auth, private db: DatabaseService) { }
 
 	async createAccount(user: User): Promise<UserCredential> {
+		const ogFireUser = this._fireUserSub.getValue();
+		const ogUser = this._loggedUserSub.getValue();
+
 		this.db.searchUserByIdNo(user.idNo)
 			.then(() => { throw new Error("This id number is already registered.") })
 			.catch(() => { });
 
 		return createUserWithEmailAndPassword(this.auth, user.email, user.password)
 			.then(async userCredential => {
-				this.FireUser = this.auth.currentUser;
-				this.urlRedirect = 'account-verification';
-				this.LoggedUser = user;
-				this.sendEmailVerif();
+				const newUser = this.auth.currentUser
+				if (!ogFireUser) {
+					this.FireUser = newUser;
+					this.urlRedirect = 'home';
+					this.LoggedUser = user;
+				} else { //If not null, admin is creating new account
+					this.FireUser = ogFireUser;
+					this.LoggedUser = ogUser;
+					this.urlRedirect = 'users'
+					await updateCurrentUser(this.auth, ogFireUser);
+				}
+
+				this.sendEmailVerif(newUser);
 				await this.db.addDataAutoId('users', user);
 
 				return userCredential
@@ -103,8 +115,8 @@ export class AuthService {
 			});
 	}
 
-	sendEmailVerif() {
-		const user = this.auth.currentUser;
+	sendEmailVerif(afUser?: FireUser | null) {
+		const user = afUser ? afUser : this.auth.currentUser;
 		if (user === null) throw new NotLoggedError;
 
 		return sendEmailVerification(user);

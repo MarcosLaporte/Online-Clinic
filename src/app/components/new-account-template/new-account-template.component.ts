@@ -1,5 +1,5 @@
 import { UpperCasePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
@@ -29,17 +29,19 @@ export class NewAccountTemplateComponent {
 	imgFile2Label: string = 'Choose second image';
 	private recaptcha: string = '';
 
+	@Input() admin: boolean = false;
+	@Output() createdUser = new EventEmitter<Patient | Specialist | Admin>();
+
 	constructor(
 		private router: Router,
-		private fb: FormBuilder,
 		private db: DatabaseService,
 		private storage: StorageService,
 		private auth: AuthService
 	) {
-		this.signUpForm = fb.group({
-			role: 'specialist',
+		this.signUpForm = inject(FormBuilder).group({
+			role: 'patient',
 			firstName: [
-				'',
+				'Test',
 				[
 					Validators.required,
 					Validators.pattern(/[\p{L}\p{M}]+/u),
@@ -53,7 +55,7 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			age: [
-				0,
+				50,
 				[
 					Validators.required,
 					Validators.min(0),
@@ -62,13 +64,18 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			idNo: [
-				'',
+				'10000003',
 				[
 					Validators.required,
 					Validators.pattern(/^\d{8}/),
 				]
 			],
-			hcp: null,
+			hcp: [
+				null,
+				[
+					Validators.required
+				],
+			],
 			specialties: [
 				[],
 				[
@@ -82,14 +89,14 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			email: [
-				'',
+				'heheffauddoiffei-1049@yopmail.com',
 				[
 					Validators.required,
 					Validators.email,
 				]
 			],
 			password: [
-				'',
+				'utnfra',
 				[
 					Validators.required,
 					Validators.minLength(6),
@@ -97,7 +104,7 @@ export class NewAccountTemplateComponent {
 				]
 			],
 			passCheck: [
-				'',
+				'utnfra',
 				[
 					Validators.required,
 					this.passwordMatchValidator,
@@ -132,6 +139,7 @@ export class NewAccountTemplateComponent {
 	}
 
 	protected roleChange() {
+		const roleValue = <string>this.signUpForm.get('role')?.value;
 		const hcp = this.signUpForm.get('hcp');
 		const specs = this.signUpForm.get('specialties');
 		const workingDays = this.signUpForm.get('workingDays');
@@ -139,20 +147,27 @@ export class NewAccountTemplateComponent {
 		specs?.setValue([]);
 		workingDays?.setValue([]);
 
-		if (this.signUpForm.get('role')?.value === 'patient') {
+		if (roleValue === 'patient') {
 			hcp?.enable();
 			hcp?.addValidators(Validators.required);
 			specs?.clearValidators();
 			specs?.disable();
 			workingDays?.clearValidators();
 			workingDays?.disable();
-		} else {
+		} else if (roleValue === 'specialist') {
 			hcp?.clearValidators();
 			hcp?.disable();
 			specs?.enable();
 			specs?.addValidators(Validators.required);
 			workingDays?.enable();
 			workingDays?.addValidators(Validators.required);
+		} else {
+			hcp?.clearValidators();
+			hcp?.disable();
+			specs?.clearValidators();
+			specs?.disable();
+			workingDays?.clearValidators();
+			workingDays?.disable();
 		}
 
 		hcp?.updateValueAndValidity();
@@ -228,6 +243,7 @@ export class NewAccountTemplateComponent {
 			.then(async user => {
 				await this.auth.createAccount(user);
 				this.router.navigateByUrl(this.auth.urlRedirect);
+				this.createdUser.emit(user);
 			})
 			.catch((error: any) => {
 				if (error instanceof NotLoggedError)
@@ -254,15 +270,17 @@ export class NewAccountTemplateComponent {
 		const imgUrl1 = await this.storage.uploadImage(this.imgFile1, `users/${idNo}`);
 		let user: Patient | Specialist | Admin;
 		if (role === 'patient') {
-			const hcp: StringIdValuePair = this.signUpForm.get('hcp')?.value;
 			if (!(this.imgFile2 instanceof File)) throw new Error(`There's been a problem with the second image.`);
-			const imgUrl2 = await this.storage.uploadImage(this.imgFile2, `users/${idNo}-2`);
 
+			const hcp: StringIdValuePair = this.signUpForm.get('hcp')?.value;
+			const imgUrl2 = await this.storage.uploadImage(this.imgFile2, `users/${idNo}-2`);
 			user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, hcp);
-		} else {
+		} else if (role === 'specialist') {
 			const specialties: Array<StringIdValuePair> = this.signUpForm.get('specialties')?.value;
 			const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
 			user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, specialties, false, workingDays);
+		} else {
+			user = new Admin('', firstName, lastName, age, idNo, imgUrl1, email, password);
 		}
 
 		return user;
