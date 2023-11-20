@@ -83,7 +83,7 @@
 				</td>
 				<td class="col-md-auto">
 					<ul class="nav list-group-inline justify-content-center">
-						<li *ngIf="(user.role === 'patient' && appt.status === 'pending') || (user.role === 'specialist' && appt.status === 'accepted')" class="nav-item">
+						<li *ngIf="(user.role === 'patient' && appt.status === 'pending') || (user.role !== 'patient' && appt.status === 'accepted')" class="nav-item">
 							<button class="nav-link active text-decoration-underline px-1"
 								(click)="changeApptStatus(appt, 'cancelled')">
 								Cancel
