@@ -1,14 +1,14 @@
-import { StringIdValuePair } from "../environments/environment";
+import { Specialty } from "./specialty";
 import { User } from "./user";
 
 export class Specialist extends User {
-	specialties: Array<StringIdValuePair>;
+	specialties: Array<Specialty>;
 	isEnabled: boolean;
 	workingDays: Array<number>;
 	shiftStart: string = '08:30';
 	shiftEnd: string = '18:30';
 
-	constructor(id: string = '', firstName: string, lastName: string, age: number, idNo: number, imgUrl: string, email: string, password: string, specialties: Array<StringIdValuePair>, isEnabled: boolean, workingDays: Array<number>, shiftStart: string = '08:30', shiftEnd: string = '18:30') {
+	constructor(id: string = '', firstName: string, lastName: string, age: number, idNo: number, imgUrl: string, email: string, password: string, specialties: Array<Specialty>, isEnabled: boolean, workingDays: Array<number>, shiftStart: string = '08:30', shiftEnd: string = '18:30') {
 		super('specialist', id, firstName, lastName, age, idNo, imgUrl, '', email, password);
 		this.specialties = specialties;
 		this.isEnabled = isEnabled;

@@ -3,13 +3,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { Appointment, ApptStatus } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { InputSwal, Loader, StringIdValuePair, ToastSuccess } from 'src/app/environments/environment';
+import { InputSwal, Loader, ToastSuccess } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 import { ApptSurveyComponent } from '../appt-survey/appt-survey.component';
 import { Admin } from 'src/app/classes/admin';
 import { AfReferencesService } from 'src/app/services/af-references.service';
+import { Specialty } from 'src/app/classes/specialty';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -21,7 +22,7 @@ export class ListAppointmentComponent {
 	user: Patient | Specialist | Admin;
 	private appointments: Array<Appointment> = [];
 	appointmentsToShow: Array<Appointment> = [];
-	private specialtyArray: Array<StringIdValuePair> = [];
+	private specialtyArray: Array<Specialty> = [];
 	private specialistArray: Array<Specialist> = [];
 	private patientArray: Array<Patient> = [];
 	private readonly apptRoleFilter: (appt: Appointment) => boolean;
@@ -54,13 +55,13 @@ export class ListAppointmentComponent {
 		}
 	}
 
-	specialtyRadio: StringIdValuePair | null = null;
+	specialtyRadio: Specialty | null = null;
 	specialistRadio: Specialist | null = null;
 	patientRadio: Patient | null = null;
 
 	async ngOnInit() {
 		Loader.fire();
-		this.specialtyArray = await this.db.getData<StringIdValuePair>('specialties');
+		this.specialtyArray = await this.db.getData<Specialty>('specialties');
 
 		this.db.listenColChanges<Specialist>('users', this.specialistArray, (usr => usr.role === 'specialist'));
 		this.db.listenColChanges<Patient>('users', this.patientArray, (usr => usr.role === 'patient'));
@@ -71,7 +72,7 @@ export class ListAppointmentComponent {
 	}
 
 	//#region Table Filters
-	specialtyRadioChange(specialty: StringIdValuePair) {
+	specialtyRadioChange(specialty: Specialty) {
 		this.specialistRadio = null;
 		this.patientRadio = null;
 		this.specialtyRadio = specialty;

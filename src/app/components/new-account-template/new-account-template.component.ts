@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { Admin } from 'src/app/classes/admin';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
-import { InputSwal, Loader, StringIdValuePair, ToastError, ToastInfo } from 'src/app/environments/environment';
+import { Specialty } from 'src/app/classes/specialty';
+import { InputSwal, Loader, StringIdValuePair, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { NotLoggedError } from 'src/app/errors/not-logged-error';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -22,7 +23,7 @@ export class NewAccountTemplateComponent {
 	signUpForm: FormGroup;
 
 	protected healthCarePlans: Array<StringIdValuePair> = [];
-	protected specialties: Array<StringIdValuePair> = [];
+	protected specialties: Array<Specialty> = [];
 	imgFile1: File | undefined;
 	imgFile2: File | undefined;
 	imgFile1Label: string = 'Choose an image';
@@ -114,7 +115,7 @@ export class NewAccountTemplateComponent {
 	}
 
 	async ngOnInit() {
-		this.db.listenColChanges<StringIdValuePair>('specialties', this.specialties, undefined, (h1, h2) => h1.value > h2.value ? 1 : -1);
+		this.db.listenColChanges<Specialty>('specialties', this.specialties, undefined, (h1, h2) => h1.value > h2.value ? 1 : -1);
 		this.db.listenColChanges<StringIdValuePair>('healthCarePlans', this.healthCarePlans, undefined, (h1, h2) => h1.value > h2.value ? 1 : -1);
 	}
 
@@ -179,9 +180,32 @@ export class NewAccountTemplateComponent {
 		const newSpecialty: SweetAlertResult<string> | undefined =
 			await InputSwal.fire({ input: 'text', inputLabel: "Add new specialty." });
 
-		if (newSpecialty?.value)
-			await this.db.addDataAutoId('specialties', { value: newSpecialty.value });
-		else
+		let imgUrl = 'https://firebasestorage.googleapis.com/v0/b/la-clinica-111655.appspot.com/o/images%2Fspecialties%2Fdefault.png?alt=media&token=85a42bf4-4fb7-4d03-b489-0f599e6c3803';
+		const specValue = (newSpecialty?.value)?.toLowerCase();
+		if (specValue) {
+			const { value: file } =
+				await InputSwal.fire({
+					input: 'file',
+					inputAttributes: { "accept": "image/*", "ariaLabel": 'Choose an image.' },
+					inputLabel: "Add an image (Optional).",
+					allowOutsideClick: false,
+					confirmButtonText: 'Submit',
+					cancelButtonText: 'Skip',
+					inputValidator: (value) => {
+						if (!value) {
+							return "You need to choose an image! Or just skip it.";
+						}
+						return undefined;
+					},
+				});
+
+			if (!!file)
+				imgUrl = await this.storage.uploadImage(file as File, 'specialties/' + specValue);
+
+			const spec = new Specialty('', specValue, imgUrl);
+			this.db.addDataAutoId('specialties', spec);
+			ToastSuccess.fire(`${spec.value} added`);
+		} else
 			ToastError.fire('Operation cancelled.');
 	}
 
@@ -274,7 +298,7 @@ export class NewAccountTemplateComponent {
 			const imgUrl2 = await this.storage.uploadImage(this.imgFile2, `users/${idNo}-2`);
 			user = new Patient('', firstName, lastName, age, idNo, imgUrl1, imgUrl2, email, password, hcp);
 		} else if (role === 'specialist') {
-			const specialties: Array<StringIdValuePair> = this.signUpForm.get('specialties')?.value;
+			const specialties: Array<Specialty> = this.signUpForm.get('specialties')?.value;
 			const workingDays: Array<number> = this.signUpForm.get('workingDays')?.value;
 			user = new Specialist('', firstName, lastName, age, idNo, imgUrl1, email, password, specialties, false, workingDays);
 		} else {

@@ -19,8 +19,7 @@
 				</label>
 			</div>
 			<div *ngIf="admin" class="col-md-2 text-center">
-				<input type="radio" id="img-admin" class="d-none" value="admin" formControlName="role"
-					(change)="roleChange()">
+				<input type="radio" id="img-admin" class="d-none" value="admin" formControlName="role" (change)="roleChange()">
 				<label for="img-admin">
 					<img src="../../../assets/admin.png" class=" border border-1 border-black rounded-2" role="button"
 						height="50px" alt="Admin">
@@ -81,7 +80,10 @@
 					</div>
 					<ng-select class="text-center col" [multiple]="true" [closeOnSelect]="false" [hideSelected]="true"
 						formControlName="specialties" placeholder="← Add new or select from list">
-						<ng-option *ngFor="let spec of specialties" [value]="spec">{{spec.value}}</ng-option>
+						<ng-option *ngFor="let spec of specialties" [value]="spec">
+							<img [src]="spec.imgUrl" [alt]="spec.value" height="30px">
+							{{spec.value}}
+						</ng-option>
 					</ng-select>
 				</div>
 			</div>

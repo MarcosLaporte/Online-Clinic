@@ -7,12 +7,13 @@ import { Appointment } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
-import { Loader, StringIdValuePair, ToastError, ToastSuccess } from 'src/app/environments/environment';
+import { Loader, ToastError, ToastSuccess } from 'src/app/environments/environment';
 import { AfReferencesService } from 'src/app/services/af-references.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
 import { UserListConfig } from '../../user-btn-list/user-btn-list.component';
+import { Specialty } from 'src/app/classes/specialty';
 
 const apptDbPath = 'appointments';
 const usersDbPath = 'users';
@@ -27,7 +28,7 @@ export class NewAppointmentComponent {
 	private readonly apptMapFunc: (appt: Appointment) => Promise<Appointment>;
 
 	user: User;
-	specialtyArray: Array<StringIdValuePair> = [];
+	specialtyArray: Array<Specialty> = [];
 	private specialistArray: Array<Specialist> = [];
 	availableSpecialists: Array<Specialist> = []; //Specialists of the chosen specialty
 	private availableDates: Array<Date> = [];
@@ -40,7 +41,7 @@ export class NewAppointmentComponent {
 
 	patientIdNo: number = 0;
 	patient: Patient | null = null;
-	specialty: StringIdValuePair | null = null;
+	specialty: Specialty | null = null;
 	specialist: Specialist | null = null;
 
 	async ngOnInit() {
@@ -51,7 +52,7 @@ export class NewAppointmentComponent {
 		}
 
 		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, undefined, undefined, this.apptMapFunc);
-		this.db.listenColChanges<StringIdValuePair>('specialties', this.specialtyArray);
+		this.db.listenColChanges<Specialty>('specialties', this.specialtyArray);
 		this.db.listenColChanges<Specialist>(usersDbPath, this.availableSpecialists, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
 
 		Loader.close();

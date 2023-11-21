@@ -1,15 +1,13 @@
-import { StringIdValuePair } from "../environments/environment";
 import { Patient } from "./patient";
 import { Specialist } from "./specialist";
+import { Specialty } from "./specialty";
 import { Survey } from "./survey";
-import { DatabaseService } from "../services/database.service";
-import { DocumentReference, Timestamp } from "firebase/firestore";
 
 export type ApptStatus = 'pending' | 'cancelled' | 'accepted' | 'declined' | 'done';
 export class Appointment {
 	id: string;
 	patient: Patient;
-	specialty: StringIdValuePair;
+	specialty: Specialty;
 	specialist: Specialist;
 	date: Date;
 	status: ApptStatus;
@@ -18,7 +16,7 @@ export class Appointment {
 	patReview: string;
 	patSurvey: Survey | null;
 
-	constructor(id: string = '', patient: Patient, specialty: StringIdValuePair, specialist: Specialist, date: Date, status: ApptStatus = 'pending', specReview: string = '', diagnosis: string = '', patReview: string = '', patSurvey: Survey | null) {
+	constructor(id: string = '', patient: Patient, specialty: Specialty, specialist: Specialist, date: Date, status: ApptStatus = 'pending', specReview: string = '', diagnosis: string = '', patReview: string = '', patSurvey: Survey | null) {
 		this.id = id;
 		this.patient = patient;
 		this.specialty = specialty;
