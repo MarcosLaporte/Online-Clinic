@@ -48,15 +48,6 @@ export class DatabaseService {
 		return updateDoc(docRef, { ...data });
 	}
 
-	getDocRef(dbPath: string, docId: string): DocumentReference<DocumentData> {
-		return doc(this.firestore, dbPath, docId);
-	}
-
-	async getObjDataByRef<T>(docRef: DocumentReference<DocumentData>) {
-		const docSnap = await getDoc(docRef);
-		return docSnap.data() as T;
-	}
-
 	listenColChanges<T extends { id: string }>(colPath: string, arrayPointer: Array<T>, filterFunc?: (item: T) => boolean, sortFunc?: (a: any, b: any) => number, transform?: (item: T) => Promise<T>) {
 		const col = collection(this.firestore, colPath);
 		const q = query(col);

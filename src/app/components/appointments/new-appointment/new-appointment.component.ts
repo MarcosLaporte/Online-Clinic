@@ -197,9 +197,7 @@ export class NewAppointmentComponent {
 			confirmButtonText: "Confirm"
 		}).then((result) => {
 			if (result.isConfirmed) {
-				const newAppt: any = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, 'pending', '', '', '', null);
-				newAppt.patient = this.db.getDocRef(usersDbPath, newAppt.patient.id);
-				newAppt.specialist = this.db.getDocRef(usersDbPath, newAppt.specialist.id);
+				const newAppt: any = new Appointment('', this.patient!, this.specialty!, this.specialist!, date, 'pending', '', null, '', null);
 				this.db.addDataAutoId(apptDbPath, newAppt);
 				Swal.fire({
 					title: "Date assigned!",
