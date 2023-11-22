@@ -1,1 +1,37 @@
-<p>patient-history works!</p>
+<div class="main my-3">
+	<div class="container d-flex justify-content-center">
+		<table class="table table-striped align-middle mb-0 bg-white table-hover w-75">
+			<thead class="bg-light">
+				<tr>
+					<th>Specialist</th>
+					<th class="text-center">Date</th>
+					<th class="text-center">Diagnosis</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let appt of pastAppointments">
+					<td class="col-md-3">
+						<div class="d-flex align-items-center">
+							<div class="ms-3">
+								<p class="fw-bold mb-0">{{appt.specialist.firstName}} {{appt.specialist.lastName}}</p>
+								<p class="text-muted mb-0">{{appt.specialty.value}}</p>
+							</div>
+						</div>
+					</td>
+					<td class="col-md-2 text-center">
+						<p class="fw-normal mb-0">{{appt.date | date: 'YYYY/MM/dd, HH:mm'}}</p>
+					</td>
+					<td class="col-md-7 text-center">
+						<p class="fw-normal mb-0 break-spaces" *ngIf="appt.diagnosis">{{getDataDiag(appt.diagnosis)}}</p>
+					</td>
+				</tr>
+				<p *ngIf="pastAppointments.length === 0" class="text-center">
+					There are no appointments to show
+				</p>
+			</tbody>
+		</table>
+	</div>
+
+	<button class="btn btn-outline-danger rounded-circle position-absolute top-0 end-0 m-4"
+		(click)="dialogRef.close()">X</button>
+</div>

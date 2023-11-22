@@ -15,13 +15,13 @@ export class Diagnosis {
 		this.additionalData = additionalData;
 	}
 
-	getData(): string {
-		return `Height: ${this?.height}
-		Weight: ${this?.weight}
-		Temperature: ${this?.tempC}°C
-		Blood pressure: ${this?.pressure} mmHg
-		${this?.additionalData[0].key}: '${this?.additionalData[0].value}'
-		${this?.additionalData[1].key}: '${this?.additionalData[1].value}'
-		${this?.additionalData[2].key}: '${this?.additionalData[2].value}'`;
+	static getData(diag: Diagnosis): string {
+		return `Height: ${diag?.height}cm
+Weight: ${diag?.weight}kg
+Temperature: ${diag?.tempC}°C
+Blood pressure: ${diag?.pressure} mmHg
+${diag?.additionalData[0].key}: '${diag?.additionalData[0].value}'
+${diag?.additionalData[1].key}: '${diag?.additionalData[1].value}'
+${diag?.additionalData[2].key}: '${diag?.additionalData[2].value}'`;
 	}
 }

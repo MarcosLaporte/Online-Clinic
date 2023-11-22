@@ -72,11 +72,10 @@ export class UserListComponent {
 
 	async showMedicalHistory(patient: Patient) {
 		const dialogRef = this.dialog.open(PatientHistoryComponent, {
-			width: '800px'
+			width: '1200px'
 		});
 
 		dialogRef.componentInstance.patient = patient;
-
 	}
 
 	newAccount(user: Patient | Specialist | Admin) {

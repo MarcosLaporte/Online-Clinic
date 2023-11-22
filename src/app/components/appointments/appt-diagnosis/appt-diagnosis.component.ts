@@ -1,4 +1,4 @@
-import { Component, Input, ViewEncapsulation} from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Patient } from 'src/app/classes/patient';
@@ -10,7 +10,6 @@ import { ToastError } from 'src/app/environments/environment';
 	selector: 'app-appt-diagnosis',
 	templateUrl: './appt-diagnosis.component.html',
 	styleUrls: ['./appt-diagnosis.component.css'],
-	encapsulation: ViewEncapsulation.None
 })
 export class ApptDiagnosisComponent {
 	diagnosisForm: FormGroup;
@@ -83,7 +82,7 @@ export class ApptDiagnosisComponent {
 		const diagnosis = new Diagnosis('', height, weight, tempC, pressure, [additional1, additional2, additional3]);
 
 		this.db.addDataAutoId('diagnosis', diagnosis)
-			.then(()=> this.dialogRef.close(diagnosis))
+			.then(() => this.dialogRef.close(diagnosis))
 			.catch((error: any) => ToastError.fire('There was an error uploading the diagnosis.', error.message));
 	}
 }

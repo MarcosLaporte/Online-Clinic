@@ -16,3 +16,7 @@ body {
 	border-bottom-left-radius: 0 !important;
 	border-top-left-radius: 0 !important;
 }
+
+.break-spaces {
+	white-space: break-spaces !important;
+}

@@ -12,6 +12,7 @@ import { Admin } from 'src/app/classes/admin';
 import { Specialty } from 'src/app/classes/specialty';
 import { Timestamp } from 'firebase/firestore';
 import { ApptDiagnosisComponent } from '../appt-diagnosis/appt-diagnosis.component';
+import { Diagnosis } from 'src/app/classes/diagnosis';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -166,7 +167,15 @@ export class ListAppointmentComponent {
 	showReview(appt: Appointment) {
 		if (this.user.role === 'patient') {
 			Swal.fire(`Dr. ${appt.specialist.lastName} said:`, appt.specReview)
-				.then(() => Swal.fire('Diagnosis:', appt.diagnosis?.getData()));
+				.then(() => {
+					if (appt.diagnosis) {
+						Swal.fire({
+							title: 'Diagnosis:',
+							text: Diagnosis.getData(appt.diagnosis),
+							customClass: {container: 'break-spaces'}
+						});
+					}
+				});
 		} else
 			Swal.fire(`${appt.patient.lastName} said:`, appt.patReview);
 	}
