@@ -80,8 +80,9 @@ export class ListAppointmentComponent {
 		this.patientRadio = null;
 		this.specialtyRadio = specialty;
 
-		const auxAppts = this.appointments.filter(appt => appt.specialty.id === this.specialtyRadio!.id);
-		this.appointmentsToShow.sort(this.dateSort);
+		this.appointmentsToShow
+			.filter(appt => appt.specialty.id === this.specialtyRadio!.id)
+			.sort(this.dateSort);
 	}
 
 	specialistRadioChange(specialist: Specialist) {
@@ -89,8 +90,9 @@ export class ListAppointmentComponent {
 		this.patientRadio = null;
 		this.specialistRadio = specialist;
 
-		const auxAppts = this.appointments.filter(appt => appt.specialist.id === this.specialistRadio!.id);
-		this.appointmentsToShow.sort(this.dateSort);
+		this.appointmentsToShow
+			.filter(appt => appt.specialist.id === this.specialistRadio!.id)
+			.sort(this.dateSort);
 	}
 
 	patientRadioChange(patient: Patient) {
@@ -98,8 +100,9 @@ export class ListAppointmentComponent {
 		this.specialistRadio = null;
 		this.patientRadio = patient;
 
-		const auxAppts = this.appointments.filter(appt => appt.patient.id === this.patientRadio!.id);
-		this.appointmentsToShow.sort(this.dateSort);
+		this.appointmentsToShow
+			.filter(appt => appt.patient.id === this.patientRadio!.id)
+			.sort(this.dateSort);
 	}
 
 	resetFilter() {
