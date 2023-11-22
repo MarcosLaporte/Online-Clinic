@@ -28,11 +28,13 @@ export class NewAppointmentComponent {
 	private readonly apptMapFunc: (appt: Appointment) => Promise<Appointment>;
 
 	user: User;
-	specialtyArray: Array<Specialty> = [];
-	private specialistArray: Array<Specialist> = [];
-	availableSpecialists: Array<Specialist> = []; //Specialists of the chosen specialty
+	private specialtyArray: Array<Specialty> = [];
+	specialists: Array<Specialist> = [];
+	availableSpecialties: Array<Specialty> = []; //Specialties of the chosen specialist
 	private availableDates: Array<Date> = [];
-	groupedDates: [string, Date[]][] = [];
+	//										Day,	Hours
+	groupedDates: Array<[string, Date[]]> = [];
+	selectedDayAvHours: Array<Date> = [];
 
 	constructor(private db: DatabaseService, private router: Router, private datePipe: DatePipe) {
 		this.user = inject(AuthService).LoggedUser!;
@@ -43,6 +45,7 @@ export class NewAppointmentComponent {
 	patient: Patient | null = null;
 	specialty: Specialty | null = null;
 	specialist: Specialist | null = null;
+	dateChosen: Date | null = null;
 
 	async ngOnInit() {
 		Loader.fire();
@@ -53,7 +56,7 @@ export class NewAppointmentComponent {
 
 		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, undefined, undefined, this.apptMapFunc);
 		this.db.listenColChanges<Specialty>('specialties', this.specialtyArray);
-		this.db.listenColChanges<Specialist>(usersDbPath, this.availableSpecialists, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
+		this.db.listenColChanges<Specialist>(usersDbPath, this.specialists, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
 
 		Loader.close();
 	}
@@ -85,17 +88,32 @@ export class NewAppointmentComponent {
 			});
 	}
 
-	selectSpecialty() {
-		this.specialist = null;
-		this.availableSpecialists =
-			this.specialistArray.filter(doc => doc.specialties.some((spec) => spec.id === this.specialty!.id)
-			);
+	selectSpecialist(specialist: User | null) {
+		this.specialty = null;
+		this.groupedDates = [];
+		// this.availableDates = [];
+		if (!specialist) {
+			this.specialist = null;
+			this.availableSpecialties = [];
+		} else {
+			this.specialist = (specialist) as Specialist;
+			const specsId = this.specialist!.specialties.map(spec => spec.id);
+
+			this.availableSpecialties =
+				this.specialtyArray.filter(spec => specsId.includes(spec.id));
+		}
 	}
 
-	async selectSpecialist(specialist: User) {
-		this.specialist = specialist as Specialist;
+	async selectSpecialty(specialty: Specialty | null) {
+		this.specialty = specialty;
+		this.groupedDates = [];
+		if (!specialty) return;
+
 		const allDates = this.getAllSpecDates();
-		const existingAppts = this.appointments.filter(appt => appt.specialist.id == this.specialist!.id && appt.status !== 'cancelled');
+		const existingAppts = this.appointments.filter(appt =>
+			appt.specialist.id == this.specialist!.id
+			&& appt.specialty.id == this.specialty!.id
+			&& appt.status !== 'cancelled');
 
 		const takenDates = existingAppts.map(appt => appt.date instanceof Timestamp ? appt.date.toDate() : appt.date);
 		this.availableDates = allDates.filter(date => !takenDates.some(apptDate => apptDate.getTime() === date.getTime()));
@@ -141,23 +159,33 @@ export class NewAppointmentComponent {
 		return datesArray;
 	}
 
-	groupDatesByDay() {
+	private groupDatesByDay() {
 		const tempMap = new Map<string, Date[]>();
 
 		this.availableDates.forEach(date => {
-			const fullDate = this.datePipe.transform(date, 'fullDate');
-			if (!tempMap.has(fullDate!)) {
-				tempMap.set(fullDate!, [date]);
+			const fullDay = this.datePipe.transform(date, 'YYYY/MM/dd');
+			if (!tempMap.has(fullDay!)) {
+				tempMap.set(fullDay!, [date]);
 			} else {
-				tempMap.get(fullDate!)!.push(date);
+				tempMap.get(fullDay!)!.push(date);
 			}
 		});
 
 		this.groupedDates = Array.from(tempMap);
 	}
 
-	selectDate(date: Date) {
-		const fullDate = this.datePipe.transform(date, 'fullDate');
+	selectDate(date: [string, Date[]] | null) {
+		if (date) {
+			this.dateChosen = new Date(date[0]);
+			this.selectedDayAvHours = date[1];
+		}
+	}
+
+	selectTime(date: Date) {
+		const hours = date.getHours();
+		const mins = date.getMinutes();
+		this.dateChosen!.setHours(hours, mins);
+		const fullDate = this.datePipe.transform(date, 'YYYY/MM/dd, HH:mm');
 		Swal.fire({
 			title: "Confirm date",
 			text: `${fullDate}; with Dr. ${this.specialist!.lastName}, ${this.specialty!.value}`,

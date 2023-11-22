@@ -1,19 +1,19 @@
 <div class="row d-flex align-items-center justify-content-center">
 	<div *ngFor="let user of usersToShow; index as i" [class]="config.containerClasses">
-		<div class="userRole" *ngIf="config.nameDisplay === 'top'">
+		<div *ngIf="config.nameDisplay === 'top'">
 			<span class="badge rounded-pill bg-warning" style="font-size: 10px;">{{user.lastName | uppercase}}</span>
 		</div>
-		<div class="userRole" *ngIf="config.roleDisplay === 'top'">
+		<div *ngIf="config.roleDisplay === 'top'">
 			<span class="badge rounded-pill bg-success" style="font-size: 10px;">{{user.role | uppercase}}</span>
 		</div>
 
 		<img [src]="user.imgUrl1" [alt]="user+'_'+i" [id]="user.idNo" [class]="config.userBtnClasses" role="button"
 			(click)="btnPressed.emit(user)">
 
-		<div class="userRole" *ngIf="config.nameDisplay === 'bottom'">
+		<div *ngIf="config.nameDisplay === 'bottom'">
 			<span class="badge rounded-pill bg-warning" style="font-size: 10px;">{{user.lastName | uppercase}}</span>
 		</div>
-		<div class="userRole" *ngIf="config.roleDisplay === 'bottom'">
+		<div *ngIf="config.roleDisplay === 'bottom'">
 			<span class="badge rounded-pill bg-success" style="font-size: 10px;">{{user.role | uppercase}}</span>
 		</div>
 	</div>
