@@ -11,6 +11,7 @@ import { ApptSurveyComponent } from '../appt-survey/appt-survey.component';
 import { Admin } from 'src/app/classes/admin';
 import { Specialty } from 'src/app/classes/specialty';
 import { Timestamp } from 'firebase/firestore';
+import { ApptDiagnosisComponent } from '../appt-diagnosis/appt-diagnosis.component';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -146,12 +147,18 @@ export class ListAppointmentComponent {
 				if (!swalInput?.value) break;
 				const review = swalInput?.value;
 
-				swalInput = await InputSwal.fire({ inputLabel: "What was the diagnosis?" });
-				if (!swalInput?.value) break;
-				const diag = swalInput?.value;
+				const dialogRef = this.dialog.open(ApptDiagnosisComponent, {
+					width: '800px', //FIXME: Doesn't display as Modal
+				});
+				dialogRef.componentInstance.patient = this.user as Patient;
 
-				if (swalInput?.value)
-					this.db.updateDoc(apptDbPath, appt.id, { specReview: review, diagnosis: diag, status: newStatus });
+				dialogRef.afterClosed().subscribe(diagnosis => {
+					if (diagnosis) {
+						appt.diagnosis = diagnosis;
+						this.db.updateDoc(apptDbPath, appt.id, { specReview: review, diagnosis: diagnosis, status: newStatus });
+					}
+				});
+
 				break;
 		}
 	}
@@ -159,7 +166,7 @@ export class ListAppointmentComponent {
 	showReview(appt: Appointment) {
 		if (this.user.role === 'patient') {
 			Swal.fire(`Dr. ${appt.specialist.lastName} said:`, appt.specReview)
-				.then(() => Swal.fire(`Diagnosis:`, appt.diagnosis));
+				.then(() => Swal.fire('Diagnosis:', appt.diagnosis?.getData()));
 		} else
 			Swal.fire(`${appt.patient.lastName} said:`, appt.patReview);
 	}
@@ -173,9 +180,8 @@ export class ListAppointmentComponent {
 
 		dialogRef.afterClosed().subscribe(survey => {
 			if (survey) {
-				const surveyRef = this.db.getDocRef('surveys', survey.id);
 				appt.patSurvey = survey;
-				this.db.updateDoc(apptDbPath, appt.id, { patSurvey: surveyRef })
+				this.db.updateDoc(apptDbPath, appt.id, { patSurvey: survey })
 					.then(() => ToastSuccess.fire('Survey uploaded!', 'Appointment closed.'));
 			}
 		});

@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
@@ -26,6 +27,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { UserBtnListComponent } from './components/user-btn-list/user-btn-list.component';
 import { MyPatientsComponent } from './components/my-patients/my-patients.component';
 import { PatientHistoryComponent } from './components/patient-history/patient-history.component';
+import { ApptDiagnosisComponent } from './components/appointments/appt-diagnosis/appt-diagnosis.component';
 
 @NgModule({
 	declarations: [
@@ -44,6 +46,7 @@ import { PatientHistoryComponent } from './components/patient-history/patient-hi
 		UserBtnListComponent,
 		MyPatientsComponent,
 		PatientHistoryComponent,
+		ApptDiagnosisComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -54,6 +57,7 @@ import { PatientHistoryComponent } from './components/patient-history/patient-hi
 		provideStorage(() => getStorage()),
 		FormsModule,
 		ReactiveFormsModule,
+		BrowserAnimationsModule,
 		MatDialogModule,
 		RecaptchaModule,
 		NgSelectModule,
