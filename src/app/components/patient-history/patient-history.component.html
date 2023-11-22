@@ -1,4 +1,8 @@
 <div class="main my-3">
+	<div class="d-flex justify-content-center">
+		<button *ngIf="exportBtn" class="btn btn-primary btn-md"
+			(click)="exportEvent.emit(pastAppointments)">{{exportBtnText}}</button>
+	</div>
 	<div class="container d-flex justify-content-center">
 		<table class="table table-striped align-middle mb-0 bg-white table-hover w-75">
 			<thead class="bg-light">
@@ -32,6 +36,6 @@
 		</table>
 	</div>
 
-	<button class="btn btn-outline-danger rounded-circle position-absolute top-0 end-0 m-4"
+	<button class="btn btn-outline-danger rounded-circle position-absolute top-0 end-0 m-4" *ngIf="dialogRef"
 		(click)="dialogRef.close()">X</button>
 </div>

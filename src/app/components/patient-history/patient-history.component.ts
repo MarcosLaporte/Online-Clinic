@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Optional, Output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Timestamp } from 'firebase/firestore';
 import { Appointment } from 'src/app/classes/appointment';
@@ -15,7 +15,11 @@ export class PatientHistoryComponent {
 	@Input() patient: Patient | undefined;
 	protected pastAppointments: Array<Appointment> = [];
 
-	constructor(private db: DatabaseService, public dialogRef: MatDialogRef<PatientHistoryComponent>) { }
+	@Input() exportBtn: boolean = false;
+	@Input() exportBtnText: string = 'Export';
+	@Output() exportEvent = new EventEmitter<Array<Appointment>>();
+
+	constructor(private db: DatabaseService, @Optional() public dialogRef: MatDialogRef<PatientHistoryComponent>) { }
 
 	private readonly timestampParse = async (appt: Appointment) => {
 		appt.date = appt.date instanceof Timestamp ? appt.date.toDate() : appt.date;

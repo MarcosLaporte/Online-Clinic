@@ -18,6 +18,8 @@ import { NewAppointmentComponent } from './components/appointments/new-appointme
 import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
 import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-survey.component';
 import { MyPatientsComponent } from './components/my-patients/my-patients.component';
+import { PatProfileComponent } from './components/pat-profile/pat-profile.component';
+import { patGuard } from './guards/pat.guard';
 
 const routes: Routes = [
 	{
@@ -78,6 +80,11 @@ const routes: Routes = [
 		path: 'my-patients',
 		canActivate: [specGuard, validAccountGuard],
 		component: MyPatientsComponent
+	},
+	{
+		path: 'my-profile',
+		canActivate: [patGuard, validAccountGuard],
+		component: PatProfileComponent
 	},
 ]
 

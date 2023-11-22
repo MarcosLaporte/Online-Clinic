@@ -6,9 +6,12 @@
 			<li class="nav-item"><a class="nav-link" routerLink="/home">Home</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role !== 'specialist' && isValid" routerLink="/new-appointment">New Appointment</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="isValid" routerLink="/appointments">Appointments</a></li>
+
 			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role === 'admin' && isEmailVerif" routerLink="/users">Users</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role === 'specialist' && isValid" routerLink="/my-patients">My Patients</a></li>
+			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role === 'patient'" routerLink="/my-profile">My Profile</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="isValid" routerLink="/account">Account</a></li>
+
 			<li class="nav-item"><a class="nav-link" *ngIf="user && user.role === 'specialist' && !isValid" routerLink="/specialist-enabling">Enable</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="user && !isEmailVerif" routerLink="/account-verification">Verify</a></li>
 			<li class="nav-item"><a class="nav-link" *ngIf="!user" routerLink="/login">Login</a></li>

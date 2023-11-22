@@ -28,6 +28,7 @@ import { UserBtnListComponent } from './components/user-btn-list/user-btn-list.c
 import { MyPatientsComponent } from './components/my-patients/my-patients.component';
 import { PatientHistoryComponent } from './components/patient-history/patient-history.component';
 import { ApptDiagnosisComponent } from './components/appointments/appt-diagnosis/appt-diagnosis.component';
+import { PatProfileComponent } from './components/pat-profile/pat-profile.component';
 
 @NgModule({
 	declarations: [
@@ -47,6 +48,7 @@ import { ApptDiagnosisComponent } from './components/appointments/appt-diagnosis
 		MyPatientsComponent,
 		PatientHistoryComponent,
 		ApptDiagnosisComponent,
+		PatProfileComponent,
 	],
 	imports: [
 		BrowserModule,

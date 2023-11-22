@@ -1,0 +1,8 @@
+<h2 class="text-center mt-5 mb-3">Appointments</h2>
+
+<app-patient-history
+	[exportBtn]="true"
+	exportBtnText="Download PDF"
+	[patient]="user"
+	(exportEvent)="downloadPDF($event)"
+></app-patient-history>
