@@ -8,7 +8,6 @@ import { Patient } from 'src/app/classes/patient';
 import { Specialist } from 'src/app/classes/specialist';
 import { User } from 'src/app/classes/user';
 import { Loader, ToastError, ToastSuccess } from 'src/app/environments/environment';
-import { AfReferencesService } from 'src/app/services/af-references.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
@@ -25,7 +24,6 @@ const usersDbPath = 'users';
 })
 export class NewAppointmentComponent {
 	private appointments: Array<Appointment> = [];
-	private readonly apptMapFunc: (appt: Appointment) => Promise<Appointment>;
 
 	user: User;
 	private specialtyArray: Array<Specialty> = [];
@@ -38,7 +36,6 @@ export class NewAppointmentComponent {
 
 	constructor(private db: DatabaseService, private router: Router, private datePipe: DatePipe) {
 		this.user = inject(AuthService).LoggedUser!;
-		this.apptMapFunc = inject(AfReferencesService).apptMap;
 	}
 
 	patientIdNo: number = 0;
@@ -47,6 +44,10 @@ export class NewAppointmentComponent {
 	specialist: Specialist | null = null;
 	dateChosen: Date | null = null;
 
+	private readonly timestampParse = async (appt: Appointment) => {
+		appt.date = appt.date instanceof Timestamp ? appt.date.toDate() : appt.date;
+		return appt;
+	}
 	async ngOnInit() {
 		Loader.fire();
 		if (this.user.role === 'patient') {
@@ -54,7 +55,7 @@ export class NewAppointmentComponent {
 			this.patient = this.user as Patient;
 		}
 
-		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, undefined, undefined, this.apptMapFunc);
+		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, undefined, undefined, this.timestampParse);
 		this.db.listenColChanges<Specialty>('specialties', this.specialtyArray);
 		this.db.listenColChanges<Specialist>(usersDbPath, this.specialists, (usr => usr.role === 'specialist' && (usr as Specialist).isEnabled));
 

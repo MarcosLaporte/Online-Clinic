@@ -74,7 +74,7 @@
 					</div>
 				</td>
 				<td class="col-md-auto text-center">
-					<p class="fw-normal mb-0">{{appt.date | date: 'short'}}</p>
+					<p class="fw-normal mb-0">{{appt.date | date: 'YYYY/MM/dd, HH:mm'}}</p>
 				</td>
 				<td class="col-md-auto text-center">
 					<span class="badge rounded-pill" [class]="getBgClassApptStatus(appt.status)">

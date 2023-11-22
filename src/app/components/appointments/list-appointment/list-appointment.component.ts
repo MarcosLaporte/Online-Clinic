@@ -9,8 +9,8 @@ import { DatabaseService } from 'src/app/services/database.service';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 import { ApptSurveyComponent } from '../appt-survey/appt-survey.component';
 import { Admin } from 'src/app/classes/admin';
-import { AfReferencesService } from 'src/app/services/af-references.service';
 import { Specialty } from 'src/app/classes/specialty';
+import { Timestamp } from 'firebase/firestore';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -26,7 +26,6 @@ export class ListAppointmentComponent {
 	private specialistArray: Array<Specialist> = [];
 	private patientArray: Array<Patient> = [];
 	private readonly apptRoleFilter: (appt: Appointment) => boolean;
-	private readonly apptMapFunc: (appt: Appointment) => Promise<Appointment>;
 
 	public get SpecialtyArray() {
 		return this.specialtyArray;
@@ -40,7 +39,6 @@ export class ListAppointmentComponent {
 
 	constructor(private db: DatabaseService, private dialog: MatDialog) {
 		this.user = inject(AuthService).LoggedUser!;
-		this.apptMapFunc = inject(AfReferencesService).apptMap;
 
 		switch (this.user.role) {
 			case 'patient':
@@ -59,15 +57,20 @@ export class ListAppointmentComponent {
 	specialistRadio: Specialist | null = null;
 	patientRadio: Patient | null = null;
 
+	private readonly dateSort = (a: Appointment, b: Appointment) => a.date > b.date ? 1 : -1;
+	private readonly timestampParse = async (appt: Appointment) => {
+		appt.date = appt.date instanceof Timestamp ? appt.date.toDate() : appt.date;
+		return appt;
+	}
 	async ngOnInit() {
 		Loader.fire();
 		this.specialtyArray = await this.db.getData<Specialty>('specialties');
 
 		this.db.listenColChanges<Specialist>('users', this.specialistArray, (usr => usr.role === 'specialist'));
 		this.db.listenColChanges<Patient>('users', this.patientArray, (usr => usr.role === 'patient'));
-		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, this.apptRoleFilter, undefined, this.apptMapFunc);
+		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, this.apptRoleFilter, this.dateSort, this.timestampParse);
 
-		this.appointmentsToShow = this.appointments.sort((appt1, appt2) => appt1.date > appt2.date ? 1 : -1);
+		this.appointmentsToShow = this.appointments;
 		Loader.close();
 	}
 
@@ -78,7 +81,7 @@ export class ListAppointmentComponent {
 		this.specialtyRadio = specialty;
 
 		const auxAppts = this.appointments.filter(appt => appt.specialty.id === this.specialtyRadio!.id);
-		this.appointmentsToShow = auxAppts.sort((appt1, appt2) => appt1.date > appt2.date ? 1 : -1);
+		this.appointmentsToShow.sort(this.dateSort);
 	}
 
 	specialistRadioChange(specialist: Specialist) {
@@ -87,7 +90,7 @@ export class ListAppointmentComponent {
 		this.specialistRadio = specialist;
 
 		const auxAppts = this.appointments.filter(appt => appt.specialist.id === this.specialistRadio!.id);
-		this.appointmentsToShow = auxAppts.sort((appt1, appt2) => appt1.date > appt2.date ? 1 : -1);
+		this.appointmentsToShow.sort(this.dateSort);
 	}
 
 	patientRadioChange(patient: Patient) {
@@ -96,7 +99,7 @@ export class ListAppointmentComponent {
 		this.patientRadio = patient;
 
 		const auxAppts = this.appointments.filter(appt => appt.patient.id === this.patientRadio!.id);
-		this.appointmentsToShow = auxAppts.sort((appt1, appt2) => appt1.date > appt2.date ? 1 : -1);
+		this.appointmentsToShow.sort(this.dateSort);
 	}
 
 	resetFilter() {
