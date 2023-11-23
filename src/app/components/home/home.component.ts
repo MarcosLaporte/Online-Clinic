@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { getAuth } from '@angular/fire/auth';
 
 @Component({
 	selector: 'app-home',

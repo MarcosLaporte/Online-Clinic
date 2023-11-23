@@ -34,12 +34,14 @@ const routes: Routes = [
 	{
 		path: 'login',
 		canActivate: [notLoggedGuard],
-		component: LoginComponent
+		component: LoginComponent,
+		data: { animation: 'isTop'}
 	},
 	{
 		path: 'signup',
 		canActivate: [notLoggedGuard],
-		component: SignupComponent
+		component: SignupComponent,
+		data: { animation: 'isBottom'}
 	},
 	{
 		path: 'account-verification',
@@ -59,17 +61,20 @@ const routes: Routes = [
 	{
 		path: 'users',
 		canActivate: [adminGuard, validAccountGuard],
-		component: UserListComponent
+		component: UserListComponent,
+		data: { animation: 'isRight'}
 	},
 	{
 		path: 'new-appointment',
 		canActivate: [notSpecGuard, validAccountGuard],
-		component: NewAppointmentComponent
+		component: NewAppointmentComponent,
+		data: { animation: 'isLeft'}
 	},
 	{
 		path: 'appointments',
 		canActivate: [validAccountGuard],
-		component: ListAppointmentComponent
+		component: ListAppointmentComponent,
+		data: { animation: 'isRight'}
 	},
 	{
 		path: 'appointment-survey',
@@ -79,7 +84,8 @@ const routes: Routes = [
 	{
 		path: 'my-patients',
 		canActivate: [specGuard, validAccountGuard],
-		component: MyPatientsComponent
+		component: MyPatientsComponent,
+		data: { animation: 'isLeft'}
 	},
 	{
 		path: 'my-profile',

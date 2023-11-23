@@ -1,15 +1,17 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { ToastInfo } from './environments/environment';
 import { Specialist } from './classes/specialist';
 import { User } from './classes/user';
+import { animations } from './routeAnimations';
 
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css'],
-	encapsulation: ViewEncapsulation.None
+	encapsulation: ViewEncapsulation.None,
+	animations: [animations]
 })
 export class AppComponent {
 	title = 'LaboIV_TP2_Laporte';
@@ -37,5 +39,9 @@ export class AppComponent {
 				router.navigateByUrl('home');
 			}
 		});
+	}
+
+	prepareRoute(outlet: RouterOutlet) {
+		return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];
 	}
 }
