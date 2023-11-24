@@ -2,17 +2,15 @@ import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Appointment, ApptStatus } from 'src/app/classes/appointment';
 import { Patient } from 'src/app/classes/patient';
-import { Specialist } from 'src/app/classes/specialist';
 import { InputSwal, Loader, ToastSuccess } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 import { ApptSurveyComponent } from '../appt-survey/appt-survey.component';
-import { Admin } from 'src/app/classes/admin';
-import { Specialty } from 'src/app/classes/specialty';
 import { Timestamp } from 'firebase/firestore';
 import { ApptDiagnosisComponent } from '../appt-diagnosis/appt-diagnosis.component';
 import { Diagnosis } from 'src/app/classes/diagnosis';
+import { User } from 'src/app/classes/user';
 
 const apptDbPath = 'appointments';
 @Component({
@@ -21,24 +19,10 @@ const apptDbPath = 'appointments';
 	styleUrls: ['./list-appointment.component.css']
 })
 export class ListAppointmentComponent {
-	user: Patient | Specialist | Admin;
-	private appointments: Array<Appointment> = [];
+	user: User;
+	readonly appointments: Array<Appointment> = [];
 	appointmentsToShow: Array<Appointment> = [];
-	private specialtyArray: Array<Specialty> = [];
-	private specialistArray: Array<Specialist> = [];
-	private patientArray: Array<Patient> = [];
 	private readonly apptRoleFilter: (appt: Appointment) => boolean;
-	filterInput: string = '';
-
-	public get SpecialtyArray() {
-		return this.specialtyArray;
-	}
-	public get SpecialistArray() {
-		return this.specialistArray;
-	}
-	public get PatientArray() {
-		return this.patientArray;
-	}
 
 	constructor(private db: DatabaseService, private dialog: MatDialog) {
 		this.user = inject(AuthService).LoggedUser!;
@@ -63,44 +47,10 @@ export class ListAppointmentComponent {
 	}
 	async ngOnInit() {
 		Loader.fire();
-		this.specialtyArray = await this.db.getData<Specialty>('specialties');
-
-		this.db.listenColChanges<Specialist>('users', this.specialistArray, (usr => usr.role === 'specialist'));
-		this.db.listenColChanges<Patient>('users', this.patientArray, (usr => usr.role === 'patient'));
 		this.db.listenColChanges<Appointment>(apptDbPath, this.appointments, this.apptRoleFilter, this.dateSort, this.timestampParse);
 
 		this.appointmentsToShow = this.appointments;
 		Loader.close();
-	}
-
-	filterTable() {
-		if (this.filterInput) {
-			this.appointmentsToShow = this.appointments.filter(
-				(appt) =>
-					this.includesFilterInput(appt.patient.firstName) ||
-					this.includesFilterInput(appt.patient.lastName) ||
-					this.includesFilterInput(`${appt.patient.firstName} ${appt.patient.lastName}`) ||
-					this.includesFilterInput(appt.patient.healthPlan.value) ||
-					this.includesFilterInput(appt.specialty.value) ||
-					this.includesFilterInput(appt.specialist.firstName) ||
-					this.includesFilterInput(appt.specialist.lastName) ||
-					this.includesFilterInput(`${appt.specialist.firstName} ${appt.specialist.lastName}`) ||
-					this.includesFilterInput(appt.date.toDateString()) ||
-					this.includesFilterInput(appt.specReview) ||
-					(appt.diagnosis &&
-						(this.includesFilterInput(appt.diagnosis.additionalData[0].key) ||
-							this.includesFilterInput(appt.diagnosis.additionalData[1].key) ||
-							this.includesFilterInput(appt.diagnosis.additionalData[2].key))) ||
-					this.includesFilterInput(appt.patReview)
-			);
-		} else {
-			this.appointmentsToShow = this.appointments;
-		}
-
-	}
-
-	private includesFilterInput(value: string): boolean {
-		return value.toLowerCase().includes(this.filterInput.toLowerCase());
 	}
 
 	async changeApptStatus(appt: Appointment, newStatus: ApptStatus) {

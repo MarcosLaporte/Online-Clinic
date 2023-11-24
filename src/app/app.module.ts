@@ -29,6 +29,7 @@ import { MyPatientsComponent } from './components/my-patients/my-patients.compon
 import { PatientHistoryComponent } from './components/patient-history/patient-history.component';
 import { ApptDiagnosisComponent } from './components/appointments/appt-diagnosis/appt-diagnosis.component';
 import { PatProfileComponent } from './components/pat-profile/pat-profile.component';
+import { ApptFilterComponent } from './components/appointments/appt-filter/appt-filter.component';
 
 @NgModule({
 	declarations: [
@@ -49,6 +50,7 @@ import { PatProfileComponent } from './components/pat-profile/pat-profile.compon
 		PatientHistoryComponent,
 		ApptDiagnosisComponent,
 		PatProfileComponent,
+  ApptFilterComponent,
 	],
 	imports: [
 		BrowserModule,

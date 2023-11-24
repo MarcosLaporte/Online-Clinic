@@ -13,7 +13,8 @@ import { DatabaseService } from 'src/app/services/database.service';
 })
 export class PatientHistoryComponent {
 	@Input() patient: Patient | undefined;
-	protected pastAppointments: Array<Appointment> = [];
+	readonly pastAppointments: Array<Appointment> = [];
+	appointmentsToShow: Array<Appointment> = [];
 
 	@Input() exportBtn: boolean = false;
 	@Input() exportBtnText: string = 'Export';
@@ -33,6 +34,8 @@ export class PatientHistoryComponent {
 			undefined,
 			this.timestampParse
 		);
+
+		this.appointmentsToShow = this.pastAppointments;
 	}
 
 	getDataDiag(diag: Diagnosis) {

@@ -1,12 +1,9 @@
 <h2 class="text-center mt-5">Appointments</h2>
 
-<div class="d-flex justify-content-center">
-	<div class="input-group mb-3 w-25">
-		<span class="input-group-text"><i class="bi bi-funnel"></i></span>
-		<input type="search" [(ngModel)]="filterInput" class="form-control" (input)="filterTable()"
-			placeholder="Start typing to filter..." autocomplete="off">
-	</div>
-</div>
+<app-appt-filter
+	[appointmentList]="appointments"
+	(filteredList)="appointmentsToShow = $event">
+</app-appt-filter>
 
 <div class="container d-flex justify-content-center">
 	<table class="table table-striped align-middle mb-0 bg-white table-hover w-75">

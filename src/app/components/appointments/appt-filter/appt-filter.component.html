@@ -1,0 +1,7 @@
+<div class="d-flex justify-content-center">
+	<div class="input-group mb-3 w-25">
+		<span class="input-group-text"><i class="bi bi-funnel"></i></span>
+		<input type="search" [(ngModel)]="filterInput" class="form-control" (input)="filterTable()"
+			placeholder="Start typing to filter..." autocomplete="off">
+	</div>
+</div>

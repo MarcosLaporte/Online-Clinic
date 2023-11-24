@@ -1,8 +1,14 @@
-<div class="main my-3">
+<div class="main pb-5">
 	<div class="d-flex justify-content-center">
-		<button *ngIf="exportBtn" class="btn btn-primary btn-md"
-			(click)="exportEvent.emit(pastAppointments)">{{exportBtnText}}</button>
+		<button *ngIf="exportBtn" class="btn btn-primary btn-md mb-3"
+			(click)="exportEvent.emit(appointmentsToShow)">{{exportBtnText}}</button>
 	</div>
+
+	<app-appt-filter
+		[appointmentList]="pastAppointments"
+		(filteredList)="appointmentsToShow = $event">
+	</app-appt-filter>
+
 	<div class="container d-flex justify-content-center">
 		<table class="table table-striped align-middle mb-0 bg-white table-hover w-75">
 			<thead class="bg-light">
@@ -13,7 +19,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr *ngFor="let appt of pastAppointments">
+				<tr *ngFor="let appt of appointmentsToShow">
 					<td class="col-md-3">
 						<div class="d-flex align-items-center">
 							<div class="ms-3">
@@ -29,7 +35,7 @@
 						<p class="fw-normal mb-0 break-spaces" *ngIf="appt.diagnosis">{{getDataDiag(appt.diagnosis)}}</p>
 					</td>
 				</tr>
-				<p *ngIf="pastAppointments.length === 0" class="text-center">
+				<p *ngIf="appointmentsToShow.length === 0" class="text-center">
 					There are no appointments to show
 				</p>
 			</tbody>
