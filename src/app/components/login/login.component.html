@@ -3,8 +3,13 @@
 		<h1 class="h3 mb-3 font-weight-normal">Member Login</h1>
 
 		<div class="quick-access mb-2" *ngIf="users.length > 0">
-			<app-user-btn-list [userList]="users" (btnPressed)="quickFill($event)" [config]="usrBtnListConfig">
-			</app-user-btn-list>
+			<app-user-btn-list [userList]="users" (btnPressed)="quickFill($event)"
+			containerClasses="col-md-2 image-div d-flex flex-column align-items-center"
+			[patientLimit]="3"
+			[specialistLimit]="2"
+			[adminLimit]="1"
+			roleDisplay="bottom"
+			></app-user-btn-list>
 		</div>
 
 		<input type="email" id="inputEmail" class="form-control" placeholder="Email address" formControlName="email"

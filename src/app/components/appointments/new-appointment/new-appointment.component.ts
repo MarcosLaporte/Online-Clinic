@@ -11,7 +11,6 @@ import { Loader, ToastError, ToastSuccess } from 'src/app/environments/environme
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
-import { UserListConfig } from '../../user-btn-list/user-btn-list.component';
 import { Specialty } from 'src/app/classes/specialty';
 
 const apptDbPath = 'appointments';
@@ -62,16 +61,6 @@ export class NewAppointmentComponent {
 		Loader.close();
 	}
 
-	readonly specBtnListConfig: UserListConfig = {
-		containerClasses: 'col-auto image-div d-flex flex-column align-items-center',
-		userBtnClasses: 'rounded-circle',
-		patientAmount: 0,
-		specialistAmount: Number.MAX_SAFE_INTEGER,
-		adminAmount: 0,
-		roleDisplay: 'none',
-		nameDisplay: 'top',
-	}
-
 	lookUpPatient() {
 		this.db.searchUserByIdNo(this.patientIdNo)
 			.then(user => {
@@ -92,7 +81,7 @@ export class NewAppointmentComponent {
 	selectSpecialist(specialist: User | null) {
 		this.specialty = null;
 		this.groupedDates = [];
-		// this.availableDates = [];
+		this.availableDates = [];
 		if (!specialist) {
 			this.specialist = null;
 			this.availableSpecialties = [];
@@ -176,10 +165,13 @@ export class NewAppointmentComponent {
 	}
 
 	selectDate(date: [string, Date[]] | null) {
-		if (date) {
-			this.dateChosen = new Date(date[0]);
-			this.selectedDayAvHours = date[1];
+		if (!date) {
+			this.dateChosen = null;
+			return;
 		}
+		
+		this.dateChosen = new Date(date[0]);
+		this.selectedDayAvHours = date[1];
 	}
 
 	selectTime(date: Date) {

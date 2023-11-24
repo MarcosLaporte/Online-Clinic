@@ -5,7 +5,6 @@ import { User } from 'src/app/classes/user';
 import { Loader } from 'src/app/environments/environment';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
-import { UserListConfig } from '../user-btn-list/user-btn-list.component';
 
 @Component({
 	selector: 'app-login',
@@ -32,16 +31,6 @@ export class LoginComponent {
 				]
 			]
 		});
-	}
-
-	readonly usrBtnListConfig: UserListConfig = {
-		containerClasses: "col-md-2 image-div d-flex flex-column align-items-center",
-		userBtnClasses: "rounded-2",
-		patientAmount: 3,
-		specialistAmount: 2,
-		adminAmount: 1,
-		roleDisplay: 'bottom',
-		nameDisplay: 'none',
 	}
 
 	async ngOnInit() {
