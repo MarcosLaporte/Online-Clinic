@@ -16,10 +16,10 @@ import { UserListComponent } from './components/user-list/user-list.component';
 import { notSpecGuard } from './guards/not-spec.guard';
 import { NewAppointmentComponent } from './components/appointments/new-appointment/new-appointment.component';
 import { ListAppointmentComponent } from './components/appointments/list-appointment/list-appointment.component';
-import { ApptSurveyComponent } from './components/appointments/appt-survey/appt-survey.component';
 import { MyPatientsComponent } from './components/my-patients/my-patients.component';
 import { PatProfileComponent } from './components/pat-profile/pat-profile.component';
 import { patGuard } from './guards/pat.guard';
+import { notPatGuard } from './guards/not-pat.guard';
 
 const routes: Routes = [
 	{
@@ -55,8 +55,9 @@ const routes: Routes = [
 	},
 	{
 		path: 'account',
-		canActivate: [loggedGuard, validAccountGuard],
-		component: AccountComponent
+		canActivate: [notPatGuard, validAccountGuard],
+		component: AccountComponent,
+		data: { animation: 'isTop'}
 	},
 	{
 		path: 'users',
@@ -77,11 +78,6 @@ const routes: Routes = [
 		data: { animation: 'isRight'}
 	},
 	{
-		path: 'appointment-survey',
-		canActivate: [validAccountGuard],
-		component: ApptSurveyComponent
-	},
-	{
 		path: 'my-patients',
 		canActivate: [specGuard, validAccountGuard],
 		component: MyPatientsComponent,
@@ -90,7 +86,8 @@ const routes: Routes = [
 	{
 		path: 'my-profile',
 		canActivate: [patGuard, validAccountGuard],
-		component: PatProfileComponent
+		component: PatProfileComponent,
+		data: { animation: 'isBottom'}
 	},
 ]
 
