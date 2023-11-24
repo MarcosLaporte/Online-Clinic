@@ -28,6 +28,7 @@ export class ListAppointmentComponent {
 	private specialistArray: Array<Specialist> = [];
 	private patientArray: Array<Patient> = [];
 	private readonly apptRoleFilter: (appt: Appointment) => boolean;
+	filterInput: string = '';
 
 	public get SpecialtyArray() {
 		return this.specialtyArray;
@@ -55,10 +56,6 @@ export class ListAppointmentComponent {
 		}
 	}
 
-	specialtyRadio: Specialty | null = null;
-	specialistRadio: Specialist | null = null;
-	patientRadio: Patient | null = null;
-
 	private readonly dateSort = (a: Appointment, b: Appointment) => a.date > b.date ? 1 : -1;
 	private readonly timestampParse = async (appt: Appointment) => {
 		appt.date = appt.date instanceof Timestamp ? appt.date.toDate() : appt.date;
@@ -76,45 +73,35 @@ export class ListAppointmentComponent {
 		Loader.close();
 	}
 
-	//#region Table Filters
-	specialtyRadioChange(specialty: Specialty) {
-		this.specialistRadio = null;
-		this.patientRadio = null;
-		this.specialtyRadio = specialty;
+	filterTable() {
+		if (this.filterInput) {
+			this.appointmentsToShow = this.appointments.filter(
+				(appt) =>
+					this.includesFilterInput(appt.patient.firstName) ||
+					this.includesFilterInput(appt.patient.lastName) ||
+					this.includesFilterInput(`${appt.patient.firstName} ${appt.patient.lastName}`) ||
+					this.includesFilterInput(appt.patient.healthPlan.value) ||
+					this.includesFilterInput(appt.specialty.value) ||
+					this.includesFilterInput(appt.specialist.firstName) ||
+					this.includesFilterInput(appt.specialist.lastName) ||
+					this.includesFilterInput(`${appt.specialist.firstName} ${appt.specialist.lastName}`) ||
+					this.includesFilterInput(appt.date.toDateString()) ||
+					this.includesFilterInput(appt.specReview) ||
+					(appt.diagnosis &&
+						(this.includesFilterInput(appt.diagnosis.additionalData[0].key) ||
+							this.includesFilterInput(appt.diagnosis.additionalData[1].key) ||
+							this.includesFilterInput(appt.diagnosis.additionalData[2].key))) ||
+					this.includesFilterInput(appt.patReview)
+			);
+		} else {
+			this.appointmentsToShow = this.appointments;
+		}
 
-		this.appointmentsToShow
-			.filter(appt => appt.specialty.id === this.specialtyRadio!.id)
-			.sort(this.dateSort);
 	}
 
-	specialistRadioChange(specialist: Specialist) {
-		this.specialtyRadio = null;
-		this.patientRadio = null;
-		this.specialistRadio = specialist;
-
-		this.appointmentsToShow
-			.filter(appt => appt.specialist.id === this.specialistRadio!.id)
-			.sort(this.dateSort);
+	private includesFilterInput(value: string): boolean {
+		return value.toLowerCase().includes(this.filterInput.toLowerCase());
 	}
-
-	patientRadioChange(patient: Patient) {
-		this.specialtyRadio = null;
-		this.specialistRadio = null;
-		this.patientRadio = patient;
-
-		this.appointmentsToShow
-			.filter(appt => appt.patient.id === this.patientRadio!.id)
-			.sort(this.dateSort);
-	}
-
-	resetFilter() {
-		this.specialistRadio = null;
-		this.specialtyRadio = null;
-		this.patientRadio = null;
-
-		this.appointmentsToShow = this.appointments.sort((appt1, appt2) => appt1.date > appt2.date ? 1 : -1);
-	}
-	//#endregion
 
 	async changeApptStatus(appt: Appointment, newStatus: ApptStatus) {
 		let swalInput: SweetAlertResult<string> | undefined;
@@ -149,7 +136,7 @@ export class ListAppointmentComponent {
 				const review = swalInput?.value;
 
 				const dialogRef = this.dialog.open(ApptDiagnosisComponent, {
-					width: '800px', //FIXME: Doesn't display as Modal
+					width: '800px',
 				});
 				dialogRef.componentInstance.patient = this.user as Patient;
 
@@ -165,14 +152,14 @@ export class ListAppointmentComponent {
 	}
 
 	showReview(appt: Appointment) {
-		if (this.user.role === 'patient') {
+		if (this.user.role !== 'specialist') {
 			Swal.fire(`Dr. ${appt.specialist.lastName} said:`, appt.specReview)
 				.then(() => {
 					if (appt.diagnosis) {
 						Swal.fire({
 							title: 'Diagnosis:',
 							text: Diagnosis.getData(appt.diagnosis),
-							customClass: {container: 'break-spaces'}
+							customClass: { container: 'break-spaces' }
 						});
 					}
 				});
