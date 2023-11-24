@@ -46,7 +46,7 @@ export class PatProfileComponent {
 					layout: 'lightHorizontalLines',
 					table: {
 						headerRows: 1,
-						widths: [100, 150, 100, 125, '*'],
+						widths: history.length > 0 ? [100, 100, 150, 125, '*'] : ['*'],
 						body: this.parseAppointments(history)
 					}
 				}
@@ -57,54 +57,58 @@ export class PatProfileComponent {
 	}
 
 	parseAppointments(appts: Array<Appointment>): Array<Array<any>> {
-		let bodyRows: Array<Array<any>> = [
-			[
+		let bodyRows: Array<Array<any>> = []
+		if (appts.length > 0) {
+			bodyRows.push([
 				{ text: 'Date', bold: true, fontSize: 13 },
 				{ text: 'Specialty', bold: true, fontSize: 13 },
 				{ text: 'Specialist', bold: true, fontSize: 13 },
 				{ text: "Specialist's review", bold: true, fontSize: 13 },
 				{ text: 'Diagnostic', bold: true, fontSize: 13 }
-			]
-		];
-		for (const appt of appts) {
-			const row: Array<any> = [
-				{ text: datePipe.transform(appt.date, 'YYYY/MM/dd, HH:mm')! + 'hs' },
-				{ text: appt.specialty.value, italics: true },
-				`${appt.specialist.lastName}, ${appt.specialist.firstName}`,
-				appt.specReview,
-				Diagnosis.getData(appt.diagnosis!),
-			]
+			]);
+			for (const appt of appts) {
+				const row: Array<any> = [
+					{ text: datePipe.transform(appt.date, 'YYYY/MM/dd, HH:mm')! + 'hs' },
+					{ text: appt.specialty.value, italics: true },
+					`${appt.specialist.lastName}, ${appt.specialist.firstName}`,
+					appt.specReview,
+					Diagnosis.getData(appt.diagnosis!),
+				]
 
-			bodyRows.push(row);
-		}
+				bodyRows.push(row);
+			}
+		} else
+			bodyRows.push([
+				{ text: 'There are no appointments to show.', italics: true }
+			]);
 
 		return bodyRows;
 	}
 
 	private getBase64ImageFromURL(url: string) {
-    return new Promise((resolve, reject) => {
-      var img = new Image();
-      img.setAttribute("crossOrigin", "anonymous");
+		return new Promise((resolve, reject) => {
+			var img = new Image();
+			img.setAttribute("crossOrigin", "anonymous");
 
-      img.onload = () => {
-        var canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
+			img.onload = () => {
+				var canvas = document.createElement("canvas");
+				canvas.width = img.width;
+				canvas.height = img.height;
 
-        var ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0);
+				var ctx = canvas.getContext("2d");
+				ctx?.drawImage(img, 0, 0);
 
-        var dataURL = canvas.toDataURL("image/png");
+				var dataURL = canvas.toDataURL("image/png");
 
-        resolve(dataURL);
-      };
+				resolve(dataURL);
+			};
 
-      img.onerror = error => {
-        reject(error);
-      };
+			img.onerror = error => {
+				reject(error);
+			};
 
-      img.src = url;
-    });
-  }
+			img.src = url;
+		});
+	}
 
 }
