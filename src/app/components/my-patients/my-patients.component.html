@@ -1,1 +1,17 @@
-<app-user-list [userFilter]="userFilterFunc"></app-user-list>
+<div class="card">
+	<h2 class="text-center my-5">My patients</h2>
+	
+	<div class="patients mb-2" *ngIf="patients.length > 0">
+		<app-user-btn-list [userList]="patients" (btnPressed)="showMedicalHistory(parsePatient($event))"
+			containerClass="col-md-2 image-div d-flex flex-column align-items-center"
+			imgClass="border border-3 border-black rounded-circle" 
+			imgWidth="100px"
+			imgHeight="auto"
+			[specialistLimit]="0"
+			[adminLimit]="0"
+			nameDisplay="top"
+			nameFs="18px"
+		>
+		</app-user-btn-list>
+	</div>
+</div>

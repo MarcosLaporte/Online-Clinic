@@ -27,7 +27,13 @@ export class UserListComponent {
 	}
 
 	async ngOnInit() {
-		this.db.listenColChanges<User>('users', this.users, this.userFilter, (u1: User, u2: User) => u1.lastName > u2.lastName ? 1 : -1, this.userMap);
+		this.db.listenColChanges<User>(
+			'users',
+			this.users,
+			this.userFilter,
+			(u1: User, u2: User) => u1.lastName > u2.lastName ? 1 : -1,
+			this.userMap
+		);
 	}
 
 	private readonly userMap = async (user: User) => {

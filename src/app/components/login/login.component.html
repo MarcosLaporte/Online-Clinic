@@ -4,7 +4,10 @@
 
 		<div class="quick-access mb-2" *ngIf="users.length > 0">
 			<app-user-btn-list [userList]="users" (btnPressed)="quickFill($event)"
-			containerClasses="col-md-2 image-div d-flex flex-column align-items-center"
+			containerClass="col-md-2 image-div d-flex flex-column align-items-center"
+			imgClass="border border-3 border-black rounded-2" 
+			imgWidth="60px"
+			imgHeight="auto"
 			[patientLimit]="3"
 			[specialistLimit]="2"
 			[adminLimit]="1"

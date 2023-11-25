@@ -1,20 +1,24 @@
 <div class="row d-flex align-items-center justify-content-center">
-	<div *ngFor="let user of usersToShow; index as i" [class]="containerClasses">
+	<div *ngFor="let user of usersToShow; index as i" [class]="containerClass">
 		<div *ngIf="nameDisplay === 'top'">
-			<span class="badge rounded-pill bg-warning" style="font-size: 10px;">{{user.lastName | uppercase}}</span>
+			<span class="badge rounded-pill bg-warning" [style.font-size]="nameFs">{{user.lastName | uppercase}}</span>
 		</div>
 		<div *ngIf="roleDisplay === 'top'">
-			<span class="badge rounded-pill bg-success" style="font-size: 10px;">{{user.role | uppercase}}</span>
+			<span class="badge rounded-pill bg-success" [style.font-size]="roleFs">{{user.role | uppercase}}</span>
 		</div>
 
-		<img [src]="user.imgUrl1" [alt]="user+'_'+i" [id]="user.idNo" [class]="userBtnClasses" role="button"
-			(click)="btnPressed.emit(user)">
+		<img [src]="user.imgUrl1" [alt]="'user_'+i" [id]="user.idNo" role="button"
+			[class]="imgClass"
+			[style.width]="imgWidth"
+			[style.height]="imgHeight"
+			(click)="btnPressed.emit(user)"
+		>
 
 		<div *ngIf="nameDisplay === 'bottom'">
-			<span class="badge rounded-pill bg-warning" style="font-size: 10px;">{{user.lastName | uppercase}}</span>
+			<span class="badge rounded-pill bg-warning" [style.font-size]="nameFs">{{user.lastName | uppercase}}</span>
 		</div>
 		<div *ngIf="roleDisplay === 'bottom'">
-			<span class="badge rounded-pill bg-success" style="font-size: 10px;">{{user.role | uppercase}}</span>
+			<span class="badge rounded-pill bg-success" [style.font-size]="roleFs">{{user.role | uppercase}}</span>
 		</div>
 	</div>
 </div>

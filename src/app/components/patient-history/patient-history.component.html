@@ -16,6 +16,7 @@
 					<th>Specialist</th>
 					<th class="text-center">Date</th>
 					<th class="text-center">Diagnosis</th>
+					<th class="text-center">Review</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -31,8 +32,11 @@
 					<td class="col-md-2 text-center">
 						<p class="fw-normal mb-0">{{appt.date | date: 'YYYY/MM/dd, HH:mm'}}</p>
 					</td>
-					<td class="col-md-7 text-center">
+					<td class="col-md-4 text-center">
 						<p class="fw-normal mb-0 break-spaces" *ngIf="appt.diagnosis">{{getDataDiag(appt.diagnosis)}}</p>
+					</td>
+					<td class="col-md-3 text-center">
+						<p class="fw-normal mb-0 break-spaces" *ngIf="appt.patReview">{{appt.patReview}}</p>
 					</td>
 				</tr>
 				<p *ngIf="appointmentsToShow.length === 0" class="text-center">

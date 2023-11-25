@@ -1,11 +1,4 @@
-.image-div img {
-	border: 3px solid #231F20;
-	width: 60px;
-	height: auto;
-	display: block !important;
-}
-
-.image-div img:hover {
+img:hover {
 	filter: brightness(105%);
 	transform: scale(1.25);
 	transition: all .5s ease;

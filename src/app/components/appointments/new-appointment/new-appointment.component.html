@@ -21,8 +21,10 @@
 				<ng-template #docList>
 					<div class="mb-2" *ngIf="specialists.length > 0">
 						<app-user-btn-list [userList]="specialists" (btnPressed)="selectSpecialist($event)"
-							containerClasses="col-auto image-div d-flex flex-column align-items-center"
-							userBtnClasses="rounded-circle"
+							containerClass="col-auto image-div d-flex flex-column align-items-center"
+							imgClass="border border-3 border-black rounded-circle"
+							imgWidth="80px"
+							imgHeight="auto"
 							[patientLimit]="0"
 							[adminLimit]="0"
 							roleDisplay="none"
