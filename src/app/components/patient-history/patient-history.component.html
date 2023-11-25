@@ -1,7 +1,7 @@
 <div class="main pb-5">
 	<div class="d-flex justify-content-center">
-		<button *ngIf="exportBtn" class="btn btn-primary btn-md mb-3"
-			(click)="exportEvent.emit(appointmentsToShow)">{{exportBtnText}}</button>
+		<button *ngIf="exportBtn" class="btn btn-primary btn-md my-3"
+			(click)="emitList(appointmentsToShow)">{{exportBtnText}}</button>
 	</div>
 
 	<app-appt-filter

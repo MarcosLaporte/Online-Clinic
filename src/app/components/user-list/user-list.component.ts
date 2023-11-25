@@ -9,6 +9,8 @@ import { DatabaseService } from 'src/app/services/database.service';
 import Swal from 'sweetalert2';
 import { PatientHistoryComponent } from '../patient-history/patient-history.component';
 import { AuthService } from 'src/app/services/auth.service';
+import * as XLSX from 'xlsx';
+import { Appointment } from 'src/app/classes/appointment';
 
 @Component({
 	selector: 'app-user-list',
@@ -51,11 +53,10 @@ export class UserListComponent {
 		return user as Specialist;
 	}
 
-	parsePatient = (user: User) => {
-		return user as Patient;
-	}
+	showSpecs(user: User) {
+		if (user.role !== 'specialist') return;
 
-	showSpecs(specialist: Specialist) {
+		const specialist = user as Specialist;
 		let specsStr: string = "";
 		for (const spec of specialist.specialties) {
 			specsStr += '+ ' + spec.value + '<br>';
@@ -64,7 +65,10 @@ export class UserListComponent {
 		Swal.fire(`Dr. ${specialist.lastName} is:`, specsStr, 'info');
 	}
 
-	async toggleEnable(specialist: Specialist) {
+	async toggleEnable(user: User) {
+		if (user.role !== 'specialist') return;
+
+		const specialist = user as Specialist;
 		const newValue = !specialist.isEnabled;
 		Loader.fire();
 		await this.db.updateDoc('users', specialist.id, { isEnabled: newValue })
@@ -76,12 +80,59 @@ export class UserListComponent {
 			.catch((error) => { ToastError.fire({ title: 'Oops...', text: error.message }); });
 	}
 
-	async showMedicalHistory(patient: Patient) {
+	async showMedicalHistory(user: User) {
+		if (user.role !== 'patient') return;
+
+		const patient = user as Patient;
 		const dialogRef = this.dialog.open(PatientHistoryComponent, {
 			width: '1200px'
 		});
 
+		dialogRef.componentInstance.exportBtn = true;
+		dialogRef.componentInstance.exportBtnText = 'Download Excel';
 		dialogRef.componentInstance.patient = patient;
+
+		dialogRef.afterClosed().subscribe(list => {
+			if (list) {
+				const parsedList = this.parseList(list);
+				this.downloadXlsx(parsedList, `${patient.idNo}_medical_history.xlsx`);
+			}
+		});
+	}
+
+	parseList(list: Array<Appointment>) {
+		const formattedList: Array<any> = [];
+		if (list.length > 0) {
+			for (const appt of list) {
+				formattedList.push(
+					{
+						Date: appt.date,
+						Specialty: appt.specialty.value,
+						Specialist: `${appt.specialist.lastName}, ${appt.specialist.firstName}`,
+						Review: appt.specReview,
+						Height: appt.diagnosis?.height,
+						Weight: appt.diagnosis?.weight,
+						Blood_pressure: appt.diagnosis?.pressure,
+						Temperature: appt.diagnosis?.tempC,
+						Diag_data1: `${appt.diagnosis?.additionalData[0].key}: ${appt.diagnosis?.additionalData[0].value}`,
+						Diag_data2: `${appt.diagnosis?.additionalData[1].key}: ${appt.diagnosis?.additionalData[1].value}`,
+						Diag_data3: `${appt.diagnosis?.additionalData[2].key}: ${appt.diagnosis?.additionalData[2].value}`
+					}
+				)
+			}
+		} else {
+			formattedList.push({specialist: 'There are no appointments to show.'});
+		}
+
+		return formattedList;
+	}
+
+	downloadXlsx(json: any, fileName: string) {
+		const wb: XLSX.WorkBook = XLSX.utils.book_new();
+		const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+
+		XLSX.utils.book_append_sheet(wb, ws);
+		XLSX.writeFile(wb, fileName);
 	}
 
 	newAccount(user: Patient | Specialist | Admin) {

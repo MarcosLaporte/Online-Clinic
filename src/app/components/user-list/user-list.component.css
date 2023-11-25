@@ -1,0 +1,14 @@
+img {
+	width: 100%;
+	height: auto;
+	display: block !important;
+}
+
+.pat-img:hover {
+	cursor: pointer;
+	filter: brightness(105%);
+	transform: scale(1.25);
+	transition: all .5s ease;
+	-webkit-box-shadow: 0px 0px 35px 0px rgba(0, 0, 0, 0.75);
+	box-shadow: 0px 0px 35px 0px rgba(0, 0, 0, 0.75);
+}

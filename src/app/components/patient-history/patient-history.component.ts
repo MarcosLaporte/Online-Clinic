@@ -38,6 +38,13 @@ export class PatientHistoryComponent {
 		this.appointmentsToShow = this.pastAppointments;
 	}
 
+	emitList(list: Array<Appointment>) {
+		if (this.dialogRef)
+			this.dialogRef.close(list);
+		else
+			this.exportEvent.emit(list);
+	}
+
 	getDataDiag(diag: Diagnosis) {
 		return Diagnosis.getData(diag);
 	}

@@ -13,6 +13,11 @@
 			<tr *ngFor="let user of users">
 				<td class="col-md-2">
 					<div class="d-flex align-items-center">
+						<div style="width: 60px; height: 60px;" [class]="user.role === 'patient' ? 'pat-img' : ''"
+							class="overflow-hidden border border-1 border-black rounded-circle d-flex align-items-center">
+							<img [src]="user.imgUrl1" [alt]="'img_'+user.idNo" [id]="user.idNo"
+								(click)="showMedicalHistory(user)">
+						</div>
 						<div class="ms-3">
 							<p class="fw-bold mb-0">{{user.firstName}} {{user.lastName}}, {{user.age}}</p>
 							<p class="text-muted mb-0">{{user.email}}</p>
@@ -24,7 +29,7 @@
 						<span class="badge rounded-pill bg-success" *ngSwitchCase="'admin'">{{user.role | uppercase}}</span>
 						<span class="badge rounded-pill bg-danger" *ngSwitchCase="'patient'">{{user.role | uppercase}}</span>
 						<span class="badge rounded-pill bg-warning" role="button" *ngSwitchCase="'specialist'"
-							(click)="showSpecs(parseSpecialist(user))">{{user.role | uppercase}}</span>
+							(click)="showSpecs(user)">{{user.role | uppercase}}</span>
 					</div>
 				</td>
 				<td class="col-md-1 text-center">
@@ -34,12 +39,8 @@
 				</td>
 				<td class="col-md-1 text-center">
 					<div class="ms-3">
-						<button class="btn btn-outline-primary fw-normal mb-0" *ngIf="user.role === 'patient'"
-							(click)="showMedicalHistory(parsePatient(user))">
-							History
-						</button>
 						<button class="btn btn-primary fw-normal mb-0" *ngIf="user.role === 'specialist'"
-							(click)="toggleEnable(parseSpecialist(user))">
+							(click)="toggleEnable(user)">
 							{{(parseSpecialist(user))!.isEnabled ? 'Disable' : 'Enable'}}
 						</button>
 					</div>

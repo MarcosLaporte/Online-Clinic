@@ -32,8 +32,6 @@ export class AppComponent {
 			if (user) {
 				if (user.role === 'specialist' && !((user as Specialist).isEnabled))
 					this.isValid = false;
-				else
-					this.isValid = true;
 			} else {
 				ToastInfo.fire('No user in session.');
 				router.navigateByUrl('home');
