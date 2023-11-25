@@ -1,5 +1,5 @@
 <div class="row d-flex align-items-center justify-content-center">
-	<div *ngFor="let user of usersToShow; index as i" [class]="containerClass">
+	<div *ngFor="let user of usersToShow; index as i" [class]="containerClass+' px-0'">
 		<div *ngIf="nameDisplay === 'top'">
 			<span class="badge rounded-pill bg-warning" [style.font-size]="nameFs">{{user.lastName | uppercase}}</span>
 		</div>
@@ -7,12 +7,10 @@
 			<span class="badge rounded-pill bg-success" [style.font-size]="roleFs">{{user.role | uppercase}}</span>
 		</div>
 
-		<img [src]="user.imgUrl1" [alt]="'user_'+i" [id]="user.idNo" role="button"
-			[class]="imgClass"
-			[style.width]="imgWidth"
-			[style.height]="imgHeight"
-			(click)="btnPressed.emit(user)"
-		>
+		<div class="img-div overflow-hidden" [style.width]="imgWidth" [style.height]="imgHeight" [class]="imgClass">
+			<img [src]="user.imgUrl1" [alt]="'user_'+i" [id]="user.idNo"
+			role="button" (click)="btnPressed.emit(user)">
+		</div>
 
 		<div *ngIf="nameDisplay === 'bottom'">
 			<span class="badge rounded-pill bg-warning" [style.font-size]="nameFs">{{user.lastName | uppercase}}</span>
