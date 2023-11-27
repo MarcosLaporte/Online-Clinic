@@ -7,6 +7,10 @@ import { ChartData, ChartOptions, ChartType } from 'chart.js';
 	styleUrls: ['./chart.component.css']
 })
 export class ChartComponent {
+	@Input() width: string = 'auto';
+	@Input() height: string = 'auto';
+	@Input() chartId: string = 'myChart';
+
 	@Input() chartType: ChartType = 'bar';
 	@Input() chartData: ChartData | undefined;
 	@Input() chartOptions: ChartOptions = { responsive: true };

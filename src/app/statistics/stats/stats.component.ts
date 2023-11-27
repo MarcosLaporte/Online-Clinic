@@ -4,12 +4,13 @@ import { Timestamp } from 'firebase/firestore';
 import { Appointment } from 'src/app/classes/appointment';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Specialty } from 'src/app/classes/specialty';
+import { Loader } from 'src/app/environments/environment';
+import { ChartData } from 'chart.js';
 
 const datePipe = new DatePipe('en-US', '-0300');
-type GroupData<T> = {
-	groupBy: (item: T) => any;
-	labelFormatter: (group: any) => string;
-	data: T[];
+const emptyChartData = {
+	labels: [],
+	datasets: []
 };
 @Component({
 	selector: 'app-stats',
@@ -17,23 +18,39 @@ type GroupData<T> = {
 	styleUrls: ['./stats.component.css']
 })
 export class StatsComponent {
-	readonly appointments: Array<Appointment> = [];
+	private appointments: Array<Appointment> = [];
+	public chartsData: ChartData[] = [emptyChartData, emptyChartData, emptyChartData, emptyChartData];
 
-	public newApptTimeStart: Date | undefined;
-	public newApptTimeEnd: Date | undefined;
-	public apptDoneTimeStart: Date | undefined;
-	public apptDoneTimeEnd: Date | undefined;
+	constructor(private db: DatabaseService) { }
 
-	constructor(private db: DatabaseService) {
-		this.db.listenColChanges<Appointment>(
-			'appointments',
-			this.appointments,
-			undefined,
-			(a1: Appointment, a2: Appointment) => a1.date > a2.date ? 1 : -1,
-			async appt => { appt.date = appt.date instanceof Timestamp ? appt.date.toDate() : appt.date; return appt; }
-		);
+	readonly lineChartOptions = {
+		responsive: true,
+		scales: {
+			y: {
+				suggestedMin: 0,
+				suggestedMax: 6,
+				ticks: {
+					stepSize: 1,
+				}
+			}
+		}
 	}
 
+	async ngOnInit() {
+		Loader.fire();
+		const auxArray = await this.db.getData<Appointment>('appointments');
+
+		this.appointments = auxArray
+			.map(appt => { appt.date = appt.date instanceof Timestamp ? appt.date.toDate() : appt.date; return appt; })
+			.sort((a1: Appointment, a2: Appointment) => a1.date > a2.date ? 1 : -1);
+
+		this.chartsData[0] = this.getApptsDayData();
+		this.chartsData[1] = this.getApptsSpecData();
+		this.chartsData[2] = this.getApptsBetweenDatesData()!;
+		this.chartsData[3] = this.getFinishedApptsBetweenDatesData()!;
+
+		Loader.close();
+	}
 
 	//#region Appointments per day
 	getApptsDayData() {
@@ -63,7 +80,7 @@ export class StatsComponent {
 	}
 
 	private groupApptsByDay(): Array<{ date: Date, appointments: Appointment[] }> {
-		const auxAppts = [...this.appointments];
+		const auxAppts = this.appointments;
 		const dayAppt: Map<number, { date: Date, appointments: Appointment[] }> =
 			auxAppts.reduce((map, appt) => {
 				const auxDate = appt.date;
@@ -110,7 +127,7 @@ export class StatsComponent {
 	}
 
 	private groupApptsBySpec(): Array<{ specialty: Specialty, appointments: Appointment[] }> {
-		const auxAppts = [...this.appointments];
+		const auxAppts = this.appointments;
 		const specAppt: Map<string, { specialty: Specialty, appointments: Appointment[] }> = auxAppts.reduce((map, appt) => {
 			const key = appt.specialty.id;
 
@@ -128,6 +145,8 @@ export class StatsComponent {
 	//#endregion
 
 	//#region Appointments between dates
+	public newApptTimeStart: string = '2023-11-01';
+	public newApptTimeEnd: string = '2023-12-01';
 	getApptsBetweenDatesData() {
 		if (!this.newApptTimeStart || !this.newApptTimeEnd) return;
 		const datesAppt: Array<{ date: Date, appointments: Appointment[] }>
@@ -155,10 +174,13 @@ export class StatsComponent {
 		}
 	}
 
-	private groupApptsBetweenDates(startDate: Date, endDate: Date, filter?: (appt: Appointment) => boolean): Array<{ date: Date, appointments: Appointment[] }> {
-		const auxAppts = [...this.appointments];
+	private groupApptsBetweenDates(startDate: string, endDate: string): Array<{ date: Date, appointments: Appointment[] }> {
+		const auxAppts = this.appointments;
+		const auxStart = new Date(startDate);
+		const auxEnd = new Date(endDate);
+
 		const dayAppt: Map<string, { date: Date, appointments: Appointment[] }> =
-			auxAppts.filter(appt => appt.date >= startDate && appt.date <= endDate).reduce((map, appt) => {
+			auxAppts.filter(appt => appt.date >= auxStart && appt.date <= auxEnd).reduce((map, appt) => {
 				const key = appt.specialist.id;
 
 				if (!map.has(key))
@@ -172,9 +194,14 @@ export class StatsComponent {
 		return Array.from(dayAppt.values());
 	}
 
+	loadChart3() {
+		this.chartsData[2] = this.getApptsBetweenDatesData()!;
+	}
 	//#endregion
 
 	//#region Finished Appointments between dates
+	public apptDoneTimeStart: string = '2023-11-01';
+	public apptDoneTimeEnd: string = '2023-12-01';
 	getFinishedApptsBetweenDatesData() {
 		if (!this.newApptTimeStart || !this.newApptTimeEnd) return;
 		const datesAppt: Array<{ date: Date, appointments: Appointment[] }>
@@ -202,10 +229,13 @@ export class StatsComponent {
 		}
 	}
 
-	private groupFinApptsBetweenDates(startDate: Date, endDate: Date): Array<{ date: Date, appointments: Appointment[] }> {
-		const auxAppts = [...this.appointments];
+	private groupFinApptsBetweenDates(startDate: string, endDate: string): Array<{ date: Date, appointments: Appointment[] }> {
+		const auxAppts = this.appointments;
+		const auxStart = new Date(startDate);
+		const auxEnd = new Date(endDate);
+
 		const dayAppt: Map<string, { date: Date, appointments: Appointment[] }> =
-			auxAppts.filter(appt => appt.status === 'done' && appt.date >= startDate && appt.date <= endDate).reduce((map, appt) => {
+			auxAppts.filter(appt => appt.status === 'done' && appt.date >= auxStart && appt.date <= auxEnd).reduce((map, appt) => {
 				const key = appt.specialist.id;
 
 				if (!map.has(key))
@@ -219,6 +249,9 @@ export class StatsComponent {
 		return Array.from(dayAppt.values());
 	}
 
+	loadChart4() {
+		this.chartsData[3] = this.getFinishedApptsBetweenDatesData()!;
+	}
 	//#endregion
 
 	private getColor() {

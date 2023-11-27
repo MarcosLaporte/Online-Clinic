@@ -1,42 +1,50 @@
-<div class="row row-cols-2">
-	<div class="col-md-6">
-		<h3 class="text-center">Appointments per day</h3>
-		<app-chart [chartData]="getApptsDayData()" [chartType]="'line'"></app-chart>
-	</div>
-	<div class="col-md-6">
-		<h3 class="text-center">Appointments per specialty</h3>
-		<app-chart [chartData]="getApptsSpecData()" [chartType]="'bar'"></app-chart>
-	</div>
-	<div class="col-md-6">
-		<h3 class="text-center">Appointments between two dates</h3>
-		<div class="row">
-			<div class="col-md-5">
-				<label class="text-center" for="start">From</label>
-				<input type="date" class="form-control rounded-2" id="start" [(ngModel)]="newApptTimeStart">
-			</div>
-			<div class="col-md-5">
-				<label class="text-center" for="end">To</label>
-				<input type="date" class="form-control rounded-2" id="end" [(ngModel)]="newApptTimeEnd">
-			</div>
+<div class="container px-4 mt-3">
+	<div class="row row-cols-2">
+		<div class="col-md-6 mb-5">
+			<h3 class="text-center">Appointments per day</h3>
+			<app-chart height="300px" width="400px" [chartData]="chartsData[0]" [chartType]="'bar'" [chartOptions]="lineChartOptions" chartId="chart1"></app-chart>
 		</div>
-		<div *ngIf="newApptTimeStart && newApptTimeEnd">
-			<app-chart [chartData]="getApptsBetweenDatesData()" [chartType]="'pie'"></app-chart>
+		<div class="col-md-6 mb-5">
+			<h3 class="text-center">Appointments per specialty</h3>
+			<app-chart width="300px" [chartData]="chartsData[1]" [chartType]="'doughnut'" chartId="chart2"></app-chart>
 		</div>
-	</div>
-	<div class="col-md-6">
-		<h3 class="text-center">Finished appointments between two dates</h3>
-		<div class="row">
-			<div class="col-md-5">
-				<label class="text-center" for="start">From</label>
-				<input type="date" class="form-control rounded-2" id="start" [(ngModel)]="apptDoneTimeStart">
+		<div class="col-md-6 mb-5">
+			<h3 class="text-center">Appointments between two dates</h3>
+			<div class="row align-items-end">
+				<div class="col-md-5">
+					<label class="text-center" for="start">From</label>
+					<input type="date" class="form-control rounded-2" id="start" [(ngModel)]="newApptTimeStart">
+				</div>
+				<div class="col-md-5">
+					<label class="text-center" for="end">To</label>
+					<input type="date" class="form-control rounded-2" id="end" [(ngModel)]="newApptTimeEnd">
+				</div>
+				<div class="col-md-2">
+					<button class="btn btn-md btn-outline-primary"
+						[disabled]="!newApptTimeStart || !newApptTimeEnd || newApptTimeStart > newApptTimeEnd"
+						(click)="loadChart3()">Load</button>
+				</div>
 			</div>
-			<div class="col-md-5">
-				<label class="text-center" for="end">To</label>
-				<input type="date" class="form-control rounded-2" id="end" [(ngModel)]="apptDoneTimeEnd">
-			</div>
+			<app-chart height="300px" width="400px" [chartData]="chartsData[2]" [chartType]="'line'" [chartOptions]="lineChartOptions" chartId="chart3"></app-chart>
 		</div>
-		<div *ngIf="apptDoneTimeStart && apptDoneTimeEnd">
-			<app-chart [chartData]="getFinishedApptsBetweenDatesData()" [chartType]="'doughnut'"></app-chart>
+		<div class="col-md-6 mb-5">
+			<h3 class="text-center">Finished appointments between two dates</h3>
+			<div class="row align-items-end">
+				<div class="col-md-5">
+					<label class="text-center" for="start">From</label>
+					<input type="date" class="form-control rounded-2" id="start" [(ngModel)]="apptDoneTimeStart">
+				</div>
+				<div class="col-md-5">
+					<label class="text-center" for="end">To</label>
+					<input type="date" class="form-control rounded-2" id="end" [(ngModel)]="apptDoneTimeEnd">
+				</div>
+				<div class="col-md-2">
+					<button class="btn btn-md btn-outline-primary"
+						[disabled]="!apptDoneTimeStart || !apptDoneTimeEnd || apptDoneTimeStart > apptDoneTimeEnd"
+						(click)="loadChart4()">Load</button>
+				</div>
+			</div>
+			<app-chart width="300px" [chartData]="chartsData[3]" [chartType]="'pie'" chartId="chart4"></app-chart>
 		</div>
 	</div>
 </div>
