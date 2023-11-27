@@ -1,0 +1,46 @@
+<h2 class="text-center mt-5">Logs</h2>
+<div class="container d-flex justify-content-center">
+	<table class="table table-striped align-middle mb-0 bg-white table-hover w-75">
+		<thead class="bg-light">
+			<tr>
+				<th>User</th>
+				<th class="text-center">Role</th>
+				<th class="text-center">Pers. ID</th>
+				<th class="text-center">Date</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let log of logs">
+				<td class="col-md-2">
+					<div class="d-flex align-items-center">
+						<div style="width: 60px; height: 60px;"
+							class="overflow-hidden border border-1 border-black rounded-circle d-flex align-items-center">
+							<img [src]="log.user.imgUrl1" [alt]="'img_'+log.user.idNo" [id]="log.user.idNo">
+						</div>
+						<div class="ms-3">
+							<p class="fw-bold mb-0">{{log.user.firstName}} {{log.user.lastName}}, {{log.user.age}}</p>
+							<p class="text-muted mb-0">{{log.user.email}}</p>
+						</div>
+					</div>
+				</td>
+				<td class="col-md-1 text-center">
+					<div class="ms-3" [ngSwitch]="log.user.role">
+						<span class="badge rounded-pill bg-success" *ngSwitchCase="'admin'">{{log.user.role | uppercase}}</span>
+						<span class="badge rounded-pill bg-danger" *ngSwitchCase="'patient'">{{log.user.role | uppercase}}</span>
+						<span class="badge rounded-pill bg-warning" *ngSwitchCase="'specialist'">{{log.user.role | uppercase}}</span>
+					</div>
+				</td>
+				<td class="col-md-1 text-center">
+					<div class="ms-3">
+						<p class="fw-normal mb-0">{{log.user.idNo}}</p>
+					</div>
+				</td>
+				<td class="col-md-1 text-center">
+					<div class="ms-3">
+						<p class="fw-bold mb-0">{{log.date | date: 'dd/MM/YYYY, HH:mm:ss'}}</p>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

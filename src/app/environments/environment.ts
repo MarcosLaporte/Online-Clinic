@@ -1,4 +1,5 @@
 import Swal from "sweetalert2";
+import { User } from "../classes/user";
 
 export const environment = {
 	firebase:
@@ -79,3 +80,9 @@ export const InputSwal = Swal.mixin({
 		return undefined;
 	},
 });
+
+export interface Log {
+	id: string,
+	date: Date,
+	user: User
+};

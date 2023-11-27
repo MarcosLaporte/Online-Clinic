@@ -89,6 +89,12 @@ const routes: Routes = [
 		component: PatProfileComponent,
 		data: { animation: 'isBottom'}
 	},
+	{
+		path: 'stats',
+		// canActivate: [adminGuard, validAccountGuard],
+		loadChildren: () => import('./statistics/statistics.module').then(m => m.StatisticsModule),
+		data: { animation: 'isBottom'}
+	},
 ]
 
 @NgModule({

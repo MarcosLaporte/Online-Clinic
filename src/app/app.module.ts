@@ -50,7 +50,7 @@ import { ApptFilterComponent } from './components/appointments/appt-filter/appt-
 		PatientHistoryComponent,
 		ApptDiagnosisComponent,
 		PatProfileComponent,
-  ApptFilterComponent,
+		ApptFilterComponent,
 	],
 	imports: [
 		BrowserModule,
