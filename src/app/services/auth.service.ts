@@ -57,7 +57,7 @@ export class AuthService {
 					this.FireUser = newUser;
 					this.urlRedirect = 'home';
 					this.LoggedUser = user;
-					this.db.addData('logs', { date: new Date(), user: user})
+					this.db.addDataAutoId('logs', { date: new Date(), user: user })
 				} else { //If not null, admin is creating new account
 					this.FireUser = ogFireUser;
 					this.LoggedUser = ogUser;
@@ -81,7 +81,7 @@ export class AuthService {
 					this.LoggedUser = user;
 					this.isEmailVerified = this.FireUser!.emailVerified!;
 					this.urlRedirect = 'home';
-					this.db.addData('logs', { date: new Date(), user: user})
+					this.db.addDataAutoId('logs', { date: new Date(), user: user })
 
 					if (!this.isEmailVerified) {
 						this.urlRedirect = 'account-verification';
