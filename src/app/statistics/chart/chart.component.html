@@ -1,0 +1,9 @@
+<div class="container d-flex justify-content-center">
+	<div class="mb-1" *ngIf="chartData" style="width: 600px; height: auto;">
+		<canvas baseChart
+			[type]="chartType"
+			[data]="chartData"
+			[options]="chartOptions">
+		</canvas>
+	</div>
+</div>

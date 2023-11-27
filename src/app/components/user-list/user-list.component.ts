@@ -20,6 +20,7 @@ import { Appointment } from 'src/app/classes/appointment';
 export class UserListComponent {
 	readonly userInSession: Patient | Specialist | Admin;
 	users: Array<User> = [];
+	@Input() dbColPath: string = 'users';
 
 	@Input() userFilter: ((user: User) => boolean) | undefined;
 	creatingUser: boolean = false;
@@ -30,7 +31,7 @@ export class UserListComponent {
 
 	async ngOnInit() {
 		this.db.listenColChanges<User>(
-			'users',
+			this.dbColPath,
 			this.users,
 			this.userFilter,
 			(u1: User, u2: User) => u1.lastName > u2.lastName ? 1 : -1,

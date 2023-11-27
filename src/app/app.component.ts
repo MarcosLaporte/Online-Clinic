@@ -34,7 +34,7 @@ export class AppComponent {
 					this.isValid = false;
 			} else {
 				ToastInfo.fire('No user in session.');
-				router.navigateByUrl('home');
+				router.navigateByUrl('stats/charts');
 			}
 		});
 	}
