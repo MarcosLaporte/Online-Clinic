@@ -91,7 +91,7 @@ const routes: Routes = [
 	},
 	{
 		path: 'stats',
-		// canActivate: [adminGuard, validAccountGuard],
+		canActivate: [adminGuard, validAccountGuard],
 		loadChildren: () => import('./statistics/statistics.module').then(m => m.StatisticsModule),
 		data: { animation: 'isBottom'}
 	},
