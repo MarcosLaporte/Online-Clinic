@@ -6,6 +6,8 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Specialty } from 'src/app/classes/specialty';
 import { Loader } from 'src/app/environments/environment';
 import { ChartData } from 'chart.js';
+import { Specialist } from 'src/app/classes/specialist';
+import { User } from 'src/app/classes/user';
 
 const datePipe = new DatePipe('en-US', '-0300');
 const emptyChartData = {
@@ -24,11 +26,15 @@ export class StatsComponent {
 	constructor(private db: DatabaseService) { }
 
 	readonly lineChartOptions = {
-		responsive: true,
+		plugins: {
+			tooltip: {
+				enabled: false
+			}
+		},
 		scales: {
 			y: {
 				suggestedMin: 0,
-				suggestedMax: 6,
+				suggestedMax: 3,
 				ticks: {
 					stepSize: 1,
 				}
@@ -46,8 +52,8 @@ export class StatsComponent {
 
 		this.chartsData[0] = this.getApptsDayData();
 		this.chartsData[1] = this.getApptsSpecData();
-		this.chartsData[2] = this.getApptsBetweenDatesData()!;
-		this.chartsData[3] = this.getFinishedApptsBetweenDatesData()!;
+		this.loadChart3();
+		this.loadChart4();
 
 		Loader.close();
 	}
@@ -145,112 +151,73 @@ export class StatsComponent {
 	//#endregion
 
 	//#region Appointments between dates
+	getApptsBetweenDatesData(apptsList: Array<Appointment>, start: Date, end: Date) {
+		const apptsByDate = new Map<string, Appointment[]>();
+
+		apptsList.filter(appt => appt.date >= start && appt.date <= end)
+			.forEach(appt => {
+				const dateString = appt.date.toISOString().split('T')[0]; // Use ISO date without time
+				if (!apptsByDate.has(dateString)) {
+					apptsByDate.set(dateString, []);
+				}
+				apptsByDate.get(dateString)!.push(appt);
+			});
+
+		const apptsBySpecialist = new Map<string, Appointment[]>();
+		apptsByDate.forEach((appointments) => {
+			appointments.forEach(appt => {
+				const specId = appt.specialist.id;
+				if (!apptsBySpecialist.has(specId)) {
+					apptsBySpecialist.set(specId, []);
+				}
+				apptsBySpecialist.get(specId)!.push(appt);
+			});
+		});
+
+		const chartData: any = {
+			labels: Array.from(apptsByDate.keys()),
+			datasets: []
+		};
+
+		apptsBySpecialist.forEach((appts, specId) => {
+			const specialist = appts[0].specialist;
+			const dataset: any = {
+				label: `${specialist.firstName} ${specialist.lastName}`,
+				data: [],
+				fill: false,
+				pointRadius: [],
+				pointHitRadius: 3
+			};
+
+			apptsByDate.forEach((dateAppts) => {
+				const count = dateAppts.filter(appt => appt.specialist.id === specId).length;
+				dataset.data.push(count);
+				dataset.pointRadius.push(apptsByDate.size > 1 ? (count === 0 ? 0 : 3) : 3);
+			});
+
+			chartData.datasets.push(dataset);
+		});
+
+		return chartData;
+	}
+
 	public newApptTimeStart: string = '2023-11-01';
-	public newApptTimeEnd: string = '2023-12-01';
-	getApptsBetweenDatesData() {
-		if (!this.newApptTimeStart || !this.newApptTimeEnd) return;
-		const datesAppt: Array<{ date: Date, appointments: Appointment[] }>
-			= this.groupApptsBetweenDates(this.newApptTimeStart, this.newApptTimeEnd);
-
-		const labels: Array<string> = [];
-		const data: Array<number> = [];
-		const colors: Array<string> = [];
-
-		datesAppt.forEach(group => {
-			labels.push(datePipe.transform(group.date, 'dd/M/yy')!);
-			data.push(group.appointments.length);
-			colors.push(this.getColor());
-		});
-
-		return {
-			labels: labels,
-			datasets: [
-				{
-					data: data,
-					label: 'Appointments',
-					backgroundColor: colors,
-				}
-			],
-		}
-	}
-
-	private groupApptsBetweenDates(startDate: string, endDate: string): Array<{ date: Date, appointments: Appointment[] }> {
-		const auxAppts = this.appointments;
-		const auxStart = new Date(startDate);
-		const auxEnd = new Date(endDate);
-
-		const dayAppt: Map<string, { date: Date, appointments: Appointment[] }> =
-			auxAppts.filter(appt => appt.date >= auxStart && appt.date <= auxEnd).reduce((map, appt) => {
-				const key = appt.specialist.id;
-
-				if (!map.has(key))
-					map.set(key, { date: appt.date, appointments: [] });
-
-				map.get(key)!.appointments.push(appt);
-
-				return map;
-			}, new Map<string, { date: Date, appointments: Appointment[] }>());
-
-		return Array.from(dayAppt.values());
-	}
-
+	public newApptTimeEnd: string = '2023-12-15';
 	loadChart3() {
-		this.chartsData[2] = this.getApptsBetweenDatesData()!;
+		this.chartsData[2] = this.getApptsBetweenDatesData(
+			this.appointments.filter(appt => appt.status !== 'cancelled' && appt.status !== 'declined'),
+			new Date(this.apptDoneTimeStart),
+			new Date(this.apptDoneTimeEnd)
+		);
 	}
-	//#endregion
-
-	//#region Finished Appointments between dates
 	public apptDoneTimeStart: string = '2023-11-01';
-	public apptDoneTimeEnd: string = '2023-12-01';
-	getFinishedApptsBetweenDatesData() {
-		if (!this.newApptTimeStart || !this.newApptTimeEnd) return;
-		const datesAppt: Array<{ date: Date, appointments: Appointment[] }>
-			= this.groupFinApptsBetweenDates(this.newApptTimeStart, this.newApptTimeEnd);
-
-		const labels: Array<string> = [];
-		const data: Array<number> = [];
-		const colors: Array<string> = [];
-
-		datesAppt.forEach(group => {
-			labels.push(datePipe.transform(group.date, 'dd/M/yy')!);
-			data.push(group.appointments.length);
-			colors.push(this.getColor());
-		});
-
-		return {
-			labels: labels,
-			datasets: [
-				{
-					data: data,
-					label: 'Appointments',
-					backgroundColor: colors,
-				}
-			],
-		}
-	}
-
-	private groupFinApptsBetweenDates(startDate: string, endDate: string): Array<{ date: Date, appointments: Appointment[] }> {
-		const auxAppts = this.appointments;
-		const auxStart = new Date(startDate);
-		const auxEnd = new Date(endDate);
-
-		const dayAppt: Map<string, { date: Date, appointments: Appointment[] }> =
-			auxAppts.filter(appt => appt.status === 'done' && appt.date >= auxStart && appt.date <= auxEnd).reduce((map, appt) => {
-				const key = appt.specialist.id;
-
-				if (!map.has(key))
-					map.set(key, { date: appt.date, appointments: [] });
-
-				map.get(key)!.appointments.push(appt);
-
-				return map;
-			}, new Map<string, { date: Date, appointments: Appointment[] }>());
-
-		return Array.from(dayAppt.values());
-	}
-
+	public apptDoneTimeEnd: string = '2023-12-15';
 	loadChart4() {
-		this.chartsData[3] = this.getFinishedApptsBetweenDatesData()!;
+		this.chartsData[3] = this.getApptsBetweenDatesData(
+			this.appointments.filter(appt => appt.status === 'done'),
+			new Date(this.apptDoneTimeStart),
+			new Date(this.apptDoneTimeEnd)
+		);
 	}
 	//#endregion
 
