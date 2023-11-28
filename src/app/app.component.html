@@ -12,7 +12,7 @@
 				<li class="nav-item"><a class="nav-link" *ngIf="user.role === 'specialist' && isValid" routerLink="/my-patients">My Patients</a></li>
 				<li class="nav-item"><a class="nav-link" *ngIf="user.role === 'patient'" routerLink="/my-profile">My Profile</a></li>
 				<li class="nav-item"><a class="nav-link" *ngIf="user.role === 'admin' && isEmailVerif" routerLink="/stats/logs">Logs</a></li>
-				<li class="nav-item"><a class="nav-link" *ngIf="user.role === 'admin' && isEmailVerif" routerLink="/stats/charts">Logs</a></li>
+				<li class="nav-item"><a class="nav-link" *ngIf="user.role === 'admin' && isEmailVerif" routerLink="/stats/charts">Charts</a></li>
 				<li class="nav-item"><a class="nav-link" *ngIf="user.role !== 'patient' && isValid" routerLink="/account">Account</a></li>
 				
 				<li class="nav-item"><a class="nav-link" *ngIf="user.role === 'specialist' && !isValid" routerLink="/specialist-enabling">Enable</a></li>
