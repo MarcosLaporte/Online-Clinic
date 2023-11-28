@@ -10,13 +10,8 @@ export class ChartComponent {
 	@Input() width: string = 'auto';
 	@Input() height: string = 'auto';
 
+	@Input() chartId: string = 'myChart';
 	@Input() chartType: ChartType = 'bar';
 	@Input() chartData: ChartData | undefined;
-	@Input() chartOptions: ChartOptions = {
-		plugins: {
-			tooltip: {
-				enabled: false
-			}
-		}
-	};
+	@Input() chartOptions: ChartOptions = { responsive: true };
 }

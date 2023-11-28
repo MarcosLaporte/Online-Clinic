@@ -2,11 +2,13 @@
 	<div class="row row-cols-2">
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Appointments per day</h3>
-			<app-chart height="300px" width="400px" [chartData]="chartsData[0]" chartType="bar" [chartOptions]="lineChartOptions"></app-chart>
+			<app-chart *ngIf="chartsData[0]" chartId="chart1" height="300px" width="400px"
+				[chartData]="chartsData[0]" chartType="bar" [chartOptions]="chartOptions"></app-chart>
 		</div>
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Appointments per specialty</h3>
-			<app-chart width="300px" [chartData]="chartsData[1]" chartType="doughnut"></app-chart>
+			<app-chart *ngIf="chartsData[1]" chartId="chart2" width="300px"
+				[chartData]="chartsData[1]" chartType="doughnut"></app-chart>
 		</div>
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Appointments between two dates</h3>
@@ -25,7 +27,8 @@
 						(click)="loadChart3()">Load</button>
 				</div>
 			</div>
-			<app-chart height="300px" width="400px" [chartData]="chartsData[2]" chartType="line" [chartOptions]="lineChartOptions"></app-chart>
+			<app-chart *ngIf="chartsData[2]" chartId="chart3" height="300px" width="400px"
+				[chartData]="chartsData[2]" chartType="line" [chartOptions]="chartOptions"></app-chart>
 		</div>
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Finished appointments between two dates</h3>
@@ -44,7 +47,8 @@
 						(click)="loadChart4()">Load</button>
 				</div>
 			</div>
-			<app-chart height="300px" width="400px" [chartData]="chartsData[3]" chartType="line" [chartOptions]="lineChartOptions"></app-chart>
+			<app-chart *ngIf="chartsData[3]" chartId="chart4" height="300px" width="400px"
+				[chartData]="chartsData[3]" chartType="line" [chartOptions]="chartOptions"></app-chart>
 		</div>
 	</div>
 </div>

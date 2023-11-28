@@ -21,16 +21,12 @@ const emptyChartData = {
 })
 export class StatsComponent {
 	private appointments: Array<Appointment> = [];
-	public chartsData: ChartData[] = [emptyChartData, emptyChartData, emptyChartData, emptyChartData];
+	public chartsData: Array<ChartData | undefined> = [];
 
 	constructor(private db: DatabaseService) { }
 
-	readonly lineChartOptions = {
-		plugins: {
-			tooltip: {
-				enabled: false
-			}
-		},
+	readonly chartOptions = {
+		responsive: true,
 		scales: {
 			y: {
 				suggestedMin: 0,
@@ -204,20 +200,22 @@ export class StatsComponent {
 	public newApptTimeStart: string = '2023-11-01';
 	public newApptTimeEnd: string = '2023-12-15';
 	loadChart3() {
-		this.chartsData[2] = this.getApptsBetweenDatesData(
+		const data = this.getApptsBetweenDatesData(
 			this.appointments.filter(appt => appt.status !== 'cancelled' && appt.status !== 'declined'),
 			new Date(this.apptDoneTimeStart),
 			new Date(this.apptDoneTimeEnd)
 		);
+		this.chartsData[2] = { ...data };
 	}
 	public apptDoneTimeStart: string = '2023-11-01';
 	public apptDoneTimeEnd: string = '2023-12-15';
 	loadChart4() {
-		this.chartsData[3] = this.getApptsBetweenDatesData(
+		const data = this.getApptsBetweenDatesData(
 			this.appointments.filter(appt => appt.status === 'done'),
 			new Date(this.apptDoneTimeStart),
 			new Date(this.apptDoneTimeEnd)
 		);
+		this.chartsData[3] = { ...data };
 	}
 	//#endregion
 
