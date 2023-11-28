@@ -31,6 +31,7 @@ import { ApptDiagnosisComponent } from './components/appointments/appt-diagnosis
 import { PatProfileComponent } from './components/pat-profile/pat-profile.component';
 import { ApptFilterComponent } from './components/appointments/appt-filter/appt-filter.component';
 import { FormErrorDirective } from './directives/form-error.directive';
+import { TooltipDirective } from './directives/tooltip.directive';
 
 @NgModule({
 	declarations: [
@@ -53,6 +54,7 @@ import { FormErrorDirective } from './directives/form-error.directive';
 		PatProfileComponent,
 		ApptFilterComponent,
 		FormErrorDirective,
+		TooltipDirective,
 	],
 	imports: [
 		BrowserModule,

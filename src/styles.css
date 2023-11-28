@@ -20,3 +20,29 @@ body {
 .break-spaces {
 	white-space: break-spaces !important;
 }
+
+.myTooltip {
+	display: inline-block;
+	border: 2px solid azure;
+	visibility: visible;
+	max-width: 200px;
+	width: auto;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: azure;
+	text-align: center;
+	padding: 5px;
+	border-radius: 6px;
+	position: absolute;
+	z-index: 1;
+	cursor: default;
+}
+
+.myTooltip::before {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: transparent transparent #f1f1f1 transparent;
+}
