@@ -30,6 +30,7 @@ import { PatientHistoryComponent } from './components/patient-history/patient-hi
 import { ApptDiagnosisComponent } from './components/appointments/appt-diagnosis/appt-diagnosis.component';
 import { PatProfileComponent } from './components/pat-profile/pat-profile.component';
 import { ApptFilterComponent } from './components/appointments/appt-filter/appt-filter.component';
+import { FormErrorDirective } from './directives/form-error.directive';
 
 @NgModule({
 	declarations: [
@@ -51,6 +52,7 @@ import { ApptFilterComponent } from './components/appointments/appt-filter/appt-
 		ApptDiagnosisComponent,
 		PatProfileComponent,
 		ApptFilterComponent,
+		FormErrorDirective,
 	],
 	imports: [
 		BrowserModule,

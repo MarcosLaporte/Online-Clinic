@@ -55,15 +55,15 @@ export class ApptDiagnosisComponent {
 			],
 			additional1: fb.group({
 				key: ['', Validators.required],
-				value: [, Validators.required],
+				value: [0, Validators.required],
 			}),
 			additional2: fb.group({
 				key: ['', Validators.required],
-				value: [, Validators.required],
+				value: [0, Validators.required],
 			}),
 			additional3: fb.group({
 				key: ['', Validators.required],
-				value: [, Validators.required],
+				value: [0, Validators.required],
 			}),
 		});
 	}

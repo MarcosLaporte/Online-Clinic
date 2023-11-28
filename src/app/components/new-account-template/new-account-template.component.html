@@ -5,7 +5,7 @@
 			<div class="col-md-2 text-center">
 				<input type="radio" id="img-specialist" class="d-none" value="specialist" formControlName="role"
 					(change)="roleChange()">
-				<label for="img-specialist">
+				<label for="img-specialist" appTooltip message="Specialist">
 					<img src="../../../assets/doctor.png" class=" border border-1 border-black rounded-2" role="button"
 						height="50px" alt="Specialist">
 				</label>
@@ -13,14 +13,14 @@
 			<div class="col-md-2 text-center">
 				<input type="radio" id="img-patient" class="d-none" value="patient" formControlName="role"
 					(change)="roleChange()">
-				<label for="img-patient">
+				<label for="img-patient" appTooltip message="Patient">
 					<img src="../../../assets/patient.png" class=" border border-1 border-black rounded-2" role="button"
 						height="50px" alt="Patient">
 				</label>
 			</div>
 			<div *ngIf="admin" class="col-md-2 text-center">
 				<input type="radio" id="img-admin" class="d-none" value="admin" formControlName="role" (change)="roleChange()">
-				<label for="img-admin">
+				<label for="img-admin" appTooltip message="Admin">
 					<img src="../../../assets/admin.png" class=" border border-1 border-black rounded-2" role="button"
 						height="50px" alt="Admin">
 				</label>
@@ -30,14 +30,14 @@
 		<div class="row">
 			<div class="col-md-6 mb-3">
 				<label for="firstName">First name</label>
-				<input type="text" class="form-control" id="firstName" name="firstName" formControlName="firstName"
-					[class]="signUpForm.controls['firstName'].errors !== null && signUpForm.controls['firstName'].touched ? 'border-danger border-2' : ''">
+				<input type="text" class="form-control" id="firstName" name="firstName" formControlName="firstName" appFormError
+					[isValid]="!signUpForm.controls['firstName'].errors">
 			</div>
 
 			<div class="col-md-6 mb-3">
 				<label for="lastName">Last name</label>
-				<input type="text" class="form-control" id="lastName" name="lastName" formControlName="lastName"
-					[class]="signUpForm.controls['lastName'].errors !== null && signUpForm.controls['lastName'].touched ? 'border-danger border-2' : ''">
+				<input type="text" class="form-control" id="lastName" name="lastName" formControlName="lastName" appFormError
+					[isValid]="!signUpForm.controls['lastName'].errors">
 			</div>
 		</div>
 
@@ -45,23 +45,23 @@
 			<div class="col-md-2 mb-3">
 				<label for="age">Age</label>
 				<input type="number" class="form-control" id="age" name="age" min="0" max="125" formControlName="age"
-					[class]="signUpForm.controls['age'].errors !== null && signUpForm.controls['age'].touched ? 'border-danger border-2' : ''">
+					appFormError [isValid]="!signUpForm.controls['age'].errors">
 			</div>
 
 			<div class="mb-3" [class]="signUpForm.get('role')?.value !== 'admin' ? 'col-md-4' : 'col-md-10'">
 				<label for="idNo">ID Number</label>
 				<div class="input-group">
 					<div class="input-group-prepend"><span class="input-group-text rounded-end-0">#</span></div>
-					<input type="text" class="form-control" id="idNo" placeholder="" formControlName="idNo"
-						[class]="signUpForm.controls['idNo'].errors !== null && signUpForm.controls['idNo'].touched ? 'border-danger border-2' : ''">
+					<input type="text" class="form-control" id="idNo" placeholder="" formControlName="idNo" appFormError
+						[isValid]="!signUpForm.controls['idNo'].errors">
 				</div>
 			</div>
 
 			<div class="col-md-6 mb-3" *ngIf="signUpForm.get('role')?.value === 'patient'">
 				<label for="healthPlan">Healthcare plan</label>
 				<div class="input-group">
-					<select class="form-control text-center" id="healthPlan" formControlName="hcp"
-						[class]="signUpForm.controls['hcp'].errors !== null && signUpForm.controls['hcp'].touched ? 'border-danger border-2' : ''">
+					<select class="form-control text-center" id="healthPlan" formControlName="hcp" appFormError
+						[isValid]="!signUpForm.controls['hcp'].errors">
 						<option [ngValue]="null" disabled selected>Select a health care plan</option>
 						<option *ngFor="let hcp of healthCarePlans" [ngValue]="hcp">{{hcp.value}}</option>
 					</select>
@@ -151,21 +151,22 @@
 			<div class="input-group">
 				<div class="input-group-prepend"><span class="input-group-text rounded-end-0">&#64;</span></div>
 				<input type="email" class="form-control" id="email" name="email" placeholder="you@example.com"
-					formControlName="email"
-					[class]="signUpForm.controls['email'].errors !== null && signUpForm.controls['email'].touched ? 'border-danger border-2' : ''">
+					formControlName="email" appFormError [isValid]="!signUpForm.controls['email'].errors">
 			</div>
 		</div>
 
 		<div class="row">
 			<div class="col-md-6 mb-3">
-				<label for="password">Password</label>
+				<label for="password">Password</label><i class="px-2 bi bi-info-circle" appTooltip
+					message="Password must be between 6 and 20 characters."></i>
 				<input type="password" class="form-control" id="password" name="new-password" formControlName="password"
-					[class]="signUpForm.controls['password'].errors !== null && signUpForm.controls['password'].touched ? 'border-danger border-2' : ''">
+					appFormError [isValid]="!signUpForm.controls['password'].errors">
 			</div>
 			<div class="col-md-6 mb-3">
-				<label for="passCheck">Password check</label>
+				<label for="passCheck">Password check</label><i class="px-2 bi bi-info-circle" appTooltip
+					message="Password must match."></i>
 				<input type="password" class="form-control" id="passCheck" name="new-password" formControlName="passCheck"
-					[class]="signUpForm.controls['passCheck'].errors !== null && signUpForm.controls['passCheck'].touched ? 'border-danger border-2' : ''">
+					appFormError [isValid]="!signUpForm.controls['passCheck'].errors">
 			</div>
 		</div>
 
