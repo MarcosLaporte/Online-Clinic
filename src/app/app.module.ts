@@ -32,6 +32,7 @@ import { PatProfileComponent } from './components/pat-profile/pat-profile.compon
 import { ApptFilterComponent } from './components/appointments/appt-filter/appt-filter.component';
 import { FormErrorDirective } from './directives/form-error.directive';
 import { TooltipDirective } from './directives/tooltip.directive';
+import { ScrollToTopDirective } from './directives/scroll-to-top.directive';
 
 @NgModule({
 	declarations: [
@@ -55,6 +56,7 @@ import { TooltipDirective } from './directives/tooltip.directive';
 		ApptFilterComponent,
 		FormErrorDirective,
 		TooltipDirective,
+		ScrollToTopDirective,
 	],
 	imports: [
 		BrowserModule,
