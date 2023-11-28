@@ -1,7 +1,7 @@
 <div class="container my-1 p-3">
 	<h1 mat-dialog-title>Fill in the diagnosis</h1>
 	<form mat-dialog-content class="needs-validation" [formGroup]="diagnosisForm">
-		<h4>{{patient?.firstName}} {{patient?.lastName}}</h4>
+		<h4>{{patient | userName}}</h4>
 
 		<div class="row">
 			<div class="col-md-6 mb-3">

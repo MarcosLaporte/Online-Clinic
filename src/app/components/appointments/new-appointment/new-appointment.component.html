@@ -15,7 +15,7 @@
 
 				<div *ngIf="specialist; else docList">
 					<p class="fs-3 fst-italic text-decoration-underline" role="button" (click)="selectSpecialist(null)">
-						Dr. {{specialist.firstName}} {{specialist.lastName}}
+						{{ specialist | userName }}
 					</p>
 				</div>
 				<ng-template #docList>

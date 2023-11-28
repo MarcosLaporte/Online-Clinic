@@ -1,7 +1,7 @@
 <div class="container my-1 p-3">
 	<h1 mat-dialog-title>Fill in this survey</h1>
 	<form mat-dialog-content class="needs-validation" [formGroup]="surveyForm" (ngSubmit)="submitSurvey()">
-		<h4>{{patient?.firstName}} {{patient?.lastName}}</h4>
+		<h4>{{patient | userName}}</h4>
 
 		<div class="text-center">
 			<h4 class="d-flex justify-content-between align-items-center">

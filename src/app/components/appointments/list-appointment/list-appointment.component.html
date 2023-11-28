@@ -21,11 +21,11 @@
 				<td class="col-md-auto">
 					<div class="d-flex align-items-center">
 						<div class="ms-3" *ngIf="user.role === 'patient'">
-							<p class="fw-bold mb-0">{{appt.specialist.firstName}} {{appt.specialist.lastName}}</p>
+							<p class="fw-bold mb-0">{{appt.specialist | userName | titlecase}}</p>
 							<p class="text-muted mb-0">{{appt.specialty.value}}</p>
 						</div>
 						<div class="ms-3" *ngIf="user.role !== 'patient'">
-							<p class="fw-bold mb-0">{{appt.patient.firstName}} {{appt.patient.lastName}}</p>
+							<p class="fw-bold mb-0">{{appt.patient | userName | titlecase}}</p>
 							<p class="text-muted mb-0">{{appt.patient.healthPlan.value}}</p>
 						</div>
 					</div>
@@ -33,7 +33,7 @@
 				<td *ngIf="user.role === 'admin'" class="col-md-auto">
 					<div class="d-flex align-items-center">
 						<div class="ms-3">
-							<p class="fw-bold mb-0">{{appt.specialist.firstName}} {{appt.specialist.lastName}}</p>
+							<p class="fw-bold mb-0">{{appt.specialist | userName | titlecase}}</p>
 							<p class="text-muted mb-0">{{appt.specialty.value}}</p>
 						</div>
 					</div>

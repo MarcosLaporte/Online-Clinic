@@ -19,7 +19,7 @@
 								(click)="showMedicalHistory(user)">
 						</div>
 						<div class="ms-3">
-							<p class="fw-bold mb-0">{{user.firstName}} {{user.lastName}}, {{user.age}}</p>
+							<p class="fw-bold mb-0">{{user | userName}}, {{user.age}}</p>
 							<p class="text-muted mb-0">{{user.email}}</p>
 						</div>
 					</div>

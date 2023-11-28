@@ -33,6 +33,7 @@ import { ApptFilterComponent } from './components/appointments/appt-filter/appt-
 import { FormErrorDirective } from './directives/form-error.directive';
 import { TooltipDirective } from './directives/tooltip.directive';
 import { ScrollToTopDirective } from './directives/scroll-to-top.directive';
+import { UserNamePipe } from './pipes/user-name.pipe';
 
 @NgModule({
 	declarations: [
@@ -57,6 +58,7 @@ import { ScrollToTopDirective } from './directives/scroll-to-top.directive';
 		FormErrorDirective,
 		TooltipDirective,
 		ScrollToTopDirective,
+		UserNamePipe,
 	],
 	imports: [
 		BrowserModule,
