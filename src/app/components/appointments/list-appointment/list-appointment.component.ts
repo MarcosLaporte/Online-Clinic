@@ -93,7 +93,7 @@ export class ListAppointmentComponent {
 				dialogRef.afterClosed().subscribe(diagnosis => {
 					if (diagnosis) {
 						appt.diagnosis = diagnosis;
-						this.db.updateDoc(apptDbPath, appt.id, { specReview: review, diagnosis: diagnosis, status: newStatus });
+						this.db.updateDoc(apptDbPath, appt.id, { specReview: review, diagnosis: {...diagnosis}, status: newStatus });
 					}
 				});
 

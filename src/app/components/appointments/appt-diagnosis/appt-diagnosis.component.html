@@ -44,25 +44,25 @@
 			<div class="col-md-4">
 				<div class="input-group" formGroupName="additional1">
 					<input type="text" class="input-group-text rounded-end-0 w-70" formControlName="key" placeholder="Key"
-						appFormError [isValid]="!diagnosisForm.controls['additional1.key'].errors">
+						appFormError [isValid]="!diagnosisForm.get('additional1')!.get('key')!.errors">
 					<input type="number" class="form-control rounded-start-0 w-30" formControlName="value" placeholder="Value"
-						appFormError [isValid]="!diagnosisForm.controls['additional1.value'].errors">
+						appFormError [isValid]="!diagnosisForm.get('additional1')!.get('value')!.errors">
 				</div>
 			</div>
 			<div class="col-md-4">
 				<div class="input-group" formGroupName="additional2">
 					<input type="text" class="input-group-text rounded-end-0 w-70" formControlName="key" placeholder="Key"
-						appFormError [isValid]="!diagnosisForm.controls['additional2.key'].errors">
+						appFormError [isValid]="!diagnosisForm.get('additional2')!.get('key')!.errors">
 					<input type="number" class="form-control rounded-start-0 w-30" formControlName="value" placeholder="Value"
-						appFormError [isValid]="!diagnosisForm.controls['additional2.value'].errors">
+						appFormError [isValid]="!diagnosisForm.get('additional2')!.get('value')!.errors">
 				</div>
 			</div>
 			<div class="col-md-4">
 				<div class="input-group" formGroupName="additional3">
 					<input type="text" class="input-group-text rounded-end-0 w-70" formControlName="key" placeholder="Key"
-						appFormError [isValid]="!diagnosisForm.controls['additional3.key'].errors">
+						appFormError [isValid]="!diagnosisForm.get('additional3')!.get('key')!.errors">
 					<input type="number" class="form-control rounded-start-0 w-30" formControlName="value" placeholder="Value"
-						appFormError [isValid]="!diagnosisForm.controls['additional3.value'].errors">
+						appFormError [isValid]="!diagnosisForm.get('additional3')!.get('value')!.errors">
 				</div>
 			</div>
 		</div>

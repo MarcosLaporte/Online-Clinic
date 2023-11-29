@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Patient } from 'src/app/classes/patient';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Diagnosis } from 'src/app/classes/diagnosis';
-import { ToastError } from 'src/app/environments/environment';
+import { Loader, ToastError } from 'src/app/environments/environment';
 
 @Component({
 	selector: 'app-appt-diagnosis',
@@ -19,35 +19,35 @@ export class ApptDiagnosisComponent {
 	constructor(private db: DatabaseService, public dialogRef: MatDialogRef<ApptDiagnosisComponent>, private fb: FormBuilder) {
 		this.diagnosisForm = fb.group({
 			height: [
-				[
+				0, [
 					Validators.required,
 					Validators.min(20),
 					Validators.max(280),
 				]
 			],
 			weight: [
-				[
+				0, [
 					Validators.required,
 					Validators.min(0.5),
 					Validators.max(700),
 				]
 			],
 			temperature: [
-				[
+				0, [
 					Validators.required,
 					Validators.min(23),
 					Validators.max(45),
 				]
 			],
 			systolic: [
-				[
+				90, [
 					Validators.required,
 					Validators.min(25),
 					Validators.max(215),
 				]
 			],
 			diastolic: [
-				[
+				120, [
 					Validators.required,
 					Validators.min(10),
 					Validators.max(130),
@@ -81,8 +81,10 @@ export class ApptDiagnosisComponent {
 
 		const diagnosis = new Diagnosis('', height, weight, tempC, pressure, [additional1, additional2, additional3]);
 
+		Loader.fire();
 		this.db.addDataAutoId('diagnosis', diagnosis)
 			.then(() => this.dialogRef.close(diagnosis))
-			.catch((error: any) => ToastError.fire('There was an error uploading the diagnosis.', error.message));
+			.catch((error: any) => ToastError.fire('There was an error uploading the diagnosis.', error.message))
+			.finally(() => Loader.close());
 	}
 }
