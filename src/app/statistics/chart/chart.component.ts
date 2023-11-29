@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
 import { ChartData, ChartOptions, ChartType } from 'chart.js';
 
 @Component({
@@ -12,6 +12,9 @@ export class ChartComponent {
 
 	@Input() chartId: string = 'myChart';
 	@Input() chartType: ChartType = 'bar';
-	@Input() chartData: ChartData | undefined;
+	@Input() chartData: ChartData = {
+		labels: [],
+		datasets: []
+	};
 	@Input() chartOptions: ChartOptions = { responsive: true };
 }

@@ -1,14 +1,20 @@
 <div class="container px-4 mt-3">
+	<h2 class="text-center">Charts <i class="bi bi-file-earmark-pdf"
+		role="button" (click)="saveChartToPDF()"></i></h2>
 	<div class="row row-cols-2">
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Appointments per day</h3>
-			<app-chart *ngIf="chartsData[0]" chartId="chart1" height="300px" width="400px"
-				[chartData]="chartsData[0]" chartType="bar" [chartOptions]="chartOptions"></app-chart>
+			<ng-container *ngIf="chartsData[0]">
+				<app-chart chartId="chart1" height="300px" width="400px" [chartData]="chartsData[0]"
+					chartType="bar" [chartOptions]="chartOptions"></app-chart>
+			</ng-container> 
 		</div>
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Appointments per specialty</h3>
-			<app-chart *ngIf="chartsData[1]" chartId="chart2" width="300px"
-				[chartData]="chartsData[1]" chartType="doughnut"></app-chart>
+			<ng-container *ngIf="chartsData[1]">
+				<app-chart chartId="chart2" width="300px" [chartData]="chartsData[1]"
+					chartType="doughnut"></app-chart>
+			</ng-container> 
 		</div>
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Appointments between two dates</h3>
@@ -27,8 +33,10 @@
 						(click)="loadChart3()">Load</button>
 				</div>
 			</div>
-			<app-chart *ngIf="chartsData[2]" chartId="chart3" height="300px" width="400px"
-				[chartData]="chartsData[2]" chartType="line" [chartOptions]="chartOptions"></app-chart>
+			<ng-container *ngIf="chartsData[2]">
+				<app-chart chartId="chart3" height="400px" width="400px" [chartData]="chartsData[2]"
+					chartType="line" [chartOptions]="chartOptions"></app-chart>
+			</ng-container> 
 		</div>
 		<div class="col-md-6 mb-5">
 			<h3 class="text-center">Finished appointments between two dates</h3>
@@ -47,8 +55,10 @@
 						(click)="loadChart4()">Load</button>
 				</div>
 			</div>
-			<app-chart *ngIf="chartsData[3]" chartId="chart4" height="300px" width="400px"
-				[chartData]="chartsData[3]" chartType="line" [chartOptions]="chartOptions"></app-chart>
+			<ng-container *ngIf="chartsData[3]">
+				<app-chart chartId="chart4" height="400px" width="400px" [chartData]="chartsData[3]"
+					chartType="line" [chartOptions]="chartOptions"></app-chart>
+			</ng-container> 
 		</div>
 	</div>
 </div>

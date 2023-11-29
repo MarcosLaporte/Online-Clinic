@@ -4,7 +4,7 @@
 		<a class="navbar-brand" routerLink="/home">La Clínica</a>
 		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 			<li class="nav-item"><a class="nav-link" routerLink="/home">Home</a></li>
-			<ng-container *ngIf="user" #notLogged>
+			<ng-container *ngIf="user; else notLogged">
 				<li class="nav-item"><a class="nav-link" *ngIf="user.role !== 'specialist' && isValid" routerLink="/new-appointment">New Appointment</a></li>
 				<li class="nav-item"><a class="nav-link" *ngIf="isValid" routerLink="/appointments">Appointments</a></li>
 				
@@ -19,9 +19,9 @@
 				<li class="nav-item"><a class="nav-link" *ngIf="!isEmailVerif" routerLink="/account-verification">Verify</a></li>
 			</ng-container>
 
-			<ng-container #notLogged>
-				<li class="nav-item"><a class="nav-link" *ngIf="!user" routerLink="/login">Login</a></li>
-			</ng-container>
+			<ng-template #notLogged>
+				<li class="nav-item"><a class="nav-link" routerLink="/login">Login</a></li>
+			</ng-template>
 		</ul>
 	</div>
 </nav>

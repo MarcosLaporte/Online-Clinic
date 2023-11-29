@@ -1,5 +1,5 @@
 <div class="container d-flex justify-content-center">
-	<div class="mb-1" *ngIf="chartData" style="width: auto; height: auto;">
+	<div class="mb-1" *ngIf="chartData" [style.width]="width" [style.height]="height">
 		<canvas baseChart [id]="chartId"
 			[style.width]="width"
 			[style.height]="height"

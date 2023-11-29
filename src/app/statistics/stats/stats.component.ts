@@ -6,9 +6,12 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Specialty } from 'src/app/classes/specialty';
 import { Loader } from 'src/app/environments/environment';
 import { ChartData } from 'chart.js';
-import { Specialist } from 'src/app/classes/specialist';
-import { User } from 'src/app/classes/user';
+import * as pdfMake from 'pdfmake/build/pdfmake'
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
+const pdf = pdfMake;
+pdf.vfs = pdfFonts.pdfMake.vfs;
 const datePipe = new DatePipe('en-US', '-0300');
 const emptyChartData = {
 	labels: [],
@@ -77,7 +80,7 @@ export class StatsComponent {
 					label: 'Appointments',
 					backgroundColor: colors,
 				}
-			],
+			]
 		}
 	}
 
@@ -147,17 +150,16 @@ export class StatsComponent {
 	//#endregion
 
 	//#region Appointments between dates
-	getApptsBetweenDatesData(apptsList: Array<Appointment>, start: Date, end: Date) {
+	getApptsBetweenDatesData(apptsList: Array<Appointment>) {
 		const apptsByDate = new Map<string, Appointment[]>();
 
-		apptsList.filter(appt => appt.date >= start && appt.date <= end)
-			.forEach(appt => {
-				const dateString = appt.date.toISOString().split('T')[0]; // Use ISO date without time
-				if (!apptsByDate.has(dateString)) {
-					apptsByDate.set(dateString, []);
-				}
-				apptsByDate.get(dateString)!.push(appt);
-			});
+		apptsList.forEach(appt => {
+			const dateString = appt.date.toISOString().split('T')[0]; // Use ISO date without time
+			if (!apptsByDate.has(dateString)) {
+				apptsByDate.set(dateString, []);
+			}
+			apptsByDate.get(dateString)!.push(appt);
+		});
 
 		const apptsBySpecialist = new Map<string, Appointment[]>();
 		apptsByDate.forEach((appointments) => {
@@ -171,7 +173,7 @@ export class StatsComponent {
 		});
 
 		const chartData: any = {
-			labels: Array.from(apptsByDate.keys()),
+			labels: ['', ...Array.from(apptsByDate.keys()), ''],
 			datasets: []
 		};
 
@@ -179,9 +181,10 @@ export class StatsComponent {
 			const specialist = appts[0].specialist;
 			const dataset: any = {
 				label: `${specialist.firstName} ${specialist.lastName}`,
-				data: [],
-				fill: false,
-				pointRadius: [],
+				data: [0],
+				borderColor: this.getColor(),
+				fill: true,
+				pointRadius: [0],
 				pointHitRadius: 3
 			};
 
@@ -190,6 +193,9 @@ export class StatsComponent {
 				dataset.data.push(count);
 				dataset.pointRadius.push(apptsByDate.size > 1 ? (count === 0 ? 0 : 3) : 3);
 			});
+
+			dataset.data.push(0);
+			dataset.pointRadius.push(0);
 
 			chartData.datasets.push(dataset);
 		});
@@ -201,27 +207,81 @@ export class StatsComponent {
 	public newApptTimeEnd: string = '2023-12-15';
 	loadChart3() {
 		const data = this.getApptsBetweenDatesData(
-			this.appointments.filter(appt => appt.status !== 'cancelled' && appt.status !== 'declined'),
-			new Date(this.apptDoneTimeStart),
-			new Date(this.apptDoneTimeEnd)
-		);
+			this.appointments.filter(appt =>
+				appt.status !== 'cancelled' && appt.status !== 'declined'
+				&& appt.date >= new Date(this.newApptTimeStart) && appt.date <= new Date(this.newApptTimeEnd)));
 		this.chartsData[2] = { ...data };
 	}
+
 	public apptDoneTimeStart: string = '2023-11-01';
 	public apptDoneTimeEnd: string = '2023-12-15';
 	loadChart4() {
 		const data = this.getApptsBetweenDatesData(
-			this.appointments.filter(appt => appt.status === 'done'),
-			new Date(this.apptDoneTimeStart),
-			new Date(this.apptDoneTimeEnd)
-		);
+			this.appointments.filter(appt => appt.status === 'done'
+				&& appt.date >= new Date(this.apptDoneTimeStart) && appt.date <= new Date(this.apptDoneTimeEnd)));
 		this.chartsData[3] = { ...data };
 	}
 	//#endregion
 
 	private getColor() {
-		return "hsl(" + 360 * Math.random() + ',' +
-			(25 + 70 * Math.random()) + '%,' +
-			(85 + 10 * Math.random()) + '%)'
+		const hue: number = 360 * Math.random();
+		const saturation: number = 50 + 50 * Math.random();
+		const lightness: number = 55 + 20 * Math.random();
+		return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+	}
+
+	saveChartToPDF() {
+		const chartCanvases = [
+			document.getElementById('chart1') as HTMLCanvasElement,
+			document.getElementById('chart2') as HTMLCanvasElement,
+			document.getElementById('chart3') as HTMLCanvasElement,
+			document.getElementById('chart4') as HTMLCanvasElement,
+		]
+
+		const docDef = {
+			pageSize: 'A4',
+			pageOrientation: 'landscape',
+			pageMargins: [40, 10],
+			content: [
+				{ text: 'Charts', fontSize: 18, bold: true, decoration: 'underline', alignment: 'center', margin: [0, 0, 0, 5] },
+				{
+					table: {
+						headerRows: 0,
+						widths: ['50%', '50%'],
+						body: [
+							[
+								{
+									image: chartCanvases[0].toDataURL('image/png'),
+									alignment: 'center',
+									width: 300,
+									height: 200
+								},
+								{
+									image: chartCanvases[1].toDataURL('image/png'),
+									alignment: 'center',
+									width: 200,
+								},
+							],
+							[
+								{
+									image: chartCanvases[2].toDataURL('image/png'),
+									alignment: 'center',
+									width: 300,
+									height: 300
+								},
+								{
+									image: chartCanvases[3].toDataURL('image/png'),
+									alignment: 'center',
+									width: 300,
+									height: 300
+								},
+							]
+						]
+					}
+				}
+			]
+		};
+		const date = datePipe.transform(new Date(), 'dd-MM-yy');
+		pdf.createPdf(<TDocumentDefinitions>docDef).download('appts_charts_' + date);
 	}
 }
